@@ -122,10 +122,10 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   └── hooks/                        # Shared hooks (across features)
   ```
 
-- [ ] **Step 1.5: Configure `next.config.ts`**
-  - Enable `reactCompiler`
-  - Set `poweredByHeader: false` (security)
-  - Configure `images` domains if needed
+- [x] **Step 1.5: Configure `next.config.ts`** ✅ DONE
+  - ✅ `reactCompiler: true` (already enabled by create-next-app)
+  - ✅ `poweredByHeader: false` (security — hides X-Powered-By header)
+  - ✅ `images: { remotePatterns: [] }` placeholder for future character avatars
 
 - [ ] **Step 1.6: Set up Tailwind theme**
       Dark theme as default (savage aesthetic). Custom colors for characters. Configure `tailwind.config.ts` with shadcn preset.
