@@ -1,0 +1,154 @@
+{
+  // ============ TYPESCRIPT & LANGUAGE SERVER ============
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.preferences.quotePreference": "single",
+  "typescript.preferences.importModuleSpecifierPreference": "shortest",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    }
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    }
+  },
+
+  // ============ EDITOR & FORMATTING ============
+  "editor.fontSize": 13,
+  "editor.lineHeight": 1.6,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.trimAutoWhitespace": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
+  "editor.guides.bracketPairs": true,
+  "editor.renderWhitespace": "trailing",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.wordWrap": "on",
+  "editor.wordWrapColumn": 100,
+
+  // ============ PRETTIER ============
+  "prettier.semi": true,
+  "prettier.singleQuote": true,
+  "prettier.trailingComma": "es5",
+  "prettier.tabWidth": 2,
+  "prettier.printWidth": 100,
+  "prettier.arrowParens": "always",
+
+  // ============ ESLINT ============
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+  "eslint.rules.customizations": [
+    {
+      "rule": "@typescript-eslint/no-explicit-any",
+      "severity": "error"
+    },
+    {
+      "rule": "react/react-in-jsx-scope",
+      "severity": "off"
+    }
+  ],
+
+  // ============ FILES & IGNORE ============
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/dist": true,
+    "**/.turbo": true,
+    "**/coverage": true
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/.next/**": true,
+    "**/dist/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/dist": true,
+    "**/.git": true
+  },
+
+  // ============ TAILWIND CSS ============
+  "tailwindCSS.experimental.classRegex": [["cn\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]],
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "css.lint.compatibleVendorPrefixes": "warning",
+  "css.lint.vendorPrefix": "warning",
+
+  // ============ PATH ALIASES (@/) ============
+  "javascript.preferences.importModuleSpecifierFormat": "shortest",
+  "javascript.preferences.jsxAttributeCompletionStyle": "auto",
+
+  // ============ EXPLORER & FILES ============
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "*.tsx": "${capture}.types.ts, ${capture}.module.css, ${capture}.test.tsx",
+    "*.ts": "${capture}.types.ts, ${capture}.test.ts",
+    "package.json": ".npmrc, .yarnrc, yarn.lock, package-lock.json, pnpm-lock.yaml",
+    "tsconfig.json": "tsconfig.*.json",
+    ".env.local": ".env.*.local, .env.example"
+  },
+
+  // ============ GIT ============
+  "git.ignoreLimitWarning": true,
+  "git.autofetch": true,
+
+  // ============ EXTENSIONS ============
+  "extensions.recommendations": [
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    "dsznajder.es7-react-js-snippets",
+    "ms-vscode.vscode-typescript-next",
+    "eamodio.gitlens",
+    "supabase.supabase-js"
+  ],
+
+  // ============ THEME & UI ============
+  "workbench.colorTheme": "Dark Modern",
+  "workbench.preferredDarkColorTheme": "Dark Modern",
+  "workbench.preferredLightColorTheme": "Light Modern",
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.startupEditor": "none",
+  "window.title": "${rootName} • SavageAI",
+
+  // ============ TELEMETRY & PRIVACY ============
+  "telemetry.telemetryLevel": "off",
+  "redhat.telemetry.enabled": false,
+
+  // ============ NEXT.JS & REACT ============
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact",
+    "typescript": "typescriptreact"
+  },
+  "react.useTypeScriptInJsWithCheckJs": true,
+
+  // ============ TESTING ============
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  }
+}
