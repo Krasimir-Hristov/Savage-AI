@@ -55,14 +55,14 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - `lucide-react` (icons) ✅ INSTALLED
   - `sonner` (toast notifications) ✅ INSTALLED
 
-- [ ] **Step 1.3: Configure environment variables**
+- [x] **Step 1.3: Configure environment variables** ✅ DONE
       Create `.env.local` with:
   - `NEXT_PUBLIC_SUPABASE_URL`
-  - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-  - `SUPABASE_SERVICE_ROLE_KEY`
+  - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (new format: `sb_publishable_...`, not legacy anon key)
+  - `SUPABASE_SERVICE_ROLE_KEY` (server-only, keep secret)
   - `OPENROUTER_API_KEY`
 
-  Create `.env.example` (no secrets, just keys).
+  Create `.env.example` with placeholders for documentation. ✅ DONE
 
 - [ ] **Step 1.4: Set up project folder structure**
 
