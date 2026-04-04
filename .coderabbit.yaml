@@ -1,0 +1,190 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+language: en-US
+
+early_access: true
+
+reviews:
+  profile: assertive
+  request_changes_workflow: true
+  high_level_summary: true
+  high_level_summary_placeholder: '@coderabbit'
+  auto_title_placeholder: '@coderabbit'
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  sequence_diagrams: true
+  changed_files_summary: true
+  labeling_instructions: []
+  path_filters: []
+  path_instructions:
+    # ── Global rules ──
+    - path: '**/*.{ts,tsx}'
+      instructions: |
+        CRITICAL PROJECT RULES — enforce strictly on every review:
+
+        ## TypeScript & React Style
+        - All components MUST use arrow functions with explicit return types:
+          `const MyComponent = (): JSX.Element => { ... }`
+        - NEVER allow `function` declarations for components.
+        - NEVER allow `any` type. Flag every occurrence as a blocking issue.
+        - All exported functions MUST have explicit return types.
+        - Prefer `const` over `let`. Never allow `var`.
+
+        ## Imports
+        - Always use `@/` path alias. Flag relative imports like `../../` as errors.
+        - `'use client'` directive only when strictly needed (hooks, event handlers, browser APIs).
+        - Server Components are the default. If a component doesn't need interactivity, it should NOT have `'use client'`.
+
+        ## Validation
+        - All user inputs (forms, API request bodies, search params) MUST be validated with Zod schemas.
+        - Server Actions must validate with `schema.safeParse()` before processing.
+        - API route handlers must validate request body with Zod before processing.
+
+    # ── Security: server-only modules ──
+    - path: 'src/lib/supabase/server.ts'
+      instructions: |
+        This file MUST have `import 'server-only'` at the top.
+        It must NEVER be imported from a 'use client' component.
+
+    - path: 'src/lib/supabase/admin.ts'
+      instructions: |
+        This file MUST have `import 'server-only'` at the top.
+        It must NEVER expose the service role key to the client.
+        This file should only be used for admin operations.
+
+    - path: 'src/lib/openrouter/**'
+      instructions: |
+        All OpenRouter files MUST have `import 'server-only'` at the top.
+        The OPENROUTER_API_KEY must NEVER be exposed to the browser.
+        Verify that streaming responses use proper headers (Content-Type: text/event-stream).
+
+    - path: 'src/lib/dal.ts'
+      instructions: |
+        Data Access Layer — every function must verify session/ownership.
+        - `verifySession()` must be called before any data access.
+        - All queries must filter by authenticated user's ID.
+        - Never trust client-provided user IDs — always use `auth.uid()` from the session.
+        - Must use `import 'server-only'`.
+
+    # ── Auth ──
+    - path: 'src/app/proxy.ts'
+      instructions: |
+        This is the Next.js 16 proxy file (replaces middleware.ts).
+        - Must ONLY do optimistic auth checks (read cookie, no DB calls).
+        - Redirect unauthenticated from /chat/* to /login.
+        - Redirect authenticated from /login, /signup to /chat.
+        - Must exclude: api, _next, static files from matching.
+        - NEVER make Supabase DB calls here — cookie check only.
+
+    - path: 'src/features/auth/actions/**'
+      instructions: |
+        Server Actions for authentication.
+        - Must validate all inputs with Zod schemas BEFORE calling Supabase.
+        - Must return structured errors compatible with useActionState.
+        - Must use the server Supabase client (not browser client).
+        - loginAction and signupAction must accept (state, formData) signature.
+
+    - path: 'src/features/auth/schemas/**'
+      instructions: |
+        Zod validation schemas for auth.
+        - Email must use z.string().email().
+        - Password must have minimum length (min 8).
+        - All schemas must be exported for reuse in both server and client.
+
+    # ── Chat & API ──
+    - path: 'src/app/api/**'
+      instructions: |
+        API route handlers:
+        - Must verify session via DAL before processing.
+        - Must validate request body with Zod.
+        - Must use proper error responses (400, 401, 403, 500).
+        - Streaming responses must use `after()` for post-response DB writes.
+        - Never expose internal error details to the client.
+
+    - path: 'src/features/chat/hooks/**'
+      instructions: |
+        Chat hooks (use-chat.ts):
+        - Must handle streaming with ReadableStream reader.
+        - Must implement optimistic UI (show user message immediately).
+        - Must handle error states and loading states.
+        - Must clean up streams on unmount (abort controller).
+
+    - path: 'src/features/chat/components/**'
+      instructions: |
+        Chat UI components:
+        - Must use shadcn/ui components (Card, Button, Input, etc.).
+        - Must use cn() utility for conditional Tailwind classes.
+        - Must support responsive design (mobile-first).
+        - Chat messages must render markdown safely (no XSS via dangerouslySetInnerHTML without sanitization).
+
+    # ── Components ──
+    - path: 'src/components/ui/**'
+      instructions: |
+        These are auto-generated shadcn/ui components.
+        Do NOT manually modify these files unless absolutely necessary.
+        Use `npx shadcn@latest add <component>` to add new ones.
+
+    - path: 'src/components/layout/**'
+      instructions: |
+        Layout components (header, sidebar, theme-provider).
+        - Must be responsive (mobile: sheet/drawer for sidebar).
+        - Must use shadcn/ui primitives.
+        - Sidebar must handle both desktop and mobile viewports.
+
+    # ── Database & Types ──
+    - path: 'src/types/**'
+      instructions: |
+        Global TypeScript types.
+        - database.ts should be auto-generated from Supabase (don't manually edit).
+        - All types must use PascalCase naming.
+        - Prefer interfaces for object shapes, types for unions/primitives.
+
+    - path: '**/*.sql'
+      instructions: |
+        SQL migrations for Supabase:
+        - Every table MUST have RLS enabled (`ALTER TABLE ... ENABLE ROW LEVEL SECURITY`).
+        - Every table MUST have appropriate RLS policies.
+        - Users must only access their own data (filter by auth.uid()).
+        - Use `gen_random_uuid()` for UUID primary keys.
+        - Add indexes for frequently queried columns (user_id, conversation_id, created_at).
+
+    # ── Config files ──
+    - path: 'next.config.ts'
+      instructions: |
+        - `poweredByHeader` must be `false` (security).
+        - `reactCompiler` must be `true`.
+        - Never add `serverExternalPackages` without justification.
+
+    - path: '.env*'
+      instructions: |
+        - NEVER commit actual secrets (.env, .env.local must be in .gitignore).
+        - .env.example must have placeholder values only.
+        - Supabase uses NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (sb_publishable_... format), NOT legacy anon key.
+        - OPENROUTER_API_KEY must NOT have NEXT_PUBLIC_ prefix.
+        - SUPABASE_SECRET_KEY must NOT have NEXT_PUBLIC_ prefix.
+
+    # ── Features folder ──
+    - path: 'src/features/**'
+      instructions: |
+        Feature-based architecture rules:
+        - Each feature folder (auth, chat, characters) must be self-contained.
+        - Components in features/ are feature-specific, not shared.
+        - Shared components go in src/components/.
+        - Hooks in features/ are feature-specific, shared hooks go in src/hooks/.
+        - Never import from one feature into another — extract to shared if needed.
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  learnings:
+    scope: auto
+  issues:
+    scope: auto
+  jira:
+    project_keys: []
+  linear:
+    team_keys: []
+  pull_requests:
+    scope: auto

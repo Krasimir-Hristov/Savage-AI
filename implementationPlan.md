@@ -32,8 +32,14 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
 - [x] **Step 0.3: Create `.vscode/settings.json`** ✅ DONE
       TypeScript workspace version, format on save, Tailwind intellisense.
 
-- [ ] **Step 0.4: Create `.github/workflows/` (optional — coderabbit config)**
-      CodeRabbit config for PR reviews.
+- [x] **Step 0.4: Create `.coderabbit.yaml` (CodeRabbit config)** ✅ DONE
+      CodeRabbit PR review config with path-specific instructions based on project rules:
+  - ✅ TypeScript style: arrow functions, no `any`, explicit return types, `@/` imports
+  - ✅ Security: `server-only` enforcement, RLS checks, no API key leaks, Zod validation everywhere
+  - ✅ Architecture: feature-based isolation, Server Components default, DAL ownership checks
+  - ✅ Auth: proxy.ts cookie-only checks, Server Actions validation, Supabase publishable key format
+  - ✅ Chat: streaming patterns, optimistic UI, markdown XSS prevention, `after()` for DB writes
+  - ✅ Database: RLS policies required, indexes on foreign keys, SQL migration rules
 
 ---
 
