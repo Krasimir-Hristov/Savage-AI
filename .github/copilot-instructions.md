@@ -307,7 +307,107 @@ export const POST = async (req) => {
 };
 ```
 
-### 7. **Error Handling**
+### 7. **Async/Await & Error Handling Pattern**
+
+```typescript
+// ✅ GOOD: Always async/await + try/catch for ALL fetch and async I/O
+const fetchConversations = async (): Promise<Conversation[]> => {
+  try {
+    const res = await fetch('/api/conversations');
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    return await res.json();
+  } catch (error) {
+    throw new Error(`fetchConversations failed: ${error instanceof Error ? error.message : 'Unknown'}`);
+  }
+};
+
+// ✅ GOOD: In hooks — update error state, never silent catch
+const sendMessage = async (content: string): Promise<void> => {
+  setError(null);
+  try {
+    const res = await fetch('/api/chat', { method: 'POST', body: JSON.stringify({ content }) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    // handle stream...
+  } catch (error) {
+    setError(error instanceof Error ? error.message : 'Something went wrong');
+  }
+};
+
+// ✅ GOOD: In Server Actions — return structured error
+const loginAction = async (state: ActionState, formData: FormData): Promise<ActionState> => {
+  try {
+    const result = loginSchema.safeParse(Object.fromEntries(formData));
+    if (!result.success) return { error: result.error.flatten() };
+    const { error } = await supabase.auth.signInWithPassword(result.data);
+    if (error) return { error: { message: error.message } };
+    redirect('/chat');
+  } catch (error) {
+    return { error: { message: 'Login failed. Please try again.' } };
+  }
+};
+
+// ❌ BAD: .then()/.catch() chains
+fetch('/api/conversations')
+  .then(r => r.json())
+  .then(data => setData(data))
+  .catch(err => console.log(err)); // silent, no user feedback
+
+// ❌ BAD: Empty catch block
+try {
+  await doSomething();
+} catch (e) {} // Never do this
+```
+
+### 8. **Rate Limiting (API Security)**
+
+All API routes MUST implement rate limiting using **Upstash Ratelimit** (serverless-safe, Vercel-compatible).
+
+```typescript
+// src/app/api/chat/route.ts
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
+
+// Instantiate OUTSIDE the handler (reused across requests)
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(), // UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN
+  limiter: Ratelimit.slidingWindow(20, '10 s'), // 20 req per 10s per IP
+  analytics: true, // track usage in Upstash dashboard
+  prefix: 'savage-ai:chat', // namespace per endpoint
+});
+
+export const POST = async (req: Request): Promise<Response> => {
+  // 1. Rate limit FIRST (before any auth or DB calls)
+  const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1';
+  const { success, reset, remaining } = await ratelimit.limit(ip);
+
+  if (!success) {
+    return new Response('Too many requests', {
+      status: 429,
+      headers: {
+        'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)),
+        'X-RateLimit-Remaining': '0',
+      },
+    });
+  }
+
+  // 2. Then verify session
+  const session = await verifySession();
+  // ... rest of handler
+};
+```
+
+**Rate Limits per endpoint:**
+- `/api/chat` — 20 requests / 10 seconds per IP (streaming chat)
+- `/api/conversations` — 60 requests / 60 seconds per IP
+- Auth endpoints — handled by Supabase Auth built-in rate limiting
+
+**Required env vars** (add to `.env.example`):
+```
+UPSTASH_REDIS_REST_URL=https://your-url.upstash.io
+UPSTASH_REDIS_REST_TOKEN=your_token
+```
+
+### 9. **HTTP Error Handling**
 
 ```typescript
 // ✅ GOOD: Use Next.js 16 error utilities

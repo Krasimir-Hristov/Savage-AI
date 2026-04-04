@@ -41,6 +41,27 @@ reviews:
         - Server Actions must validate with `schema.safeParse()` before processing.
         - API route handlers must validate request body with Zod before processing.
 
+        ## Async/Await & Error Handling
+        - ALL fetch calls and async operations MUST use async/await syntax. Never use `.then()/.catch()` chains.
+        - Every async function that performs I/O (fetch, DB calls, file ops) MUST be wrapped in try/catch.
+        - Caught errors must be handled explicitly — never silently swallow errors with empty catch blocks.
+        - Example of required pattern:
+          ```typescript
+          const fetchData = async (): Promise<Data> => {
+            try {
+              const res = await fetch('/api/...');
+              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+              return await res.json();
+            } catch (error) {
+              // handle or rethrow with context
+              throw new Error(`fetchData failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            }
+          };
+          ```
+        - In React hooks, caught errors must update an error state (not just console.log).
+        - In Server Actions, caught errors must return structured error objects.
+        - In API routes, caught errors must return appropriate HTTP error responses.
+
     # ── Security: server-only modules ──
     - path: 'src/lib/supabase/server.ts'
       instructions: |
@@ -101,6 +122,28 @@ reviews:
         - Must use proper error responses (400, 401, 403, 500).
         - Streaming responses must use `after()` for post-response DB writes.
         - Never expose internal error details to the client.
+        - MUST implement rate limiting using Upstash Ratelimit (@upstash/ratelimit + @upstash/redis).
+          Rate limit check must happen BEFORE session verification and business logic.
+          Use sliding window algorithm: max 20 requests per 10 seconds per IP for chat endpoint.
+          Return HTTP 429 with Retry-After header when limit exceeded.
+          Example pattern:
+          ```typescript
+          import { Ratelimit } from '@upstash/ratelimit';
+          import { Redis } from '@upstash/redis';
+          const ratelimit = new Ratelimit({
+            redis: Redis.fromEnv(),
+            limiter: Ratelimit.slidingWindow(20, '10 s'),
+            analytics: true,
+          });
+          const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1';
+          const { success, reset } = await ratelimit.limit(ip);
+          if (!success) {
+            return new Response('Too Many Requests', {
+              status: 429,
+              headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) },
+            });
+          }
+          ```
 
     - path: 'src/features/chat/hooks/**'
       instructions: |
