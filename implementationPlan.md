@@ -127,8 +127,15 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - ✅ `poweredByHeader: false` (security — hides X-Powered-By header)
   - ✅ `images: { remotePatterns: [] }` placeholder for future character avatars
 
-- [ ] **Step 1.6: Set up Tailwind theme**
-      Dark theme as default (savage aesthetic). Custom colors for characters. Configure `tailwind.config.ts` with shadcn preset.
+- [x] **Step 1.6: Set up Tailwind theme** ✅ DONE
+      Dark theme as default (savage aesthetic). Custom colors for characters.
+  - ✅ Fonts: `Inter` (body `--font-sans`), `Space Grotesk` (headlines `--font-heading`), `Geist Mono` (code)
+  - ✅ `dark` class on `<html>` — dark-only app, no light mode
+  - ✅ Background: `#0A0A0A` near-black, cards `#141414`, elevated `#1E1E1E`
+  - ✅ Primary: `#DC2626` Crimson Red (CTAs, focus rings, Angry Grandpa accent)
+  - ✅ Character colors: `--character-grandpa` (crimson `#DC2626`), `--character-dad` (orange `#EA580C`)
+  - ✅ Amber accent `#FBBF24` for highlights/badges
+  - ✅ Tailwind utility classes: `text-character-grandpa`, `bg-character-dad`, `text-amber`, etc.
 
 ---
 
