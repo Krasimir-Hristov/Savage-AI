@@ -4,9 +4,9 @@ import { useActionState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, LockKeyhole, Mail, Sparkles, UserRound } from 'lucide-react';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
 import {
   Card,
   CardContent,
@@ -14,7 +14,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from '@/shared/components/ui/card';
 import { signupAction } from '@/features/auth/actions/signup.action';
 import { type ActionState } from '@/features/auth/actions/auth.actions';
 

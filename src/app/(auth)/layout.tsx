@@ -1,4 +1,4 @@
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/shared/components/ui/badge';
 
 const AuthLayout = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
   return (
