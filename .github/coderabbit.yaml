@@ -1,0 +1,151 @@
+# CodeRabbit AI Code Review Configuration
+# https://docs.coderabbit.ai
+
+reviews:
+  # Enable auto-reviews for all PRs
+  auto: true
+  # Auto-review max files
+  max_files: 50
+  # Auto-review file size limit (in KB)
+  max_size: 2000
+  # Enable auto-review for pull requests
+  request_changes: true
+
+# Review rules and instructions
+instructions: |
+  You are reviewing code for **SavageAI** — a Next.js 16.2 multi-agent AI chat platform.
+
+  ## Critical Rules to Check:
+
+  ### 🔒 Security & Rate Limiting (MANDATORY)
+
+  **FOR EVERY NEW API ROUTE:**
+  - ✅ MUST import `handleRateLimit`, `getClientIP`, and appropriate `*RateLimit` from `@/lib/ratelimit`
+  - ✅ MUST call `handleRateLimit()` as FIRST step (before auth/DB/validation)
+  - ✅ MUST extract IP using `getClientIP(request)` (NOT hardcoded)
+  - ✅ MUST return 429 with `Retry-After` header if rate limited
+  - ✅ MUST include `...rateLimitResult.headers` in Response headers
+  - ❌ NEVER skip rate limiting
+  - ❌ NEVER call rate limit AFTER auth/DB checks
+
+  **Flag these patterns:**
+  - New API route without `handleRateLimit`
+  - Direct `x-forwarded-for` header access (should use `getClientIP()`)
+  - Rate limiting called after `verifySession()` or database queries
+
+  ### 📋 Validation & Types
+
+  - ✅ ALL API inputs validated with Zod
+  - ✅ ALL functions have explicit return types
+  - ✅ NO `any` types (use proper types instead)
+  - ❌ Flag missing Zod schema
+  - ❌ Flag missing return type annotations
+
+  ### 🚀 Architecture Compliance
+
+  - ✅ Components are Server Components by default (`'use client'` only when needed)
+  - ✅ Server-only code marked with `import 'server-only'`
+  - ✅ Sensitive APIs (OPENROUTER_API_KEY, SUPABASE_SECRET_KEY) NOT exposed to browser
+  - ✅ DAL functions used for data access (NOT direct Supabase calls from components)
+
+  ### 🎨 Code Style
+
+  - ✅ Arrow functions: `const Foo = (): JSX.Element => {...}`
+  - ✅ Path aliases: `@/` (NOT relative paths)
+  - ✅ TailwindCSS v4: Check for deprecated class syntax
+  - ❌ Function declarations (use arrow functions)
+  - ❌ Relative imports (use `@/` aliases)
+
+  ### 📚 Best Practices
+
+  - ✅ Error handling: Try/catch + proper error messages
+  - ✅ Async/await (NOT .then()/.catch() chains)
+  - ✅ TanStack Query for data fetching (`useQuery`, `useMutation`)
+  - ✅ Streaming responses properly handled (`Content-Type: text/event-stream`)
+
+  ### ⚠️ Common Issues to Flag
+
+  - Missing rate limiting on new API routes
+  - Silent catch blocks (`catch (e) {}`)
+  - Direct HTTP calls without error handling
+  - Hardcoded secrets or API keys
+  - Unvalidated user input
+  - Missing TypeScript types
+  - Component tree violations (Server/Client boundaries)
+
+rules:
+  # Rules for different file patterns
+  - pattern: src/app/api/**/route.ts
+    instructions: |
+      🔐 API ROUTE SECURITY CHECK:
+      - Must have rate limiting (chatRateLimit, authRateLimit, or conversationsRateLimit)
+      - Rate limit MUST be first line in handler (before auth/DB)
+      - Must return proper error codes (400, 401, 403, 429)
+      - Must validate input with Zod
+      - Must verify session/auth
+
+      Check PR diff for:
+      ❌ Missing handleRateLimit() call
+      ❌ Missing getClientIP() usage
+      ❌ Missing Zod validation
+      ❌ Missing session verification
+
+  - pattern: src/app/actions/*.ts
+    instructions: |
+      📝 SERVER ACTIONS CHECK:
+      - Must validate input with Zod (always!)
+      - Must use structured return for errors
+      - Must be marked 'use server' at top
+      - Must handle async/await with try/catch
+      - Return type should be structured: Promise<{success?: boolean; error?: {...}}>
+
+  - pattern: src/components/**/*.tsx
+    instructions: |
+      🎨 COMPONENT CHECK:
+      - Server Component by default (no 'use client' unless needed)
+      - Type all props with explicit interface
+      - Return type JSX.Element required
+      - Use shadcn/ui components for UI
+      - Use cn() for conditional classes
+      - No props.children without explicit typing
+
+  - pattern: src/lib/**/*.ts
+    instructions: |
+      🔧 UTILITY LIBRARY CHECK:
+      - Must be 'server-only' if using secrets
+      - Type all function parameters and returns
+      - No dynamic imports without reason
+      - Priorize pure functions
+      - Document complex logic with comments
+
+  - pattern: tsconfig.json
+    instructions: |
+      ⚙️ CONFIG CHECK:
+      - strict: true (must be enabled)
+      - @/ path alias configured
+      - lib includes ES2020 or higher
+
+  - pattern: package.json
+    instructions: |
+      📦 DEPENDENCY CHECK:
+      - No duplicate versions
+      - No unknown packages (security check)
+      - Versions aligned with tech stack (Next.js 16.2+, React 19+)
+
+language:
+  # Language-specific review settings
+  - javascript:
+      min_depth: 1
+      max_depth: 3
+  - typescript:
+      min_depth: 1
+      max_depth: 3
+
+# Review settings
+review_settings:
+  # Tone of review
+  tone: 'encouraging'
+  # Review complexity
+  complexity_level: 'high'
+  # Focus on security
+  security_focus: true

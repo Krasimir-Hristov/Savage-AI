@@ -136,8 +136,7 @@ Database (Supabase PostgreSQL)
   });
 
   const { mutate: sendMessage } = useMutation({
-    mutationFn: (message) =>
-      fetch('/api/chat', { method: 'POST', body: JSON.stringify(message) }),
+    mutationFn: (message) => fetch('/api/chat', { method: 'POST', body: JSON.stringify(message) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['messages'] });
     },
@@ -259,9 +258,7 @@ const loginAction = async (state, formData) => {
 };
 
 const chatRequestSchema = z.object({
-  messages: z.array(
-    z.object({ role: z.enum(['user', 'assistant']), content: z.string() }),
-  ),
+  messages: z.array(z.object({ role: z.enum(['user', 'assistant']), content: z.string() })),
   characterId: z.string().uuid(),
   conversationId: z.string().uuid(),
 });
@@ -317,7 +314,9 @@ const fetchConversations = async (): Promise<Conversation[]> => {
     if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
     return await res.json();
   } catch (error) {
-    throw new Error(`fetchConversations failed: ${error instanceof Error ? error.message : 'Unknown'}`);
+    throw new Error(
+      `fetchConversations failed: ${error instanceof Error ? error.message : 'Unknown'}`
+    );
   }
 };
 
@@ -348,9 +347,9 @@ const loginAction = async (state: ActionState, formData: FormData): Promise<Acti
 
 // ❌ BAD: .then()/.catch() chains
 fetch('/api/conversations')
-  .then(r => r.json())
-  .then(data => setData(data))
-  .catch(err => console.log(err)); // silent, no user feedback
+  .then((r) => r.json())
+  .then((data) => setData(data))
+  .catch((err) => console.log(err)); // silent, no user feedback
 
 // ❌ BAD: Empty catch block
 try {
@@ -358,50 +357,66 @@ try {
 } catch (e) {} // Never do this
 ```
 
-### 8. **Rate Limiting (API Security)**
+### 8. **Rate Limiting (API Security) — MANDATORY FOR ALL API ROUTES**
 
-All API routes MUST implement rate limiting using **Upstash Ratelimit** (serverless-safe, Vercel-compatible).
+All API routes MUST implement rate limiting using **Upstash Ratelimit** (serverless-safe, Vercel-compatible). Rate limiting utilities are in `src/lib/ratelimit.ts`.
 
 ```typescript
-// src/app/api/chat/route.ts
-import { Ratelimit } from '@upstash/ratelimit';
-import { Redis } from '@upstash/redis';
-
-// Instantiate OUTSIDE the handler (reused across requests)
-const ratelimit = new Ratelimit({
-  redis: Redis.fromEnv(), // UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN
-  limiter: Ratelimit.slidingWindow(20, '10 s'), // 20 req per 10s per IP
-  analytics: true, // track usage in Upstash dashboard
-  prefix: 'savage-ai:chat', // namespace per endpoint
-});
+// ✅ GOOD: Always rate limit FIRST in every API handler
+import { chatRateLimit, handleRateLimit, getClientIP } from '@/lib/ratelimit';
+import { verifySession } from '@/lib/dal';
 
 export const POST = async (req: Request): Promise<Response> => {
-  // 1. Rate limit FIRST (before any auth or DB calls)
-  const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1';
-  const { success, reset, remaining } = await ratelimit.limit(ip);
+  // 1️⃣ RATE LIMIT FIRST (before any auth, DB, or processing)
+  const ip = getClientIP(req);
+  const rateLimitResult = await handleRateLimit(chatRateLimit, ip);
 
-  if (!success) {
-    return new Response('Too many requests', {
-      status: 429,
-      headers: {
-        'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)),
-        'X-RateLimit-Remaining': '0',
-      },
-    });
+  if (!rateLimitResult.success) {
+    return rateLimitResult.response!; // Returns 429 with Retry-After
   }
 
-  // 2. Then verify session
+  // 2️⃣ Then verify session
   const session = await verifySession();
-  // ... rest of handler
+  if (!session) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  }
+
+  // 3️⃣ Validate with Zod
+  const body = await req.json();
+  const result = mySchema.safeParse(body);
+  if (!result.success) {
+    return new Response(JSON.stringify({ error: 'Invalid payload' }), { status: 400 });
+  }
+
+  // 4️⃣ Process request
+  const responseData = await processRequest(result.data);
+
+  // 5️⃣ Return response with rate limit headers
+  return new Response(JSON.stringify(responseData), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+      ...rateLimitResult.headers, // ← Include rate limit headers!
+    },
+  });
 };
 ```
 
-**Rate Limits per endpoint:**
-- `/api/chat` — 20 requests / 10 seconds per IP (streaming chat)
-- `/api/conversations` — 60 requests / 60 seconds per IP
-- Auth endpoints — handled by Supabase Auth built-in rate limiting
+**Rate Limits per endpoint (defined in `src/lib/ratelimit.ts`):**
 
-**Required env vars** (add to `.env.example`):
+- `/api/chat` — 20 requests / 10 seconds per IP
+- `/api/auth/*` — 5 requests / 60 seconds per IP
+- `/api/conversations` — 60 requests / 60 seconds per IP
+
+**❌ NEVER:**
+
+- ❌ Skip rate limiting on ANY API route
+- ❌ Call `handleRateLimit()` after auth/DB calls (do it FIRST!)
+- ❌ Hardcode IP extraction (always use `getClientIP()`)
+- ❌ Forget to include `...rateLimitResult.headers` in response
+
+**Required env vars** (add to `.env.example` + `.env.local`):
+
 ```
 UPSTASH_REDIS_REST_URL=https://your-url.upstash.io
 UPSTASH_REDIS_REST_TOKEN=your_token
