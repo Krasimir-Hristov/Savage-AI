@@ -233,8 +233,8 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - `getConversations()` — user's conversations
   - `getMessages(conversationId)` — messages for a conversation
 
-- [ ] **Step 2.5: Create `proxy.ts` (auth routing)**
-      Uses new Next.js 16 `proxy.ts` file convention:
+- [x] **Step 2.5: Create `proxy.ts` (auth routing)** ✅ DONE
+      Uses new Next.js 16 `proxy.ts` file convention (`src/proxy.ts`):
   - Read session from cookie (optimistic check, no DB)
   - Redirect unauthenticated users from `/chat/*` to `/login`
   - Redirect authenticated users from `/login`, `/signup` to `/chat`
@@ -468,7 +468,7 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
 
 **Auth:**
 
-- `src/app/proxy.ts` — Auth routing (Next.js 16 proxy)
+- `src/proxy.ts` — Auth routing (Next.js 16 proxy)
 - `src/lib/supabase/client.ts`, `server.ts`, `admin.ts` — Supabase clients
 - `src/lib/dal.ts` — Data Access Layer
 - `src/app/actions/auth.ts` — Auth Server Actions

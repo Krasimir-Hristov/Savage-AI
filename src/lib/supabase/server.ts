@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 
 import type { Database } from '@/types/database';
 
-export const createClient = async (): Promise<ReturnType<typeof createServerClient<Database>>> => {
+export async function createClient(): Promise<ReturnType<typeof createServerClient<Database>>> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
@@ -30,4 +30,4 @@ export const createClient = async (): Promise<ReturnType<typeof createServerClie
       },
     },
   });
-};
+}

@@ -9,7 +9,7 @@ import type { Database } from '@/types/database';
 
 type ProfileRow = Database['public']['Tables']['profiles']['Row'];
 
-export const verifySession = async (): Promise<{ userId: string; email: string }> => {
+export async function verifySession(): Promise<{ userId: string; email: string }> {
   try {
     const supabase = await createClient();
     const {
@@ -28,9 +28,9 @@ export const verifySession = async (): Promise<{ userId: string; email: string }
       `verifySession failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
   }
-};
+}
 
-export const getUser = async (): Promise<ProfileRow> => {
+export async function getUser(): Promise<ProfileRow> {
   try {
     const { userId } = await verifySession();
     const supabase = await createClient();
@@ -46,9 +46,9 @@ export const getUser = async (): Promise<ProfileRow> => {
     if ((error as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw error;
     throw new Error(`getUser failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
-};
+}
 
-export const getConversations = async (): Promise<Conversation[]> => {
+export async function getConversations(): Promise<Conversation[]> {
   'use cache';
 
   try {
@@ -74,9 +74,9 @@ export const getConversations = async (): Promise<Conversation[]> => {
       `getConversations failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
   }
-};
+}
 
-export const getMessages = async (conversationId: string): Promise<Message[]> => {
+export async function getMessages(conversationId: string): Promise<Message[]> {
   try {
     const { userId } = await verifySession();
     const supabase = await createClient();
@@ -116,4 +116,4 @@ export const getMessages = async (conversationId: string): Promise<Message[]> =>
       `getMessages failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
   }
-};
+}
