@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# VS Code MCP config (workspace-specific, may contain project refs)
+.vscode/mcp.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
