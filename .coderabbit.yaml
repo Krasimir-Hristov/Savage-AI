@@ -4,8 +4,37 @@ language: en-US
 
 early_access: true
 
+instructions: |
+  You are reviewing code for **SavageAI** — a Next.js 16.2 multi-agent AI chat platform.
+
+  ## Critical Rules (enforce on every file):
+
+  ### 🔒 Security & Rate Limiting (MANDATORY for all API routes)
+  - Rate limiting MUST be the first step in every API handler (before auth/DB/validation).
+  - Use `handleRateLimit()` + `getClientIP()` from `@/lib/ratelimit`. Never hardcode IP extraction.
+  - Return 429 with `Retry-After` header when rate limited.
+  - Include `...rateLimitResult.headers` in all Response headers.
+
+  ### 📋 Validation & Types
+  - ALL API inputs must be validated with Zod. Flag missing schemas as blocking.
+  - ALL exported functions must have explicit return types. No `any` types.
+
+  ### 🚀 Architecture
+  - Server Components by default. `'use client'` only when strictly needed.
+  - Server-only files (supabase/server, openrouter, dal) must have `import 'server-only'`.
+  - DAL functions for all data access — never direct Supabase calls from components.
+  - Sensitive keys (OPENROUTER_API_KEY, SUPABASE_SECRET_KEY) must never reach the browser.
+
+  ### 🎨 Code Style
+  - Arrow functions only: `const Foo = (): JSX.Element => {...}`. No function declarations.
+  - `@/` path aliases everywhere. No relative imports (`../../`).
+  - async/await only. No `.then()/.catch()` chains. No empty catch blocks.
+
 reviews:
   profile: assertive
+  auto_review:
+    enabled: true
+    drafts: false
   request_changes_workflow: true
   high_level_summary: true
   high_level_summary_placeholder: '@coderabbit'

@@ -109,6 +109,10 @@
   "git.ignoreLimitWarning": true,
   "git.autofetch": true,
 
+  // ============ GITHUB ACTIONS ============
+  "github-actions.workflows.pinned.refresh.enabled": false,
+  "github-actions.validate.enabled": false,
+
   // ============ EXTENSIONS ============
   "extensions.recommendations": [
     "esbenp.prettier-vscode",
