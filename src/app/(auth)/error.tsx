@@ -9,6 +9,8 @@ interface ErrorProps {
 }
 
 const AuthError = ({ error, reset }: ErrorProps): React.JSX.Element => {
+  console.error('[AuthError]', error);
+
   return (
     <Card className="w-full max-w-sm border-[#1E1E1E] bg-[#141414]">
       <CardHeader className="space-y-1">
@@ -20,7 +22,7 @@ const AuthError = ({ error, reset }: ErrorProps): React.JSX.Element => {
 
       <CardContent className="space-y-4">
         <p className="rounded-md bg-red-950/50 px-3 py-2 text-sm text-red-400">
-          {error.message || 'Unknown error. Please try again.'}
+          An unexpected error occurred. Please try again.
         </p>
 
         <Button

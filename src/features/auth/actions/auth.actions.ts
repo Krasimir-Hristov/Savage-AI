@@ -42,6 +42,8 @@ export async function loginAction(
     };
   }
 
+  let loginSucceeded = false;
+
   try {
     const supabase = await createClient();
 
@@ -61,18 +63,23 @@ export async function loginAction(
       };
     }
 
-    redirect('/chat');
+    loginSucceeded = true;
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
-    console.error('[loginAction] Error:', errorMessage);
+    console.error('[loginAction] Error:', err);
 
     return {
       error: {
-        message: errorMessage,
+        message: 'Unable to login. Please try again.',
       },
       values: {
         email: result.data.email,
       },
     };
   }
+
+  if (loginSucceeded) {
+    redirect('/chat');
+  }
+
+  return {};
 }
