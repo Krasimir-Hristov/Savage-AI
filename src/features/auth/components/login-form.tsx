@@ -40,6 +40,7 @@ export const LoginForm = (): React.JSX.Element => {
               type="email"
               placeholder="you@example.com"
               autoComplete="email"
+              defaultValue={state.values?.email || ''}
               required
               className="border-[#1E1E1E] bg-[#0A0A0A] text-white placeholder:text-zinc-600 focus-visible:ring-[#DC2626]"
             />
