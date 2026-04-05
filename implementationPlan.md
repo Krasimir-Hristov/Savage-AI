@@ -226,7 +226,7 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - `src/lib/supabase/server.ts` — server client using `@supabase/ssr` with cookies
   - `src/lib/supabase/admin.ts` — service role client (server-only, for admin operations)
 
-- [ ] **Step 2.4: Create Data Access Layer (DAL)**
+- [x] **Step 2.4: Create Data Access Layer (DAL)** ✅ DONE
       `src/lib/dal.ts`:
   - `verifySession()` — cached function, decrypts session, redirects if not auth
   - `getUser()` — fetches user profile via DAL
