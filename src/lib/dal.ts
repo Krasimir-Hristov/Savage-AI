@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { cacheTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 import { createClient } from '@/lib/supabase/server';
@@ -29,8 +30,9 @@ export const verifySession = async (): Promise<{ userId: string; email: string }
   }
 };
 
-export const getUser = async (userId: string): Promise<ProfileRow> => {
+export const getUser = async (): Promise<ProfileRow> => {
   try {
+    const { userId } = await verifySession();
     const supabase = await createClient();
 
     const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
@@ -41,12 +43,18 @@ export const getUser = async (userId: string): Promise<ProfileRow> => {
 
     return data;
   } catch (error) {
+    if ((error as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw error;
     throw new Error(`getUser failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
 
-export const getConversations = async (userId: string): Promise<Conversation[]> => {
+export const getConversations = async (): Promise<Conversation[]> => {
+  'use cache';
+
   try {
+    const { userId } = await verifySession();
+    cacheTag(`conversations-${userId}`);
+
     const supabase = await createClient();
 
     const { data, error } = await supabase
@@ -61,6 +69,7 @@ export const getConversations = async (userId: string): Promise<Conversation[]> 
 
     return data ?? [];
   } catch (error) {
+    if ((error as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw error;
     throw new Error(
       `getConversations failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
