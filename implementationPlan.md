@@ -147,10 +147,10 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
 
 ## Phase 2: Supabase & Authentication
 
-- [ ] **Step 2.1: Create Supabase project**
+- [x] **Step 2.1: Create Supabase project**
       Via Supabase dashboard or MCP. Create project "savageai".
 
-- [ ] **Step 2.2: Database schema (SQL migration)**
+- [x] **Step 2.2: Database schema (SQL migration)** ✅ DONE
 
   ```sql
   -- Users profile (extends Supabase auth.users)
