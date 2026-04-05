@@ -12,9 +12,9 @@ export type Database = {
           id: string;
           display_name: string | null;
           avatar_url: string | null;
-          preferred_character: string;
-          created_at: string;
-          updated_at: string;
+          preferred_character: string | null;
+          created_at: string | null;
+          updated_at: string | null;
         };
         Insert: {
           id: string;
@@ -39,8 +39,8 @@ export type Database = {
           user_id: string;
           character_id: string;
           title: string | null;
-          created_at: string;
-          updated_at: string;
+          created_at: string | null;
+          updated_at: string | null;
         };
         Insert: {
           id?: string;
@@ -66,7 +66,7 @@ export type Database = {
           role: 'user' | 'assistant' | 'system';
           content: string;
           model: string | null;
-          created_at: string;
+          created_at: string | null;
         };
         Insert: {
           id?: string;
