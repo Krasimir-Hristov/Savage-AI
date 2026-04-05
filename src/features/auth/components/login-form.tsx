@@ -58,7 +58,11 @@ export const LoginForm = (): React.JSX.Element => {
       <form action={formAction} className='space-y-6'>
         <CardContent className='space-y-5 pt-6'>
           {state.error?.message && (
-            <p className='rounded-2xl border border-character-grandpa/30 bg-character-grandpa-muted px-4 py-3 text-sm text-character-grandpa'>
+            <p
+              role='alert'
+              aria-live='assertive'
+              className='rounded-2xl border border-character-grandpa/30 bg-character-grandpa-muted px-4 py-3 text-sm text-character-grandpa'
+            >
               {state.error.message}
             </p>
           )}
@@ -80,11 +84,13 @@ export const LoginForm = (): React.JSX.Element => {
                 autoComplete='email'
                 defaultValue={state.values?.email || ''}
                 required
+                aria-invalid={!!state.error?.fieldErrors?.email}
+                aria-describedby={state.error?.fieldErrors?.email ? 'email-error' : undefined}
                 className='h-12 rounded-2xl border-border/70 bg-background/80 pl-11 text-foreground placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-ring/30'
               />
             </div>
             {state.error?.fieldErrors?.email?.map((err) => (
-              <p key={err} className='text-xs text-character-grandpa'>
+              <p id='email-error' key={err} className='text-xs text-character-grandpa'>
                 {err}
               </p>
             ))}
@@ -109,11 +115,13 @@ export const LoginForm = (): React.JSX.Element => {
                 placeholder='••••••••'
                 autoComplete='current-password'
                 required
+                aria-invalid={!!state.error?.fieldErrors?.password}
+                aria-describedby={state.error?.fieldErrors?.password ? 'password-error' : undefined}
                 className='h-12 rounded-2xl border-border/70 bg-background/80 pl-11 text-foreground placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-ring/30'
               />
             </div>
             {state.error?.fieldErrors?.password?.map((err) => (
-              <p key={err} className='text-xs text-character-grandpa'>
+              <p id='password-error' key={err} className='text-xs text-character-grandpa'>
                 {err}
               </p>
             ))}
