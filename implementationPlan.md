@@ -221,7 +221,7 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
     FOR EACH ROW EXECUTE FUNCTION handle_new_user();
   ```
 
-- [ ] **Step 2.3: Create Supabase client utilities**
+- [x] **Step 2.3: Create Supabase client utilities** ✅ DONE
   - `src/lib/supabase/client.ts` — browser client (`createBrowserClient`)
   - `src/lib/supabase/server.ts` — server client using `@supabase/ssr` with cookies
   - `src/lib/supabase/admin.ts` — service role client (server-only, for admin operations)
