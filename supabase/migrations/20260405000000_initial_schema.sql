@@ -112,14 +112,14 @@ CREATE INDEX idx_messages_created_at ON messages(created_at);
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO profiles (id, display_name)
+  INSERT INTO public.profiles (id, display_name)
   VALUES (
     NEW.id,
     NEW.raw_user_meta_data->>'display_name'
   );
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
