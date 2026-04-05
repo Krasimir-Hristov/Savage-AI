@@ -90,11 +90,13 @@ export const SignupForm = (): React.JSX.Element => {
                 className='h-12 rounded-2xl border-border/70 bg-background/80 pl-11 text-foreground placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-ring/30'
               />
             </div>
-            {state.error?.fieldErrors?.name?.map((err) => (
-              <p id='name-error' key={err} className='text-xs text-character-grandpa'>
-                {err}
-              </p>
-            ))}
+            <div id='name-error'>
+              {state.error?.fieldErrors?.name?.map((err) => (
+                <p key={err} className='text-xs text-character-grandpa'>
+                  {err}
+                </p>
+              ))}
+            </div>
           </div>
 
           <div className='space-y-2'>
@@ -121,11 +123,13 @@ export const SignupForm = (): React.JSX.Element => {
                 className='h-12 rounded-2xl border-border/70 bg-background/80 pl-11 text-foreground placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-ring/30'
               />
             </div>
-            {state.error?.fieldErrors?.email?.map((err) => (
-              <p id='signup-email-error' key={err} className='text-xs text-character-grandpa'>
-                {err}
-              </p>
-            ))}
+            <div id='signup-email-error'>
+              {state.error?.fieldErrors?.email?.map((err) => (
+                <p key={err} className='text-xs text-character-grandpa'>
+                  {err}
+                </p>
+              ))}
+            </div>
           </div>
 
           <div className='space-y-2'>
@@ -154,11 +158,13 @@ export const SignupForm = (): React.JSX.Element => {
                 className='h-12 rounded-2xl border-border/70 bg-background/80 pl-11 text-foreground placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-ring/30'
               />
             </div>
-            {state.error?.fieldErrors?.password?.map((err) => (
-              <p id='signup-password-error' key={err} className='text-xs text-character-grandpa'>
-                {err}
-              </p>
-            ))}
+            <div id='signup-password-error'>
+              {state.error?.fieldErrors?.password?.map((err) => (
+                <p key={err} className='text-xs text-character-grandpa'>
+                  {err}
+                </p>
+              ))}
+            </div>
           </div>
         </CardContent>
 
