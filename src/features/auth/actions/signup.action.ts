@@ -5,33 +5,20 @@ import 'server-only';
 import { redirect } from 'next/navigation';
 
 import { createClient } from '@/lib/supabase/server';
-import { loginSchema } from '@/features/auth/schemas/auth.schema';
+import { signupSchema } from '@/features/auth/schemas/auth.schema';
+import { type ActionState } from '@/features/auth/actions/auth.actions';
 
-export type ActionState = {
-  error?: {
-    message?: string;
-    fieldErrors?: {
-      name?: string[];
-      email?: string[];
-      password?: string[];
-    };
-  };
-  values?: {
-    name?: string;
-    email?: string;
-  };
-};
-
-export async function loginAction(
+export async function signupAction(
   _prevState: ActionState,
   formData: FormData
 ): Promise<ActionState> {
   const rawData = {
+    name: formData.get('name'),
     email: formData.get('email'),
     password: formData.get('password'),
   };
 
-  const result = loginSchema.safeParse(rawData);
+  const result = signupSchema.safeParse(rawData);
 
   if (!result.success) {
     return {
@@ -39,19 +26,25 @@ export async function loginAction(
         fieldErrors: result.error.flatten().fieldErrors,
       },
       values: {
+        name: String(rawData.name || ''),
         email: String(rawData.email || ''),
       },
     };
   }
 
-  let loginSucceeded = false;
+  let signupSucceeded = false;
 
   try {
     const supabase = await createClient();
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signUp({
       email: result.data.email,
       password: result.data.password,
+      options: {
+        data: {
+          display_name: result.data.name,
+        },
+      },
     });
 
     if (error) {
@@ -60,29 +53,30 @@ export async function loginAction(
           message: error.message,
         },
         values: {
+          name: result.data.name,
           email: result.data.email,
         },
       };
     }
 
-    loginSucceeded = true;
+    signupSucceeded = true;
   } catch (err) {
-    console.error('[loginAction] Error:', err);
+    console.error('[signupAction] Error:', err);
 
     return {
       error: {
-        message: 'Unable to login. Please try again.',
+        message: 'Unable to create account. Please try again.',
       },
       values: {
+        name: result.data.name,
         email: result.data.email,
       },
     };
   }
 
-  if (loginSucceeded) {
+  if (signupSucceeded) {
     redirect('/chat');
   }
 
   return {};
 }
-

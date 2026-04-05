@@ -248,12 +248,12 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - `src/features/auth/schemas/auth.schema.ts` — Zod schema for email + password
   - Supabase `signInWithPassword` + structured error state
 
-- [ ] **Step 2.7: Auth UI — Signup page**
+- [x] **Step 2.7: Auth UI — Signup page** ✅ DONE
   - `src/app/(auth)/signup/page.tsx`
-  - `src/components/auth/signup-form.tsx`
-  - Server Action: `signupAction(state, formData)`
+  - `src/features/auth/components/signup-form.tsx`
+  - Server Action: `src/features/auth/actions/auth.actions.ts` → `signupAction(state, formData)`
   - Zod validation for name + email + password
-  - Supabase `signUp` with metadata (display_name)
+  - Supabase `signUp` with metadata (`display_name`)
 
 - [ ] **Step 2.8: Auth UI — Logout**
   - Server Action: `logoutAction()` — `supabase.auth.signOut()` + redirect
