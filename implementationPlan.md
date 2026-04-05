@@ -445,18 +445,6 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
 
 ---
 
-## Verification Checklist
-
-- [ ] **Phase 0**: Copilot rules load correctly, AI agents follow conventions
-- [ ] **Phase 1**: `npm run dev` starts without errors, shadcn components render
-- [ ] **Phase 2**: Full auth flow works (signup → login → logout → proxy redirect)
-- [ ] **Phase 3**: Send message → receive streaming response from OpenRouter → message displays with markdown → conversation saves to DB
-- [ ] **Phase 4**: Can select character, different personalities respond differently
-- [ ] **Phase 5**: Refresh page → conversation loads → can continue chatting
-- [ ] **Manual Testing**: Test on mobile viewport, test with slow connection, test error states
-
----
-
 ## Key Files to Create/Modify
 
 **Config:**
