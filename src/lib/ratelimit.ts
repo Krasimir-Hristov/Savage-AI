@@ -43,10 +43,10 @@ export const conversationsRateLimit = new Ratelimit({
  *   // Continue with request...
  *   return new Response(..., { headers: result.headers });
  */
-export const handleRateLimit = async (
+export async function handleRateLimit(
   limiter: Ratelimit,
   identifier: string
-): Promise<{ success: boolean; response?: Response; headers?: Record<string, string> }> => {
+): Promise<{ success: boolean; response?: Response; headers?: Record<string, string> }> {
   const { success, reset, remaining } = await limiter.limit(identifier);
 
   if (!success) {
@@ -78,13 +78,13 @@ export const handleRateLimit = async (
       'X-RateLimit-Reset': String(reset),
     },
   };
-};
+}
 
 /**
  * Helper: Extract user IP from request
  * Works with Vercel, Netlify, and other proxies
  */
-export const getClientIP = (request: Request): string => {
+export function getClientIP(request: Request): string {
   const forwarded = request.headers.get('x-forwarded-for');
   const clientIp = request.headers.get('x-real-ip');
 
@@ -96,4 +96,4 @@ export const getClientIP = (request: Request): string => {
   }
 
   return '127.0.0.1'; // Fallback for local development
-};
+}

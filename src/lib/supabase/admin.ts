@@ -9,7 +9,7 @@ import type { Database } from '@/types/database';
  * Use ONLY for trusted server-side operations (e.g. triggers, migrations).
  * Never expose this client or its key to the browser.
  */
-export const createAdminClient = (): ReturnType<typeof createClient<Database>> => {
+export function createAdminClient(): ReturnType<typeof createClient<Database>> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -25,4 +25,4 @@ export const createAdminClient = (): ReturnType<typeof createClient<Database>> =
       persistSession: false,
     },
   });
-};
+}
