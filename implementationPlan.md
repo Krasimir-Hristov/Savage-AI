@@ -240,12 +240,13 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - Redirect authenticated users from `/login`, `/signup` to `/chat`
   - Matcher: exclude `api`, `_next`, static files
 
-- [ ] **Step 2.6: Auth UI — Login page**
+- [x] **Step 2.6: Auth UI — Login page** ✅ DONE
   - `src/app/(auth)/login/page.tsx` — Server Component wrapper
-  - `src/components/auth/login-form.tsx` — Client Component with `useActionState`
-  - Server Action: `src/app/actions/auth.ts` → `loginAction(state, formData)`
-  - Zod validation for email + password
-  - Supabase `signInWithPassword`
+  - `src/app/(auth)/layout.tsx` — Centered auth layout
+  - `src/features/auth/components/login-form.tsx` — Client Component with `useActionState`
+  - `src/features/auth/actions/auth.actions.ts` → `loginAction(prevState, formData)`
+  - `src/features/auth/schemas/auth.schema.ts` — Zod schema for email + password
+  - Supabase `signInWithPassword` + structured error state
 
 - [ ] **Step 2.7: Auth UI — Signup page**
   - `src/app/(auth)/signup/page.tsx`
