@@ -86,3 +86,14 @@ export async function loginAction(
   return {};
 }
 
+export async function logoutAction(): Promise<void> {
+  try {
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+  } catch (err) {
+    console.error('[logoutAction] Error:', err);
+  }
+
+  redirect('/login');
+}
+
