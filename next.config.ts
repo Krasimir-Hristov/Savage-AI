@@ -2,7 +2,6 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
-  cacheComponents: true, // Enables 'use cache' directive (Next.js 16, replaces experimental.dynamicIO)
   poweredByHeader: false, // Security: don't expose X-Powered-By header
   images: {
     remotePatterns: [
