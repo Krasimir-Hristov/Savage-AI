@@ -86,3 +86,24 @@ export async function loginAction(
   return {};
 }
 
+export const logoutAction = async (): Promise<{
+  success: boolean;
+  error?: { message: string; code?: string };
+}> => {
+  try {
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+  } catch (err) {
+    const error = err as { message?: string; code?: string };
+    return {
+      success: false,
+      error: {
+        message: error?.message ?? 'Failed to sign out. Please try again.',
+        code: error?.code,
+      },
+    };
+  }
+
+  redirect('/login');
+};
+

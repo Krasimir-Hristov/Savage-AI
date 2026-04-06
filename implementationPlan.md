@@ -255,7 +255,7 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - Zod validation for name + email + password
   - Supabase `signUp` with metadata (`display_name`)
 
-- [ ] **Step 2.8: Auth UI — Logout**
+- [x] **Step 2.8: Auth UI — Logout** ✅ DONE
   - Server Action: `logoutAction()` — `supabase.auth.signOut()` + redirect
 
 - [ ] **Step 2.9: Test authentication flow**
