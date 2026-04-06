@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Message } from '@/types/chat';
 
 const MAX_CONTEXT_MESSAGES = 20;
@@ -22,9 +22,18 @@ export const useChat = ({ initialMessages = [] }: UseChatOptions = {}): UseChatR
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const messagesRef = useRef<Message[]>(messages);
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
   const sendMessage = useCallback(
     async (content: string, characterId: string, conversationId: string): Promise<void> => {
+      // Abort any in-flight request before starting a new one
+      abortControllerRef.current?.abort();
+      abortControllerRef.current = new AbortController();
+
       const userMessage: Message = {
         id: crypto.randomUUID(),
         conversation_id: conversationId,
@@ -38,7 +47,7 @@ export const useChat = ({ initialMessages = [] }: UseChatOptions = {}): UseChatR
       setIsStreaming(true);
       setError(null);
 
-      const contextMessages = [...messages, userMessage]
+      const contextMessages = [...messagesRef.current, userMessage]
         .filter((m) => m.role !== 'system')
         .slice(-MAX_CONTEXT_MESSAGES)
         .map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content }));
@@ -56,8 +65,6 @@ export const useChat = ({ initialMessages = [] }: UseChatOptions = {}): UseChatR
       setMessages((prev) => [...prev, assistantMessage]);
 
       try {
-        abortControllerRef.current = new AbortController();
-
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -66,7 +73,14 @@ export const useChat = ({ initialMessages = [] }: UseChatOptions = {}): UseChatR
         });
 
         if (!response.ok) {
-          throw new Error(`Request failed: ${response.status}`);
+          let message = `Request failed: ${response.status}`;
+          try {
+            const data = (await response.json()) as { error?: string };
+            if (data.error) message = data.error;
+          } catch {
+            // ignore parse error, use status message
+          }
+          throw new Error(message);
         }
 
         if (!response.body) {
@@ -84,6 +98,16 @@ export const useChat = ({ initialMessages = [] }: UseChatOptions = {}): UseChatR
             prev.map((m) => (m.id === assistantId ? { ...m, content: m.content + chunk } : m)),
           );
         }
+
+        // Flush any remaining buffered bytes from the decoder
+        const remaining = decoder.decode();
+        if (remaining) {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId ? { ...m, content: m.content + remaining } : m,
+            ),
+          );
+        }
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') return;
         setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -93,7 +117,7 @@ export const useChat = ({ initialMessages = [] }: UseChatOptions = {}): UseChatR
         abortControllerRef.current = null;
       }
     },
-    [messages],
+    [],
   );
 
   const clearMessages = useCallback((): void => {
