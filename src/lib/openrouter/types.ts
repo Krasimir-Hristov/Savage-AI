@@ -1,3 +1,5 @@
+import 'server-only';
+
 export interface OpenRouterMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
