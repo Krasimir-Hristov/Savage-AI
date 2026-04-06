@@ -258,7 +258,7 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
 - [x] **Step 2.8: Auth UI — Logout** ✅ DONE
   - Server Action: `logoutAction()` — `supabase.auth.signOut()` + redirect
 
-- [ ] **Step 2.9: Test authentication flow**
+- [x] **Step 2.9: Test authentication flow** ✅ DONE
   - Sign up → profile created → redirected to /chat
   - Login → session cookie set → access /chat
   - Logout → session cleared → redirected to /login
