@@ -2,7 +2,8 @@
 
 import 'server-only';
 
-import { cacheTag } from 'next/cache';
+import { cache } from 'react';
+
 import { redirect } from 'next/navigation';
 
 import { createClient } from '@/lib/supabase/server';
@@ -50,12 +51,9 @@ export async function getUser(): Promise<ProfileRow> {
   }
 }
 
-export async function getConversations(): Promise<Conversation[]> {
-  'use cache';
-
+// cache() deduplicates calls within a single server request (React 19, stable)
+export const getConversations = cache(async (userId: string): Promise<Conversation[]> => {
   try {
-    const { userId } = await verifySession();
-    cacheTag(`conversations-${userId}`);
 
     const supabase = await createClient();
 
@@ -76,7 +74,7 @@ export async function getConversations(): Promise<Conversation[]> {
       `getConversations failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
   }
-}
+});
 
 export async function getMessages(conversationId: string): Promise<Message[]> {
   try {
