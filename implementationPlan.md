@@ -285,7 +285,7 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - Instructs to actually solve the problem while being savage
   - Includes formatting rules (markdown, code blocks)
 
-- [ ] **Step 3.2: OpenRouter API client**
+- [x] **Step 3.2: OpenRouter API client**
       `src/lib/openrouter/client.ts` (server-only):
   - `streamChat(messages, model, character)` — returns ReadableStream
   - Handles authentication with OpenRouter API key
