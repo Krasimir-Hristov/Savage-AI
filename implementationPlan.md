@@ -307,14 +307,14 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - Return streaming Response with proper headers
   - Save message to database after stream completes (using `after()`)
 
-- [ ] **Step 3.4: Chat hook (client-side)**
-      `src/hooks/use-chat.ts`:
+- [x] **Step 3.4: Chat hook (client-side)** ✅ DONE
+      `src/features/chat/hooks/use-chat.ts`:
   - Manages messages state
   - Handles streaming (fetch + ReadableStream reader)
   - Optimistic UI (show user message immediately)
   - Error handling
   - Loading state
-  - `sendMessage(content)` function
+  - `sendMessage(content, characterId, conversationId)` function
   - `clearMessages()` function
 
 - [ ] **Step 3.5: Chat UI — Message component**
