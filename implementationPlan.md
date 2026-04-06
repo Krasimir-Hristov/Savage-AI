@@ -268,8 +268,8 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
 
 ## Phase 3: Core Chat (The Brain)
 
-- [ ] **Step 3.1: Define character types & data**
-      `src/lib/characters.ts`:
+- [x] **Step 3.1: Define character types & data** ✅ DONE
+      `src/features/characters/data/characters.ts`:
 
   ```
   Character type: { id, name, nameEn, personality, systemPrompt, avatar, modelPreference }
