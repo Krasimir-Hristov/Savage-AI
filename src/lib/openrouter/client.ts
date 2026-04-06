@@ -15,11 +15,15 @@ export async function streamChat(
     throw new Error('OPENROUTER_API_KEY environment variable is not set');
   }
 
+  const abortController = new AbortController();
+  const timeoutId = setTimeout(() => abortController.abort(), 30_000);
+
   let response: Response;
 
   try {
     response = await fetch(OPENROUTER_BASE_URL, {
       method: 'POST',
+      signal: abortController.signal,
       headers: {
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
@@ -33,9 +37,14 @@ export async function streamChat(
       }),
     });
   } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('OpenRouter request timed out after 30 seconds');
+    }
     throw new Error(
       `OpenRouter request failed: ${error instanceof Error ? error.message : 'Network error'}`
     );
+  } finally {
+    clearTimeout(timeoutId);
   }
 
   if (!response.ok) {
