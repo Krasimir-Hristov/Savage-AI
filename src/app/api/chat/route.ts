@@ -1,3 +1,4 @@
+// POST /api/chat — streaming chat endpoint
 import { after } from 'next/server';
 
 import { getCharacter } from '@/features/characters/data';
