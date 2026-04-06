@@ -50,12 +50,11 @@ export async function getUser(): Promise<ProfileRow> {
   }
 }
 
-export async function getConversations(): Promise<Conversation[]> {
+export async function getConversations(userId: string): Promise<Conversation[]> {
   'use cache';
+  cacheTag(`conversations-${userId}`);
 
   try {
-    const { userId } = await verifySession();
-    cacheTag(`conversations-${userId}`);
 
     const supabase = await createClient();
 
