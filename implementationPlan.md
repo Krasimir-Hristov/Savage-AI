@@ -360,7 +360,7 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - Verify ownership (DAL)
   - Render ChatContainer with loaded messages
 
-- [ ] **Step 3.10: Main layout**
+- [x] **Step 3.10: Main layout** ✅ DONE
       `src/app/(main)/layout.tsx`:
   - Sidebar + main content layout
   - Header with user info, logout
