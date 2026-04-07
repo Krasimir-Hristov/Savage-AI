@@ -1,11 +1,11 @@
 import React from 'react';
 
-export const dynamic = 'force-dynamic';
-
 import { notFound } from 'next/navigation';
 
 import { ChatView } from '@/features/chat/components/chat-view';
 import { getConversation, getMessages } from '@/lib/dal';
+
+export const dynamic = 'force-dynamic';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -14,17 +14,23 @@ interface PageProps {
 const ConversationPage = async ({ params }: PageProps): Promise<React.JSX.Element> => {
   const { id } = await params;
 
-  const conversation = await getConversation(id).catch((err: unknown) => {
+  let conversation: Awaited<ReturnType<typeof getConversation>> | null = null;
+  try {
+    conversation = await getConversation(id);
+  } catch (err) {
     if ((err as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw err;
-    return null;
-  });
+    notFound();
+  }
 
   if (!conversation) notFound();
 
-  const messages = await getMessages(id).catch((err: unknown) => {
+  let messages: Awaited<ReturnType<typeof getMessages>> | null = null;
+  try {
+    messages = await getMessages(id);
+  } catch (err) {
     if ((err as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw err;
-    return null;
-  });
+    notFound();
+  }
 
   if (!messages) notFound();
 

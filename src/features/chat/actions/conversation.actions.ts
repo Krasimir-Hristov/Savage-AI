@@ -1,4 +1,5 @@
 'use server';
+import 'server-only';
 
 import { revalidatePath } from 'next/cache';
 
@@ -6,7 +7,7 @@ import { verifySession } from '@/lib/dal';
 import { createClient } from '@/lib/supabase/server';
 
 export async function createConversationAction(
-  characterId: string,
+  characterId: string
 ): Promise<{ id: string } | { error: string }> {
   try {
     const { userId } = await verifySession();
@@ -31,7 +32,7 @@ export async function createConversationAction(
 }
 
 export async function deleteConversationAction(
-  conversationId: string,
+  conversationId: string
 ): Promise<{ error?: string }> {
   try {
     const { userId } = await verifySession();
