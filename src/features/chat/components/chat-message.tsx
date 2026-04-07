@@ -35,7 +35,7 @@ interface CopyCodeButtonProps {
   preRef: React.RefObject<HTMLPreElement | null>;
 }
 
-const CopyCodeButton = ({ preRef }: CopyCodeButtonProps): JSX.Element => {
+const CopyCodeButton = ({ preRef }: CopyCodeButtonProps): React.JSX.Element => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async (): Promise<void> => {
@@ -68,7 +68,7 @@ const CodeBlock = ({
 }: {
   children?: React.ReactNode;
   className?: string;
-}): JSX.Element => {
+}): React.JSX.Element => {
   const preRef = useRef<HTMLPreElement>(null);
 
   return (
@@ -94,7 +94,7 @@ export const ChatMessage = ({
   message,
   characterId,
   isStreaming = false,
-}: ChatMessageProps): JSX.Element => {
+}: ChatMessageProps): React.JSX.Element => {
   const isUser = message.role === 'user';
   const character = CHARACTERS[characterId];
   const ui = character?.ui ?? CHARACTERS['angry-grandpa']?.ui;

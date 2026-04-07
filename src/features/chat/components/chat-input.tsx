@@ -21,7 +21,7 @@ export const ChatInput = ({
   characterId,
   disabled = false,
   className,
-}: ChatInputProps): JSX.Element => {
+}: ChatInputProps): React.JSX.Element => {
   const [value, setValue] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
