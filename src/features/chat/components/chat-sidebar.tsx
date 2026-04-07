@@ -5,6 +5,15 @@ import { MessageSquarePlus, Menu, Trash2, Pencil } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from '@/shared/components/ui/dialog';
+import {
   Sheet,
   SheetContent,
   SheetHeader,
@@ -55,6 +64,7 @@ const SidebarContent = ({
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
+  const [deletingConv, setDeletingConv] = useState<Conversation | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const startEditing = (conv: Conversation): void => {
@@ -178,7 +188,7 @@ const SidebarContent = ({
                       e.stopPropagation();
                       startEditing(conv);
                     }}
-                    className='p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors'
+                    className='cursor-pointer p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors'
                   >
                     <Pencil size={12} />
                   </button>
@@ -187,11 +197,9 @@ const SidebarContent = ({
                     aria-label='Delete conversation'
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (window.confirm('Delete this conversation? This cannot be undone.')) {
-                        onDeleteConversation(conv.id);
-                      }
+                      setDeletingConv(conv);
                     }}
-                    className='p-1 rounded text-muted-foreground hover:text-red-400 hover:bg-red-950 transition-colors'
+                    className='cursor-pointer p-1 rounded text-muted-foreground hover:text-red-400 hover:bg-red-950 transition-colors'
                   >
                     <Trash2 size={12} />
                   </button>
@@ -209,6 +217,37 @@ const SidebarContent = ({
           New Chat
         </Button>
       </div>
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={!!deletingConv} onOpenChange={(open) => { if (!open) setDeletingConv(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete conversation?</DialogTitle>
+            <DialogDescription>
+              {deletingConv?.title
+                ? `"${deletingConv.title}" will be permanently deleted.`
+                : 'This conversation will be permanently deleted.'}
+              {' '}This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant='outline'>Cancel</Button>
+            </DialogClose>
+            <Button
+              variant='destructive'
+              onClick={() => {
+                if (deletingConv) {
+                  onDeleteConversation(deletingConv.id);
+                  setDeletingConv(null);
+                }
+              }}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
