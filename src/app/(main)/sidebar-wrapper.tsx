@@ -14,10 +14,7 @@ interface SidebarWrapperProps {
   preferredCharacter: string;
 }
 
-const useSidebarCallbacks = (
-  initialConversations: Conversation[],
-  preferredCharacter: string,
-) => {
+const useSidebarCallbacks = (initialConversations: Conversation[], preferredCharacter: string) => {
   const router = useRouter();
   const params = useParams<{ id?: string }>();
   const queryClient = useQueryClient();
