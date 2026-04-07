@@ -317,14 +317,15 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - `sendMessage(content, characterId, conversationId)` function
   - `clearMessages()` function
 
-- [ ] **Step 3.5: Chat UI — Message component**
-      `src/components/chat/chat-message.tsx`:
+- [x] **Step 3.5: Chat UI — Message component** ✅ DONE
+      `src/features/chat/components/chat-message.tsx`:
   - User message bubble (right aligned)
-  - Assistant message bubble (left aligned, character avatar)
-  - Markdown rendering (code blocks, bold, lists)
-  - Streaming animation (typing indicator)
-  - Copy button for code blocks
-  - Timestamp
+  - Assistant message bubble (left aligned, character emoji avatar)
+  - Markdown rendering via react-markdown + rehype-highlight
+  - Typing indicator (3 bouncing dots) while waiting for first token
+  - Streaming cursor (blinking bar) while tokens arrive
+  - Copy button for code blocks (clipboard API)
+  - Timestamp (hidden during streaming)
 
 - [ ] **Step 3.6: Chat UI — Input component**
       `src/components/chat/chat-input.tsx`:
