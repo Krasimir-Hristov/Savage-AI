@@ -68,9 +68,16 @@ const SidebarContent = ({
   const commitRename = async (): Promise<void> => {
     if (!editingId) return;
     const id = editingId;
-    setEditingId(null);
-    if (editingTitle.trim()) {
-      await onRenameConversation(id, editingTitle);
+    const trimmed = editingTitle.trim();
+    if (!trimmed) {
+      setEditingId(null);
+      return;
+    }
+    try {
+      await onRenameConversation(id, trimmed);
+      setEditingId(null);
+    } catch {
+      // Leave editing open so the user can retry
     }
   };
 
@@ -134,7 +141,7 @@ const SidebarContent = ({
                       ref={inputRef}
                       value={editingTitle}
                       onChange={(e) => setEditingTitle(e.target.value)}
-                      onBlur={commitRename}
+                      onBlur={() => { void commitRename(); }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
@@ -179,7 +186,9 @@ const SidebarContent = ({
                     aria-label='Delete conversation'
                     onClick={(e) => {
                       e.stopPropagation();
-                      onDeleteConversation(conv.id);
+                      if (window.confirm('Delete this conversation? This cannot be undone.')) {
+                        onDeleteConversation(conv.id);
+                      }
                     }}
                     className='p-1 rounded text-muted-foreground hover:text-red-400 hover:bg-red-950 transition-colors'
                   >

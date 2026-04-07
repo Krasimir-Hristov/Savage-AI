@@ -90,8 +90,8 @@ export const ChatContainer = ({
   }, [messages, isStreaming]);
 
   return (
-    <div className={cn('flex flex-col h-full overflow-hidden', className)}>
-      <ScrollArea className='h-full'>
+    <div className={cn('flex flex-col overflow-hidden', className)}>
+      <ScrollArea className='flex-1'>
         {isLoading ? (
           <LoadingSkeleton />
         ) : messages.length === 0 ? (

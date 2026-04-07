@@ -51,7 +51,11 @@ const useSidebarCallbacks = (initialConversations: Conversation[], preferredChar
   };
 
   const handleDeleteConversation = async (id: string): Promise<void> => {
-    await deleteConversationAction(id);
+    const result = await deleteConversationAction(id);
+    if (result.error) {
+      console.error('Failed to delete conversation:', result.error);
+      return;
+    }
     void queryClient.invalidateQueries({ queryKey: ['conversations'] });
     if (currentConversationId === id) {
       router.push('/chat');
@@ -59,7 +63,11 @@ const useSidebarCallbacks = (initialConversations: Conversation[], preferredChar
   };
 
   const handleRenameConversation = async (id: string, title: string): Promise<void> => {
-    await renameConversationAction(id, title);
+    const result = await renameConversationAction(id, title);
+    if (result.error) {
+      console.error('Failed to rename conversation:', result.error);
+      return;
+    }
     void queryClient.invalidateQueries({ queryKey: ['conversations'] });
   };
 

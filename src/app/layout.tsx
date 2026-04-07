@@ -1,3 +1,4 @@
+import React from 'react';
 import type { Metadata } from 'next';
 import { Inter, Space_Grotesk, Geist_Mono } from 'next/font/google';
 import './globals.css';
@@ -22,11 +23,11 @@ export const metadata: Metadata = {
   description: 'AI assistants that tell you what they really think.',
 };
 
-export default function RootLayout({
+const RootLayout = ({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>): React.JSX.Element => {
   return (
     <html
       lang='en'
@@ -35,4 +36,6 @@ export default function RootLayout({
       <body className='min-h-full flex flex-col'>{children}</body>
     </html>
   );
-}
+};
+
+export default RootLayout;

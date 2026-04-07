@@ -1,6 +1,7 @@
 'use server';
 import 'server-only';
 
+import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 
 import { verifySession } from '@/lib/dal';
@@ -34,16 +35,26 @@ export async function updateConversationTitleAction(
   conversationId: string,
   firstMessage: string
 ): Promise<{ error?: string }> {
+  const schema = z.object({
+    conversationId: z.string().uuid(),
+    firstMessage: z.string().max(500),
+  });
+  const parsed = schema.safeParse({ conversationId, firstMessage });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Invalid input' };
+  }
+
   try {
     const { userId } = await verifySession();
     const supabase = await createClient();
 
-    const title = firstMessage.trim().slice(0, 60) + (firstMessage.trim().length > 60 ? '…' : '');
+    const trimmed = parsed.data.firstMessage.trim();
+    const title = trimmed.slice(0, 60) + (trimmed.length > 60 ? '…' : '');
 
     const { error } = await supabase
       .from('conversations')
       .update({ title })
-      .eq('id', conversationId)
+      .eq('id', parsed.data.conversationId)
       .eq('user_id', userId);
 
     if (error) return { error: error.message };
@@ -59,17 +70,23 @@ export async function renameConversationAction(
   conversationId: string,
   title: string
 ): Promise<{ error?: string }> {
+  const schema = z.object({
+    conversationId: z.string().uuid(),
+    title: z.string().min(1, 'Title cannot be empty').max(100),
+  });
+  const parsed = schema.safeParse({ conversationId, title: title.trim() });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Invalid input' };
+  }
+
   try {
     const { userId } = await verifySession();
     const supabase = await createClient();
 
-    const trimmed = title.trim().slice(0, 100);
-    if (!trimmed) return { error: 'Title cannot be empty' };
-
     const { error } = await supabase
       .from('conversations')
-      .update({ title: trimmed })
-      .eq('id', conversationId)
+      .update({ title: parsed.data.title })
+      .eq('id', parsed.data.conversationId)
       .eq('user_id', userId);
 
     if (error) return { error: error.message };

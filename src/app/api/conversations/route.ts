@@ -39,11 +39,9 @@ export async function GET(req: Request): Promise<Response> {
       },
     });
   } catch (error) {
+    console.error('[GET /api/conversations] Failed to fetch conversations:', error);
     return new Response(
-      JSON.stringify({
-        error: 'Failed to fetch conversations',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      }),
+      JSON.stringify({ error: 'Internal server error' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }

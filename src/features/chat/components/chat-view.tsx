@@ -68,9 +68,11 @@ export const ChatView = ({
 
     // After streaming completes: set title from first message + refresh sidebar reactively
     if (isNewConversation) {
-      await updateConversationTitleAction(convId, content);
-      // Invalidate sidebar query — causes useQuery in sidebar-wrapper to refetch
-      void queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      const titleResult = await updateConversationTitleAction(convId, content);
+      if (!titleResult.error) {
+        // Invalidate sidebar query — causes useQuery in sidebar-wrapper to refetch
+        void queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      }
     }
   };
 
