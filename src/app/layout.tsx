@@ -1,8 +1,7 @@
+import React from 'react';
 import type { Metadata } from 'next';
 import { Inter, Space_Grotesk, Geist_Mono } from 'next/font/google';
 import './globals.css';
-
-import { QueryProvider } from '@/shared/components/query-provider';
 
 const inter = Inter({
   variable: '--font-sans',
@@ -24,19 +23,19 @@ export const metadata: Metadata = {
   description: 'AI assistants that tell you what they really think.',
 };
 
-export default function RootLayout({
+const RootLayout = ({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>): React.JSX.Element => {
   return (
     <html
       lang='en'
       className={`${inter.variable} ${spaceGrotesk.variable} ${geistMono.variable} dark h-full antialiased`}
     >
-      <body className='min-h-full flex flex-col'>
-        <QueryProvider>{children}</QueryProvider>
-      </body>
+      <body className='min-h-full flex flex-col'>{children}</body>
     </html>
   );
-}
+};
+
+export default RootLayout;

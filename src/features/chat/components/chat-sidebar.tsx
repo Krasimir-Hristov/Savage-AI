@@ -1,9 +1,8 @@
 'use client';
 
-import React from 'react';
-import { MessageSquarePlus, Menu, Trash2, MoreHorizontal } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { MessageSquarePlus, Menu, Trash2, Pencil } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
-import { ScrollArea } from '@/shared/components/ui/scroll-area';
 import { Badge } from '@/shared/components/ui/badge';
 import {
   Sheet,
@@ -12,12 +11,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/shared/components/ui/sheet';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/shared/components/ui/dropdown-menu';
 import { CHARACTERS, DEFAULT_CHARACTER_ID } from '@/features/characters/data';
 import { cn } from '@/lib/utils';
 import type { Conversation } from '@/types/chat';
@@ -29,6 +22,7 @@ export interface ChatSidebarProps {
   onNewChat: () => void;
   onSelectConversation: (id: string) => void;
   onDeleteConversation: (id: string) => void;
+  onRenameConversation: (id: string, title: string) => Promise<void>;
   className?: string;
 }
 
@@ -54,9 +48,43 @@ const SidebarContent = ({
   onNewChat,
   onSelectConversation,
   onDeleteConversation,
+  onRenameConversation,
 }: ChatSidebarProps): React.JSX.Element => {
   const character = CHARACTERS[characterId] ?? CHARACTERS[DEFAULT_CHARACTER_ID];
   const ui = character.ui;
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const startEditing = (conv: Conversation): void => {
+    setEditingId(conv.id);
+    setEditingTitle(conv.title ?? '');
+    setTimeout(() => {
+      inputRef.current?.select();
+    }, 0);
+  };
+
+  const commitRename = async (): Promise<void> => {
+    if (!editingId) return;
+    const id = editingId;
+    const trimmed = editingTitle.trim();
+    if (!trimmed) {
+      setEditingId(null);
+      return;
+    }
+    try {
+      await onRenameConversation(id, trimmed);
+      setEditingId(null);
+    } catch (e) {
+      console.error(`Failed to rename conversation ${id}:`, e);
+      // Leave editing open so the user can retry
+    }
+  };
+
+  const cancelEditing = (): void => {
+    setEditingId(null);
+  };
 
   return (
     <div className='flex flex-col h-full'>
@@ -87,7 +115,7 @@ const SidebarContent = ({
       </div>
 
       {/* Conversations list */}
-      <ScrollArea className='flex-1'>
+      <div className='flex-1 overflow-y-auto'>
         {conversations.length === 0 ? (
           <div className='px-4 py-8 text-center'>
             <p className='text-xs text-muted-foreground'>No conversations yet.</p>
@@ -104,46 +132,75 @@ const SidebarContent = ({
                     ? 'bg-muted text-foreground'
                     : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
                 )}
-                onClick={() => onSelectConversation(conv.id)}
+                onClick={() => {
+                  if (editingId !== conv.id) onSelectConversation(conv.id);
+                }}
               >
                 <div className='flex-1 min-w-0'>
-                  <p className='text-xs font-medium truncate'>{conv.title ?? 'New conversation'}</p>
-                  <p className='text-[10px] text-muted-foreground/70 mt-0.5'>
-                    {formatDate(conv.updated_at)}
-                  </p>
+                  {editingId === conv.id ? (
+                    <input
+                      ref={inputRef}
+                      value={editingTitle}
+                      onChange={(e) => setEditingTitle(e.target.value)}
+                      onBlur={() => { void commitRename(); }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          void commitRename();
+                        }
+                        if (e.key === 'Escape') {
+                          e.preventDefault();
+                          cancelEditing();
+                        }
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      className='w-full text-xs font-medium bg-transparent border-b border-border outline-none text-foreground'
+                      maxLength={100}
+                    />
+                  ) : (
+                    <>
+                      <p className='text-xs font-medium truncate'>
+                        {conv.title ?? 'New conversation'}
+                      </p>
+                      <p className='text-[10px] text-muted-foreground/70 mt-0.5'>
+                        {formatDate(conv.updated_at)}
+                      </p>
+                    </>
+                  )}
                 </div>
 
-                {/* Delete dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant='ghost'
-                      size='icon'
-                      aria-label='Conversation options'
-                      className='shrink-0 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity'
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <MoreHorizontal size={12} />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align='end'>
-                    <DropdownMenuItem
-                      variant='destructive'
-                      onClick={(e) => {
-                        e.stopPropagation();
+                {/* Rename + Delete buttons */}
+                <div className='flex items-center gap-0.5 shrink-0'>
+                  <button
+                    type='button'
+                    aria-label='Rename conversation'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      startEditing(conv);
+                    }}
+                    className='p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors'
+                  >
+                    <Pencil size={12} />
+                  </button>
+                  <button
+                    type='button'
+                    aria-label='Delete conversation'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm('Delete this conversation? This cannot be undone.')) {
                         onDeleteConversation(conv.id);
-                      }}
-                    >
-                      <Trash2 size={14} />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      }
+                    }}
+                    className='p-1 rounded text-muted-foreground hover:text-red-400 hover:bg-red-950 transition-colors'
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         )}
-      </ScrollArea>
+      </div>
 
       {/* Footer */}
       <div className='px-4 py-3 border-t border-border'>

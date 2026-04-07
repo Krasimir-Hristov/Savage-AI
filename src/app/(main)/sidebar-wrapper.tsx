@@ -2,11 +2,15 @@
 
 import React from 'react';
 
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
 
-import { deleteConversationAction } from '@/features/chat/actions/conversation.actions';
+import {
+  deleteConversationAction,
+  renameConversationAction,
+} from '@/features/chat/actions/conversation.actions';
 import { ChatSidebar, MobileSidebarTrigger } from '@/features/chat/components/chat-sidebar';
+import { CHARACTERS, DEFAULT_CHARACTER_ID } from '@/features/characters/data';
 import type { Conversation } from '@/types/chat';
 
 interface SidebarWrapperProps {
@@ -14,14 +18,42 @@ interface SidebarWrapperProps {
   preferredCharacter: string;
 }
 
+interface SidebarCallbacksResult {
+  conversations: Conversation[];
+  currentConversationId: string | undefined;
+  characterId: string;
+  onNewChat: () => void;
+  onSelectConversation: (id: string) => void;
+  onDeleteConversation: (id: string) => Promise<void>;
+  onRenameConversation: (id: string, title: string) => Promise<void>;
+}
+
 const useSidebarCallbacks = (
   initialConversations: Conversation[],
-  preferredCharacter: string,
-) => {
+  preferredCharacter: string
+): SidebarCallbacksResult => {
   const router = useRouter();
   const params = useParams<{ id?: string }>();
   const queryClient = useQueryClient();
   const currentConversationId = params?.id;
+
+  // Keep conversations list in sync client-side after mutations
+  const { data: conversations = initialConversations } = useQuery<Conversation[]>({
+    queryKey: ['conversations'],
+    queryFn: async () => {
+      const res = await fetch('/api/conversations');
+      if (!res.ok) throw new Error('Failed to fetch conversations');
+      return (await res.json()) as Conversation[];
+    },
+    initialData: initialConversations,
+    staleTime: 1000 * 30, // 30 seconds
+  });
+
+  // Derive active character from the current conversation, fallback to preferredCharacter
+  const activeConversation = conversations.find((c) => c.id === currentConversationId);
+  const characterId =
+    activeConversation?.character_id ??
+    (CHARACTERS[preferredCharacter] ? preferredCharacter : DEFAULT_CHARACTER_ID);
 
   const handleNewChat = (): void => {
     router.push('/chat');
@@ -32,20 +64,34 @@ const useSidebarCallbacks = (
   };
 
   const handleDeleteConversation = async (id: string): Promise<void> => {
-    await deleteConversationAction(id);
+    const result = await deleteConversationAction(id);
+    if (result.error) {
+      console.error('Failed to delete conversation:', result.error);
+      return;
+    }
     void queryClient.invalidateQueries({ queryKey: ['conversations'] });
     if (currentConversationId === id) {
       router.push('/chat');
     }
   };
 
+  const handleRenameConversation = async (id: string, title: string): Promise<void> => {
+    const result = await renameConversationAction(id, title);
+    if (result.error) {
+      console.error('Failed to rename conversation:', result.error);
+      return;
+    }
+    void queryClient.invalidateQueries({ queryKey: ['conversations'] });
+  };
+
   return {
-    conversations: initialConversations,
+    conversations,
     currentConversationId,
-    characterId: preferredCharacter,
+    characterId,
     onNewChat: handleNewChat,
     onSelectConversation: handleSelectConversation,
     onDeleteConversation: handleDeleteConversation,
+    onRenameConversation: handleRenameConversation,
   };
 };
 
