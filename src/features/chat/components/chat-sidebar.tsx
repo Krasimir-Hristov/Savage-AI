@@ -76,7 +76,8 @@ const SidebarContent = ({
     try {
       await onRenameConversation(id, trimmed);
       setEditingId(null);
-    } catch {
+    } catch (e) {
+      console.error(`Failed to rename conversation ${id}:`, e);
       // Leave editing open so the user can retry
     }
   };

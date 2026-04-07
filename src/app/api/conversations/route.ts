@@ -2,13 +2,13 @@
 import { verifySession, getConversations } from '@/lib/dal';
 import { conversationsRateLimit, getClientIP, handleRateLimit } from '@/lib/ratelimit';
 
-export async function GET(req: Request): Promise<Response> {
+export const GET = async (req: Request): Promise<Response> => {
   // 1. Rate limit first
   const ip = getClientIP(req);
   const rateLimitResult = await handleRateLimit(conversationsRateLimit, ip);
 
   if (!rateLimitResult.success) {
-    return rateLimitResult.response!;
+    return rateLimitResult.response;
   }
 
   // 2. Verify session

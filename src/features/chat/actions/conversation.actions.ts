@@ -10,13 +10,19 @@ import { createClient } from '@/lib/supabase/server';
 export async function createConversationAction(
   characterId: string
 ): Promise<{ id: string } | { error: string }> {
+  const schema = z.object({ characterId: z.string().min(1) });
+  const parsed = schema.safeParse({ characterId });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Invalid characterId' };
+  }
+
   try {
     const { userId } = await verifySession();
     const supabase = await createClient();
 
     const { data, error } = await supabase
       .from('conversations')
-      .insert({ user_id: userId, character_id: characterId })
+      .insert({ user_id: userId, character_id: parsed.data.characterId })
       .select('id')
       .single();
 
@@ -101,6 +107,12 @@ export async function renameConversationAction(
 export async function deleteConversationAction(
   conversationId: string
 ): Promise<{ error?: string }> {
+  const schema = z.object({ conversationId: z.string().uuid() });
+  const parsed = schema.safeParse({ conversationId });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Invalid conversationId' };
+  }
+
   try {
     const { userId } = await verifySession();
     const supabase = await createClient();
@@ -108,7 +120,7 @@ export async function deleteConversationAction(
     const { error } = await supabase
       .from('conversations')
       .delete()
-      .eq('id', conversationId)
+      .eq('id', parsed.data.conversationId)
       .eq('user_id', userId);
 
     if (error) {

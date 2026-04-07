@@ -15,7 +15,7 @@ export async function POST(req: Request): Promise<Response> {
   const rateLimitResult = await handleRateLimit(chatRateLimit, ip);
 
   if (!rateLimitResult.success) {
-    return rateLimitResult.response!;
+    return rateLimitResult.response;
   }
 
   // 2. Verify session

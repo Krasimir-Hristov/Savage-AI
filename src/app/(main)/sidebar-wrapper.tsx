@@ -18,7 +18,20 @@ interface SidebarWrapperProps {
   preferredCharacter: string;
 }
 
-const useSidebarCallbacks = (initialConversations: Conversation[], preferredCharacter: string) => {
+interface SidebarCallbacksResult {
+  conversations: Conversation[];
+  currentConversationId: string | undefined;
+  characterId: string;
+  onNewChat: () => void;
+  onSelectConversation: (id: string) => void;
+  onDeleteConversation: (id: string) => Promise<void>;
+  onRenameConversation: (id: string, title: string) => Promise<void>;
+}
+
+const useSidebarCallbacks = (
+  initialConversations: Conversation[],
+  preferredCharacter: string
+): SidebarCallbacksResult => {
   const router = useRouter();
   const params = useParams<{ id?: string }>();
   const queryClient = useQueryClient();
@@ -30,7 +43,7 @@ const useSidebarCallbacks = (initialConversations: Conversation[], preferredChar
     queryFn: async () => {
       const res = await fetch('/api/conversations');
       if (!res.ok) throw new Error('Failed to fetch conversations');
-      return res.json() as Promise<Conversation[]>;
+      return (await res.json()) as Conversation[];
     },
     initialData: initialConversations,
     staleTime: 1000 * 30, // 30 seconds

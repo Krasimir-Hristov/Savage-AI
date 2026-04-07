@@ -60,7 +60,10 @@ export const ChatView = ({
       isNewConversation = true;
       setActiveConversationId(convId);
 
-      // Update URL bar without unmounting this component (router.replace would remount)
+      // Intentionally using window.history.replaceState instead of router.replace().
+      // router.replace() would trigger a full Next.js navigation, unmounting this component
+      // and interrupting the active stream. Trade-off: useParams() in the sidebar won't
+      // update immediately — it reflects the new URL only after a real navigation occurs.
       window.history.replaceState(null, '', `/chat/${convId}`);
     }
 
@@ -69,7 +72,10 @@ export const ChatView = ({
     // After streaming completes: set title from first message + refresh sidebar reactively
     if (isNewConversation) {
       const titleResult = await updateConversationTitleAction(convId, content);
-      if (!titleResult.error) {
+      if (titleResult.error) {
+        console.error('[chat-view] Failed to update conversation title:', { convId, content, error: titleResult.error });
+        setCreateError('Conversation created, but failed to save its title.');
+      } else {
         // Invalidate sidebar query — causes useQuery in sidebar-wrapper to refetch
         void queryClient.invalidateQueries({ queryKey: ['conversations'] });
       }

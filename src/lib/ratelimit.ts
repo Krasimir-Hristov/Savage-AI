@@ -43,10 +43,14 @@ export const conversationsRateLimit = new Ratelimit({
  *   // Continue with request...
  *   return new Response(..., { headers: result.headers });
  */
+type RateLimitSuccess = { success: true; headers: Record<string, string> };
+type RateLimitFailure = { success: false; response: Response };
+export type RateLimitResult = RateLimitSuccess | RateLimitFailure;
+
 export async function handleRateLimit(
   limiter: Ratelimit,
   identifier: string
-): Promise<{ success: boolean; response?: Response; headers?: Record<string, string> }> {
+): Promise<RateLimitResult> {
   const { success, reset, remaining } = await limiter.limit(identifier);
 
   if (!success) {
