@@ -8,6 +8,8 @@ export const CHARACTERS: Record<string, Character> = {
   [balkanDad.id]: balkanDad,
 };
 
+export const DEFAULT_CHARACTER_ID = angryGrandpa.id;
+
 export function getCharacter(id: string): Character {
   const character = CHARACTERS[id];
   if (!character) {

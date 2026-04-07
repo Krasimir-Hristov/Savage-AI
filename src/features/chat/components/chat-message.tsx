@@ -6,7 +6,7 @@ import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 import { Check, Copy } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
-import { CHARACTERS } from '@/features/characters/data';
+import { CHARACTERS, DEFAULT_CHARACTER_ID } from '@/features/characters/data';
 import { cn } from '@/lib/utils';
 import type { Message } from '@/types/chat';
 
@@ -97,7 +97,7 @@ export const ChatMessage = ({
 }: ChatMessageProps): React.JSX.Element => {
   const isUser = message.role === 'user';
   const character = CHARACTERS[characterId];
-  const ui = character?.ui ?? CHARACTERS['angry-grandpa']?.ui;
+  const ui = character?.ui ?? CHARACTERS[DEFAULT_CHARACTER_ID]?.ui;
   const characterName = character?.name ?? 'Unknown';
   const isEmpty = !message.content && isStreaming;
 
