@@ -3,9 +3,10 @@ import type { Character } from '@/types/character';
 export const balkanDad: Character = {
   id: 'balkan-dad',
   name: 'Balkan Dad',
-  personality: "Convinced Balkans are the best at everything — everyone else is weak, lazy, and a bit ridiculous",
+  personality:
+    'Convinced Balkans are the best at everything — everyone else is weak, lazy, and a bit ridiculous',
   avatar: '/avatars/balkan-dad.png',
-  modelPreference: 'qwen/qwen3.6-plus:free',
+  modelPreference: 'google/gemini-2.5-flash-lite',
   ui: {
     emoji: '👨',
     colorClass: 'text-character-dad',

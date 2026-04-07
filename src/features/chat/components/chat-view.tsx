@@ -4,9 +4,11 @@ import React, { useState } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { AlertCircle } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
-import { createConversationAction } from '@/features/chat/actions/conversation.actions';
+import {
+  createConversationAction,
+  updateConversationTitleAction,
+} from '@/features/chat/actions/conversation.actions';
 import { ChatContainer } from '@/features/chat/components/chat-container';
 import { ChatInput } from '@/features/chat/components/chat-input';
 import { useChat } from '@/features/chat/hooks/use-chat';
@@ -26,7 +28,6 @@ export const ChatView = ({
   initialMessages,
   characterId: initialCharacterId,
 }: ChatViewProps): React.JSX.Element => {
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   const [activeConversationId, setActiveConversationId] = useState<string | undefined>(
@@ -44,6 +45,7 @@ export const ChatView = ({
   const handleSend = async (content: string): Promise<void> => {
     setCreateError(null);
     let convId = activeConversationId;
+    let isNewConversation = false;
 
     // New chat: create the conversation before the first message
     if (!convId) {
@@ -55,16 +57,21 @@ export const ChatView = ({
       }
 
       convId = result.id;
+      isNewConversation = true;
       setActiveConversationId(convId);
 
-      // Update URL to /chat/[id] without unmounting this component
-      router.replace(`/chat/${convId}`);
-
-      // Invalidate sidebar conversations list (TanStack Query in layout)
-      void queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      // Update URL bar without unmounting this component (router.replace would remount)
+      window.history.replaceState(null, '', `/chat/${convId}`);
     }
 
     await sendMessage(content, activeCharacterId, convId);
+
+    // After streaming completes: set title from first message + refresh sidebar reactively
+    if (isNewConversation) {
+      await updateConversationTitleAction(convId, content);
+      // Invalidate sidebar query — causes useQuery in sidebar-wrapper to refetch
+      void queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    }
   };
 
   const displayError = createError ?? error;

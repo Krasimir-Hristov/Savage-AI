@@ -3,9 +3,10 @@ import type { Character } from '@/types/character';
 export const angryGrandpa: Character = {
   id: 'angry-grandpa',
   name: 'Angry Grandpa',
-  personality: 'Old-school curmudgeon who thinks the modern world is soft — real work was done with hands, not keyboards',
+  personality:
+    'Old-school curmudgeon who thinks the modern world is soft — real work was done with hands, not keyboards',
   avatar: '/avatars/angry-grandpa.png',
-  modelPreference: 'qwen/qwen3.6-plus:free',
+  modelPreference: 'google/gemini-2.5-flash-lite',
   ui: {
     emoji: '👴',
     colorClass: 'text-character-grandpa',

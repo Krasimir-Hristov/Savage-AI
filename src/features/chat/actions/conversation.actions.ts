@@ -23,8 +23,58 @@ export async function createConversationAction(
       return { error: error?.message ?? 'Failed to create conversation' };
     }
 
-    revalidatePath('/chat');
     return { id: data.id };
+  } catch (err) {
+    if ((err as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw err;
+    return { error: err instanceof Error ? err.message : 'Unexpected error' };
+  }
+}
+
+export async function updateConversationTitleAction(
+  conversationId: string,
+  firstMessage: string
+): Promise<{ error?: string }> {
+  try {
+    const { userId } = await verifySession();
+    const supabase = await createClient();
+
+    const title = firstMessage.trim().slice(0, 60) + (firstMessage.trim().length > 60 ? '…' : '');
+
+    const { error } = await supabase
+      .from('conversations')
+      .update({ title })
+      .eq('id', conversationId)
+      .eq('user_id', userId);
+
+    if (error) return { error: error.message };
+
+    return {};
+  } catch (err) {
+    if ((err as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw err;
+    return { error: err instanceof Error ? err.message : 'Unexpected error' };
+  }
+}
+
+export async function renameConversationAction(
+  conversationId: string,
+  title: string
+): Promise<{ error?: string }> {
+  try {
+    const { userId } = await verifySession();
+    const supabase = await createClient();
+
+    const trimmed = title.trim().slice(0, 100);
+    if (!trimmed) return { error: 'Title cannot be empty' };
+
+    const { error } = await supabase
+      .from('conversations')
+      .update({ title: trimmed })
+      .eq('id', conversationId)
+      .eq('user_id', userId);
+
+    if (error) return { error: error.message };
+
+    return {};
   } catch (err) {
     if ((err as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw err;
     return { error: err instanceof Error ? err.message : 'Unexpected error' };

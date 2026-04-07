@@ -2,11 +2,15 @@
 
 import React from 'react';
 
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
 
-import { deleteConversationAction } from '@/features/chat/actions/conversation.actions';
+import {
+  deleteConversationAction,
+  renameConversationAction,
+} from '@/features/chat/actions/conversation.actions';
 import { ChatSidebar, MobileSidebarTrigger } from '@/features/chat/components/chat-sidebar';
+import { CHARACTERS, DEFAULT_CHARACTER_ID } from '@/features/characters/data';
 import type { Conversation } from '@/types/chat';
 
 interface SidebarWrapperProps {
@@ -19,6 +23,24 @@ const useSidebarCallbacks = (initialConversations: Conversation[], preferredChar
   const params = useParams<{ id?: string }>();
   const queryClient = useQueryClient();
   const currentConversationId = params?.id;
+
+  // Keep conversations list in sync client-side after mutations
+  const { data: conversations = initialConversations } = useQuery<Conversation[]>({
+    queryKey: ['conversations'],
+    queryFn: async () => {
+      const res = await fetch('/api/conversations');
+      if (!res.ok) throw new Error('Failed to fetch conversations');
+      return res.json() as Promise<Conversation[]>;
+    },
+    initialData: initialConversations,
+    staleTime: 1000 * 30, // 30 seconds
+  });
+
+  // Derive active character from the current conversation, fallback to preferredCharacter
+  const activeConversation = conversations.find((c) => c.id === currentConversationId);
+  const characterId =
+    activeConversation?.character_id ??
+    (CHARACTERS[preferredCharacter] ? preferredCharacter : DEFAULT_CHARACTER_ID);
 
   const handleNewChat = (): void => {
     router.push('/chat');
@@ -36,13 +58,19 @@ const useSidebarCallbacks = (initialConversations: Conversation[], preferredChar
     }
   };
 
+  const handleRenameConversation = async (id: string, title: string): Promise<void> => {
+    await renameConversationAction(id, title);
+    void queryClient.invalidateQueries({ queryKey: ['conversations'] });
+  };
+
   return {
-    conversations: initialConversations,
+    conversations,
     currentConversationId,
-    characterId: preferredCharacter,
+    characterId,
     onNewChat: handleNewChat,
     onSelectConversation: handleSelectConversation,
     onDeleteConversation: handleDeleteConversation,
+    onRenameConversation: handleRenameConversation,
   };
 };
 
