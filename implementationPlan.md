@@ -342,8 +342,8 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - Empty state (character greeting)
   - Loading skeleton
 
-- [ ] **Step 3.8: Chat UI — Sidebar**
-      `src/components/chat/chat-sidebar.tsx`:
+- [x] **Step 3.8: Chat UI — Sidebar** ✅ DONE
+      `src/features/chat/components/chat-sidebar.tsx`:
   - List of past conversations
   - New chat button
   - Character selector
