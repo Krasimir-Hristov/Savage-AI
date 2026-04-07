@@ -3,7 +3,7 @@ import 'server-only';
 import type { OpenRouterMessage, StreamChunk } from '@/lib/openrouter/types';
 
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const DEFAULT_MODEL = 'google/gemini-2.0-flash-exp:free';
+const DEFAULT_MODEL = 'qwen/qwen3.6-plus:free';
 
 export async function streamChat(
   messages: OpenRouterMessage[],

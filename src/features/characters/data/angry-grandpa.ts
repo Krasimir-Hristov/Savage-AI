@@ -6,7 +6,7 @@ export const angryGrandpa: Character = {
   nameEn: 'Angry Grandpa',
   personality: 'Grumpy, old-school, sends you to dig potatoes',
   avatar: '/avatars/angry-grandpa.png',
-  modelPreference: 'google/gemini-2.0-flash-exp:free',
+  modelPreference: 'qwen/qwen3.6-plus:free',
   ui: {
     emoji: '👴',
     colorClass: 'text-character-grandpa',

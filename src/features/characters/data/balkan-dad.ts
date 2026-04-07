@@ -6,7 +6,7 @@ export const balkanDad: Character = {
   nameEn: 'Balkan Dad',
   personality: "Disappointed, compares you to the neighbor's kid Pesho",
   avatar: '/avatars/balkan-dad.png',
-  modelPreference: 'google/gemini-2.0-flash-exp:free',
+  modelPreference: 'qwen/qwen3.6-plus:free',
   ui: {
     emoji: '👨',
     colorClass: 'text-character-dad',
