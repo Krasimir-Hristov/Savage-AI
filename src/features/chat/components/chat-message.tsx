@@ -6,16 +6,9 @@ import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 import { Check, Copy } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
-import { CHARACTERS } from '@/features/characters/data';
+import { CHARACTERS, DEFAULT_CHARACTER_ID } from '@/features/characters/data';
 import { cn } from '@/lib/utils';
 import type { Message } from '@/types/chat';
-
-const CHARACTER_UI: Record<string, { emoji: string; colorClass: string }> = {
-  'angry-grandpa': { emoji: '👴', colorClass: 'text-character-grandpa' },
-  'balkan-dad': { emoji: '👨', colorClass: 'text-character-dad' },
-};
-
-const FALLBACK_UI = CHARACTER_UI['angry-grandpa'];
 
 class MarkdownErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -103,8 +96,9 @@ export const ChatMessage = ({
   isStreaming = false,
 }: ChatMessageProps): React.JSX.Element => {
   const isUser = message.role === 'user';
-  const ui = CHARACTER_UI[characterId] ?? FALLBACK_UI;
-  const characterName = CHARACTERS[characterId]?.name ?? 'Unknown';
+  const character = CHARACTERS[characterId];
+  const ui = character?.ui ?? CHARACTERS[DEFAULT_CHARACTER_ID]?.ui;
+  const characterName = character?.name ?? 'Unknown';
   const isEmpty = !message.content && isStreaming;
 
   if (isUser) {
@@ -121,12 +115,14 @@ export const ChatMessage = ({
     <div className='flex gap-3 mb-4'>
       {/* Character avatar */}
       <div className='shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-base bg-muted border border-border'>
-        {ui.emoji}
+        {ui?.emoji}
       </div>
 
       <div className='flex-1 min-w-0'>
         {/* Character name */}
-        <span className={cn('text-xs font-medium mb-1 block', ui.colorClass)}>{characterName}</span>
+        <span className={cn('text-xs font-medium mb-1 block', ui?.colorClass)}>
+          {characterName}
+        </span>
 
         {/* Message bubble */}
         <div className='rounded-2xl rounded-tl-sm bg-muted/50 border border-border px-4 py-2.5'>

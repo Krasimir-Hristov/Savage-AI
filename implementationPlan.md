@@ -327,8 +327,8 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - Copy button for code blocks (clipboard API)
   - Timestamp (hidden during streaming)
 
-- [ ] **Step 3.6: Chat UI — Input component**
-      `src/components/chat/chat-input.tsx`:
+- [x] **Step 3.6: Chat UI — Input component** ✅ DONE
+      `src/features/chat/components/chat-input.tsx`:
   - Auto-resizing textarea
   - Send button
   - Keyboard shortcut (Enter to send, Shift+Enter for newline)

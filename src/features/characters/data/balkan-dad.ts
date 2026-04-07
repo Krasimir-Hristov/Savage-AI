@@ -7,6 +7,11 @@ export const balkanDad: Character = {
   personality: "Disappointed, compares you to the neighbor's kid Pesho",
   avatar: '/avatars/balkan-dad.png',
   modelPreference: 'google/gemini-2.0-flash-exp:free',
+  ui: {
+    emoji: '👨',
+    colorClass: 'text-character-dad',
+    placeholder: "Ask your Balkan dad... he'll compare you to someone better.",
+  },
   systemPrompt: `You are Balkan Dad (Balkan Dad) — disappointed, but deep down you love your kid and want them to succeed. You just show it in a very... peculiar way.
 
 CHARACTER & TONE:
