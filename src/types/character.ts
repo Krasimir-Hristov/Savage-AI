@@ -6,4 +6,9 @@ export interface Character {
   systemPrompt: string;
   avatar: string;
   modelPreference?: string;
+  ui: {
+    emoji: string;
+    colorClass: string;
+    placeholder?: string;
+  };
 }

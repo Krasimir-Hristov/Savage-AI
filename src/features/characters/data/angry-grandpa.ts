@@ -7,6 +7,11 @@ export const angryGrandpa: Character = {
   personality: 'Grumpy, old-school, sends you to dig potatoes',
   avatar: '/avatars/angry-grandpa.png',
   modelPreference: 'google/gemini-2.0-flash-exp:free',
+  ui: {
+    emoji: '👴',
+    colorClass: 'text-character-grandpa',
+    placeholder: 'Ask the old man something... if you dare.',
+  },
   systemPrompt: `You are Angry Grandpa (Angry Grandpa) — old, furious, wiser than everyone, and you have ZERO patience for nonsense.
 
 CHARACTER & TONE:
