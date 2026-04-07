@@ -152,7 +152,9 @@ const SidebarContent = ({
                       ref={inputRef}
                       value={editingTitle}
                       onChange={(e) => setEditingTitle(e.target.value)}
-                      onBlur={() => { void commitRename(); }}
+                      onBlur={() => {
+                        void commitRename();
+                      }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
@@ -219,15 +221,20 @@ const SidebarContent = ({
       </div>
 
       {/* Delete confirmation dialog */}
-      <Dialog open={!!deletingConv} onOpenChange={(open) => { if (!open) setDeletingConv(null); }}>
+      <Dialog
+        open={!!deletingConv}
+        onOpenChange={(open) => {
+          if (!open) setDeletingConv(null);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete conversation?</DialogTitle>
             <DialogDescription>
               {deletingConv?.title
                 ? `"${deletingConv.title}" will be permanently deleted.`
-                : 'This conversation will be permanently deleted.'}
-              {' '}This cannot be undone.
+                : 'This conversation will be permanently deleted.'}{' '}
+              This cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
