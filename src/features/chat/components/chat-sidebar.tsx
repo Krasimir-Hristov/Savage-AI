@@ -22,7 +22,7 @@ import { CHARACTERS, DEFAULT_CHARACTER_ID } from '@/features/characters/data';
 import { cn } from '@/lib/utils';
 import type { Conversation } from '@/types/chat';
 
-interface ChatSidebarProps {
+export interface ChatSidebarProps {
   conversations: Conversation[];
   currentConversationId?: string;
   characterId: string;
