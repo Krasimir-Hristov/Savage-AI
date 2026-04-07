@@ -181,8 +181,8 @@ const SidebarContent = ({
                   )}
                 </div>
 
-                {/* Rename + Delete buttons */}
-                <div className='flex items-center gap-0.5 shrink-0'>
+                {/* Rename + Delete buttons — visible only on row hover */}
+                <div className='flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity'>
                   <button
                     type='button'
                     aria-label='Rename conversation'
