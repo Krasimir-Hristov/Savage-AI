@@ -54,7 +54,6 @@ export async function getUser(): Promise<ProfileRow> {
 // cache() deduplicates calls within a single server request (React 19, stable)
 export const getConversations = cache(async (userId: string): Promise<Conversation[]> => {
   try {
-
     const supabase = await createClient();
 
     const { data, error } = await supabase
@@ -75,6 +74,24 @@ export const getConversations = cache(async (userId: string): Promise<Conversati
     );
   }
 });
+
+export async function getConversation(conversationId: string): Promise<Conversation> {
+  const { userId } = await verifySession();
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('conversations')
+    .select('id, user_id, character_id, title, created_at, updated_at')
+    .eq('id', conversationId)
+    .eq('user_id', userId)
+    .single();
+
+  if (error || !data) {
+    throw new Error('Conversation not found or access denied');
+  }
+
+  return data;
+}
 
 export async function getMessages(conversationId: string): Promise<Message[]> {
   try {
