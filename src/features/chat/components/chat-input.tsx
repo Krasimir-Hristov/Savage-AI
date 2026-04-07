@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Send } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Textarea } from '@/shared/components/ui/textarea';
-import { CHARACTERS } from '@/features/characters/data';
+import { CHARACTERS, DEFAULT_CHARACTER_ID } from '@/features/characters/data';
 import { cn } from '@/lib/utils';
 
 interface ChatInputProps {
@@ -27,7 +27,7 @@ export const ChatInput = ({
 
   const character = CHARACTERS[characterId];
   const characterName = character?.name ?? 'Unknown';
-  const ui = character?.ui ?? CHARACTERS['angry-grandpa']?.ui;
+  const ui = character?.ui ?? CHARACTERS[DEFAULT_CHARACTER_ID]?.ui;
   const placeholder = ui?.placeholder ?? 'Type a message...';
 
   const isDisabled = disabled || isStreaming;
@@ -85,7 +85,6 @@ export const ChatInput = ({
           onKeyDown={handleKeyDown}
           placeholder={isStreaming ? 'Wait for response...' : placeholder}
           disabled={isDisabled}
-          rows={1}
           className='max-h-40 resize-none overflow-y-auto'
         />
         <Button
