@@ -120,7 +120,9 @@ export const ChatMessage = ({
 
       <div className='flex-1 min-w-0'>
         {/* Character name */}
-        <span className={cn('text-xs font-medium mb-1 block', ui?.colorClass)}>{characterName}</span>
+        <span className={cn('text-xs font-medium mb-1 block', ui?.colorClass)}>
+          {characterName}
+        </span>
 
         {/* Message bubble */}
         <div className='rounded-2xl rounded-tl-sm bg-muted/50 border border-border px-4 py-2.5'>
