@@ -137,7 +137,7 @@ const SidebarContent = ({
               <div
                 key={conv.id}
                 className={cn(
-                  'group flex items-center gap-1 px-3 py-2 mx-1 rounded-lg cursor-pointer transition-colors',
+                  'group flex items-center gap-1 px-3 py-2 mx-1 rounded-lg cursor-pointer select-none transition-colors',
                   conv.id === currentConversationId
                     ? 'bg-muted text-foreground'
                     : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
