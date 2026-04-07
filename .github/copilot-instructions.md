@@ -161,9 +161,11 @@ Database (Supabase PostgreSQL)
 
 ### 1. **Component Style**
 
+> **React 19 Note:** The global `JSX` namespace was removed in `@types/react` v19. Always use `React.JSX.Element` (not bare `JSX.Element`) as the return type for components.
+
 ```typescript
 // ✅ GOOD: Arrow function, explicit return type
-const ChatMessage = ({ role, content, avatar }: ChatMessageProps): JSX.Element => {
+const ChatMessage = ({ role, content, avatar }: ChatMessageProps): React.JSX.Element => {
   return (
     <div className={cn(
       "flex gap-2 p-3",
@@ -190,7 +192,7 @@ const handleMessage = (msg: any) => { /* ... */ };
 // src/app/chat/[id]/page.tsx
 import { getMessages } from '@/lib/dal';
 
-const ChatPage = async ({ params }: PageProps<'/chat/[id]'>): Promise<JSX.Element> => {
+const ChatPage = async ({ params }: PageProps<'/chat/[id]'>): Promise<React.JSX.Element> => {
   const messages = await getMessages(params.id);
   return <ChatContainer initialMessages={messages} />;
 };
@@ -199,7 +201,7 @@ const ChatPage = async ({ params }: PageProps<'/chat/[id]'>): Promise<JSX.Elemen
 'use client';
 import { use-chat } from '@/hooks/use-chat';
 
-const ChatInput = (): JSX.Element => {
+const ChatInput = (): React.JSX.Element => {
   const { sendMessage } = useChat();
   return <input onKeyDown={...} />;
 };
@@ -278,7 +280,7 @@ export const POST = async (req: Request) => {
 
 ```typescript
 // ✅ GOOD: async params in layouts/pages
-export const layout = async ({ params }: LayoutProps<'/chat/[id]'>): Promise<JSX.Element> => {
+export const layout = async ({ params }: LayoutProps<'/chat/[id]'>): Promise<React.JSX.Element> => {
   const id = await params.id; // Next.js 16: params can be async Promises
   return <div>{id}</div>;
 };
@@ -438,13 +440,13 @@ export const GET = async (req) => {
 // src/app/(main)/error.tsx
 'use client';
 
-const Error = ({ error }: { error: Error }): JSX.Element => {
+const Error = ({ error }: { error: Error }): React.JSX.Element => {
   return <div>Something went wrong: {error.message}</div>;
 };
 
 // ✅ GOOD: loading.tsx for Suspense
 // src/app/(main)/loading.tsx
-const Loading = (): JSX.Element => <Skeleton />;
+const Loading = (): React.JSX.Element => <Skeleton />;
 ```
 
 ### 8. **Path Aliases & Imports**
@@ -468,7 +470,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 
-const ChatMessage = ({ message }: Props): JSX.Element => (
+const ChatMessage = ({ message }: Props): React.JSX.Element => (
   <Card className="p-3">
     <p className="text-sm text-foreground">{message.content}</p>
   </Card>
@@ -477,7 +479,7 @@ const ChatMessage = ({ message }: Props): JSX.Element => (
 // Use cn() utility for conditional classes
 import { cn } from '@/lib/utils';
 
-const Message = ({ role }: Props): JSX.Element => (
+const Message = ({ role }: Props): React.JSX.Element => (
   <div className={cn(
     "flex gap-2",
     role === "user" && "justify-end",
@@ -492,7 +494,7 @@ const Message = ({ role }: Props): JSX.Element => (
 // ✅ GOOD: Use useQuery for data fetching
 import { useQuery } from '@tanstack/react-query';
 
-const ConversationsList = (): JSX.Element => {
+const ConversationsList = (): React.JSX.Element => {
   const { data: conversations, isLoading, error } = useQuery({
     queryKey: ['conversations'],
     queryFn: async () => {
@@ -518,7 +520,7 @@ const ConversationsList = (): JSX.Element => {
 // ✅ GOOD: Use useMutation for mutations + auto-invalidate
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-const DeleteConversation = ({ id }: { id: string }): JSX.Element => {
+const DeleteConversation = ({ id }: { id: string }): React.JSX.Element => {
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
@@ -540,7 +542,7 @@ const DeleteConversation = ({ id }: { id: string }): JSX.Element => {
 };
 
 // ❌ BAD: Manual fetch without caching
-const ConversationsList = (): JSX.Element => {
+const ConversationsList = (): React.JSX.Element => {
   const [conversations, setConversations] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
