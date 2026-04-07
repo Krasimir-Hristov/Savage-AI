@@ -335,8 +335,8 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - Disabled state while streaming
   - Character indicator (who you're talking to)
 
-- [ ] **Step 3.7: Chat UI — Container**
-      `src/components/chat/chat-container.tsx`:
+- [x] **Step 3.7: Chat UI — Container** ✅ DONE
+      `src/features/chat/components/chat-container.tsx`:
   - Messages list with scroll management
   - Auto-scroll on new messages
   - Empty state (character greeting)
