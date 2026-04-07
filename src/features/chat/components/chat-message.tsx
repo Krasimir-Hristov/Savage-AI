@@ -3,7 +3,9 @@
 import React, { useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
+import remarkGfm from 'remark-gfm';
 import { Check, Copy } from 'lucide-react';
+import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Message } from '@/types/chat';
 
@@ -31,13 +33,15 @@ const CopyCodeButton = ({ preRef }: CopyCodeButtonProps): React.JSX.Element => {
   };
 
   return (
-    <button
+    <Button
       onClick={handleCopy}
       aria-label="Copy code"
-      className="absolute top-2 right-2 p-1.5 rounded bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+      variant="ghost"
+      size="icon"
+      className="absolute top-2 right-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground bg-white/10"
     >
       {copied ? <Check size={14} /> : <Copy size={14} />}
-    </button>
+    </Button>
   );
 };
 
@@ -113,7 +117,9 @@ export const ChatMessage = ({
           ) : (
             <div className="markdown-content">
               <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeHighlight]}
+                skipHtml
                 components={{ pre: CodeBlock }}
               >
                 {message.content}
