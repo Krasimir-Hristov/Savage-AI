@@ -390,7 +390,7 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - Sample roast examples
   - Dark, edgy design
 
-- [ ] **Step 4.4: Conversation management**
+- [x] **Step 4.4: Conversation management** ✅ DONE
   - Server Actions for: create conversation, delete conversation, update title
   - Auto-generate title from first message (via AI)
   - Conversation list sorted by updated_at
@@ -399,17 +399,17 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
 
 ## Phase 5: Conversation Persistence
 
-- [ ] **Step 5.1: Save messages to database**
+- [x] **Step 5.1: Save messages to database** ✅ DONE
   - After stream completes, save both user and assistant messages
   - Use `after()` function for post-response DB writes
   - Handle reconnection / partial messages
 
-- [ ] **Step 5.2: Load conversation history**
+- [x] **Step 5.2: Load conversation history** ✅ DONE
   - Server Component fetches messages via DAL
   - Pass to ChatContainer as initial messages
   - Pagination for long conversations (cursor-based)
 
-- [ ] **Step 5.3: Conversation context**
+- [x] **Step 5.3: Conversation context** ✅ DONE
   - Send last N messages as context to OpenRouter
   - Token counting / truncation strategy
   - System prompt always first
