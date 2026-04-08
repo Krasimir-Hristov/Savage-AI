@@ -12,8 +12,8 @@ import {
 import { ChatContainer } from '@/features/chat/components/chat-container';
 import { ChatInput } from '@/features/chat/components/chat-input';
 import { useChat } from '@/features/chat/hooks/use-chat';
+import { CharacterSelector } from '@/features/characters/components/character-selector';
 import { DEFAULT_CHARACTER_ID, getAllCharacters } from '@/features/characters/data';
-import { cn } from '@/lib/utils';
 import type { Message } from '@/types/chat';
 
 interface ChatViewProps {
@@ -73,7 +73,11 @@ export const ChatView = ({
     if (isNewConversation) {
       const titleResult = await updateConversationTitleAction(convId, content);
       if (titleResult.error) {
-        console.error('[chat-view] Failed to update conversation title:', { convId, content, error: titleResult.error });
+        console.error('[chat-view] Failed to update conversation title:', {
+          convId,
+          content,
+          error: titleResult.error,
+        });
         setCreateError('Conversation created, but failed to save its title.');
       } else {
         // Invalidate sidebar query — causes useQuery in sidebar-wrapper to refetch
@@ -84,37 +88,17 @@ export const ChatView = ({
 
   const displayError = createError ?? error;
   const characters = getAllCharacters();
-  const isNewChat = !conversationId;
+  const isSelectingCharacter = !activeConversationId;
 
   return (
     <div className='flex flex-col h-full'>
-      {/* Character switcher — only on new chat, before conversation is created */}
-      {isNewChat && (
-        <div className='shrink-0 flex items-center gap-2 px-4 py-2.5 border-b border-border bg-card/50'>
-          <span className='text-xs text-muted-foreground shrink-0'>Talking to:</span>
-          <div className='flex items-center gap-1.5 flex-wrap'>
-            {characters.map((char) => {
-              const isActive = char.id === activeCharacterId;
-              return (
-                <button
-                  key={char.id}
-                  type='button'
-                  onClick={() => setActiveCharacterId(char.id)}
-                  disabled={isStreaming}
-                  className={cn(
-                    'flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
-                    isActive
-                      ? 'bg-muted text-foreground ring-1 ring-border'
-                      : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                  )}
-                >
-                  <span>{char.ui.emoji}</span>
-                  <span>{char.name}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+      {isSelectingCharacter && (
+        <CharacterSelector
+          characters={characters}
+          selectedCharacterId={activeCharacterId}
+          onSelect={setActiveCharacterId}
+          disabled={isStreaming}
+        />
       )}
 
       {/* Error banner */}
