@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 
 import { CheckCircle2 } from 'lucide-react';
+import Image from 'next/image';
 
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
@@ -62,12 +63,14 @@ export const CharacterCard = ({
       )}
 
       {/* Avatar */}
-      <div className='flex items-center justify-center size-14 rounded-full bg-muted shrink-0 mx-auto text-3xl'>
+      <div className='relative flex items-center justify-center size-14 rounded-full bg-muted shrink-0 mx-auto text-3xl overflow-hidden'>
         {!avatarError && character.avatar ? (
-          <img
+          <Image
             src={character.avatar}
             alt={character.name}
-            className='size-full rounded-full object-cover'
+            width={56}
+            height={56}
+            className='rounded-full object-cover'
             onError={() => setAvatarError(true)}
           />
         ) : (
@@ -79,7 +82,12 @@ export const CharacterCard = ({
 
       {/* Name + personality */}
       <div className='text-center space-y-1'>
-        <p className={cn('font-heading font-semibold text-sm leading-tight', character.ui.colorClass)}>
+        <p
+          className={cn(
+            'font-heading font-semibold text-sm leading-tight',
+            character.ui.colorClass
+          )}
+        >
           {character.name}
         </p>
         <p className='text-xs text-muted-foreground leading-snug line-clamp-2'>
