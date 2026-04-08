@@ -376,7 +376,7 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - Select button
   - Visual indication of selected character
 
-- [ ] **Step 4.2: Character selector**
+- [x] **Step 4.2: Character selector**
       `src/components/characters/character-selector.tsx`:
   - Grid of character cards
   - Used in new chat flow
