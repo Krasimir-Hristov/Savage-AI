@@ -380,7 +380,7 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
       `src/components/characters/character-selector.tsx`:
   - Grid of character cards
   - Used in new chat flow
-  - Can switch character mid-session (starts new conversation)
+  - Character is chosen before the first message and locked for the whole conversation
 
 - [ ] **Step 4.3: Landing page**
       `src/app/page.tsx`:
