@@ -370,7 +370,7 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
 
 ## Phase 4: Character Selection & Polish
 
-- [ ] **Step 4.1: Character card component**
+- [x] **Step 4.1: Character card component**
       `src/components/characters/character-card.tsx`:
   - Character avatar, name, personality preview
   - Select button
