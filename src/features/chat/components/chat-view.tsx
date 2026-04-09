@@ -93,13 +93,13 @@ export const ChatView = ({
   return (
     <div className='relative flex flex-col h-full overflow-hidden'>
       {/* Background glow blobs — absolute, don't affect flex layout */}
-      <div className='absolute inset-0 opacity-10 pointer-events-none' aria-hidden='true'>
+      <div className='absolute inset-0 z-0 opacity-10 pointer-events-none' aria-hidden='true'>
         <div className='absolute top-[-20%] left-[-10%] w-[55%] h-[55%] rounded-full bg-[#DC2626] blur-[140px]' />
         <div className='absolute bottom-[-20%] right-[-10%] w-[45%] h-[45%] rounded-full bg-[#ff5555] blur-[140px]' />
       </div>
       {/* SAVAGE watermark — absolute, chat renders naturally on top */}
       <div
-        className='absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden'
+        className='absolute inset-0 z-0 flex items-center justify-center pointer-events-none select-none overflow-hidden'
         aria-hidden='true'
       >
         <span className='text-[11vw] font-black uppercase text-white opacity-[0.04] leading-none tracking-tighter'>
@@ -107,36 +107,39 @@ export const ChatView = ({
         </span>
       </div>
 
-      {isSelectingCharacter && (
-        <CharacterSelector
-          characters={characters}
-          selectedCharacterId={activeCharacterId}
-          onSelect={setActiveCharacterId}
-          disabled={isStreaming}
+      {/* Content wrapper — z-[1] ensures it paints above the z-0 background layers */}
+      <div className='relative z-1 flex flex-col flex-1 min-h-0'>
+        {isSelectingCharacter && (
+          <CharacterSelector
+            characters={characters}
+            selectedCharacterId={activeCharacterId}
+            onSelect={setActiveCharacterId}
+            disabled={isStreaming}
+          />
+        )}
+
+        {/* Error banner */}
+        {displayError && (
+          <div className='shrink-0 flex items-center gap-2 px-4 py-2 text-sm text-destructive bg-destructive/10 border-b border-destructive/20'>
+            <AlertCircle size={14} className='shrink-0' />
+            <span>{displayError}</span>
+          </div>
+        )}
+
+        <ChatContainer
+          messages={messages}
+          isStreaming={isStreaming}
+          characterId={activeCharacterId}
+          className='flex-1 min-h-0'
         />
-      )}
 
-      {/* Error banner */}
-      {displayError && (
-        <div className='shrink-0 flex items-center gap-2 px-4 py-2 text-sm text-destructive bg-destructive/10 border-b border-destructive/20'>
-          <AlertCircle size={14} className='shrink-0' />
-          <span>{displayError}</span>
-        </div>
-      )}
-
-      <ChatContainer
-        messages={messages}
-        isStreaming={isStreaming}
-        characterId={activeCharacterId}
-        className='flex-1 min-h-0'
-      />
-
-      <ChatInput
-        onSend={handleSend}
-        isStreaming={isStreaming}
-        characterId={activeCharacterId}
-        className='shrink-0'
-      />
+        <ChatInput
+          onSend={handleSend}
+          isStreaming={isStreaming}
+          characterId={activeCharacterId}
+          className='shrink-0'
+        />
+      </div>
     </div>
   );
 };
