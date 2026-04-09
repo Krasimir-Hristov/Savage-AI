@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { ScrollArea } from '@/shared/components/ui/scroll-area';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { ChatMessage } from '@/features/chat/components/chat-message';
 import { CHARACTERS, DEFAULT_CHARACTER_ID } from '@/features/characters/data';
@@ -82,16 +81,18 @@ export const ChatContainer = ({
   isLoading = false,
   className,
 }: ChatContainerProps): React.JSX.Element => {
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when new messages arrive or streaming updates
+  // Scroll the container directly — never use scrollIntoView which bubbles to parent containers
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
   }, [messages, isStreaming]);
 
   return (
     <div className={cn('flex flex-col overflow-hidden', className)}>
-      <ScrollArea className='flex-1'>
+      <div ref={scrollRef} className='flex-1 overflow-y-auto min-h-0'>
         {isLoading ? (
           <LoadingSkeleton />
         ) : messages.length === 0 ? (
@@ -106,11 +107,9 @@ export const ChatContainer = ({
                 isStreaming={isStreaming && index === messages.length - 1}
               />
             ))}
-            {/* Bottom sentinel for auto-scroll */}
-            <div ref={bottomRef} />
           </div>
         )}
-      </ScrollArea>
+      </div>
     </div>
   );
 };
