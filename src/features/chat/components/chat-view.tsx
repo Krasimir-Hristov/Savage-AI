@@ -91,7 +91,22 @@ export const ChatView = ({
   const isSelectingCharacter = !activeConversationId;
 
   return (
-    <div className='flex flex-col h-full'>
+    <div className='relative flex flex-col h-full overflow-hidden'>
+      {/* Background glow blobs — absolute, don't affect flex layout */}
+      <div className='absolute inset-0 opacity-10 pointer-events-none' aria-hidden='true'>
+        <div className='absolute top-[-20%] left-[-10%] w-[55%] h-[55%] rounded-full bg-[#DC2626] blur-[140px]' />
+        <div className='absolute bottom-[-20%] right-[-10%] w-[45%] h-[45%] rounded-full bg-[#ff5555] blur-[140px]' />
+      </div>
+      {/* SAVAGE watermark — absolute, chat renders naturally on top */}
+      <div
+        className='absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden'
+        aria-hidden='true'
+      >
+        <span className='text-[11vw] font-black uppercase text-white opacity-[0.04] leading-none tracking-tighter'>
+          SAVAGE
+        </span>
+      </div>
+
       {isSelectingCharacter && (
         <CharacterSelector
           characters={characters}
