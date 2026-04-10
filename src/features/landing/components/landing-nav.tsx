@@ -24,13 +24,21 @@ const getDisplayName = (email: string, displayName: string | null): string => {
 export const LandingNav = ({ user }: LandingNavProps): React.JSX.Element => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
 
   const handleLogout = async (): Promise<void> => {
+    setLogoutError(null);
     try {
-      await logoutAction();
+      const result = await logoutAction();
+      // logoutAction redirects on success — if we reach here, it failed
+      if (!result.success) {
+        setLogoutError(result.error?.message ?? 'Failed to sign out. Please try again.');
+        return;
+      }
       router.push('/login');
     } catch (error) {
       console.error('Logout failed:', error);
+      setLogoutError('Failed to sign out. Please try again.');
     }
   };
 
@@ -82,10 +90,13 @@ export const LandingNav = ({ user }: LandingNavProps): React.JSX.Element => {
                 >
                   Go to Chat
                 </Link>
+                {logoutError && (
+                  <p className='px-4 py-2 text-xs text-red-400'>{logoutError}</p>
+                )}
                 <button
                   onClick={() => {
                     setIsOpen(false);
-                    handleLogout();
+                    void handleLogout();
                   }}
                   className='block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors rounded-b cursor-pointer'
                 >

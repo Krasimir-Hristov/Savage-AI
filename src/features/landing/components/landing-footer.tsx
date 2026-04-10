@@ -19,40 +19,8 @@ export const LandingFooter = (): React.JSX.Element => {
                 {section}
               </a>
             ))}
-            <a
-              href='#'
-              className='font-heading text-xs tracking-widest uppercase text-zinc-500 hover:text-white transition-colors duration-200'
-            >
-              Terms
-            </a>
-            <a
-              href='#'
-              className='font-heading text-xs tracking-widest uppercase text-zinc-500 hover:text-white transition-colors duration-200'
-            >
-              Privacy
-            </a>
           </div>
         </nav>
-        <div className='flex gap-6'>
-          <a
-            aria-label='Twitter'
-            href='#'
-            className='text-zinc-500 hover:text-[#f87171] transition-colors'
-          >
-            <span className='material-symbols-outlined' aria-hidden='true'>
-              terminal
-            </span>
-          </a>
-          <a
-            aria-label='Discord'
-            href='#'
-            className='text-zinc-500 hover:text-[#f87171] transition-colors'
-          >
-            <span className='material-symbols-outlined' aria-hidden='true'>
-              forum
-            </span>
-          </a>
-        </div>
       </div>
     </footer>
   );
