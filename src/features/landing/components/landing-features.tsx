@@ -1,18 +1,22 @@
-const features = [
+import { ShieldAlert, Zap, Shield } from 'lucide-react';
+
+import type { LucideIcon } from 'lucide-react';
+
+const features: { icon: LucideIcon; title: string; description: string }[] = [
   {
-    icon: 'security_update_warning',
+    icon: ShieldAlert,
     title: 'Zero Filter',
     description:
       "We don't babysit. Get the raw, unedited truth on any topic. From coding advice to life choices, we tell it like it is.",
   },
   {
-    icon: 'bolt',
+    icon: Zap,
     title: 'Token-Speed',
     description:
       'Ultra-fast streaming that keeps up with your brain. No "thinking..." spinners. Just immediate, aggressive output.',
   },
   {
-    icon: 'shield',
+    icon: Shield,
     title: 'Privacy First',
     description:
       'Powered by Supabase Auth and end-to-end encryption. Your secrets are safe, even if our AI is making fun of them.',
@@ -32,9 +36,7 @@ export const LandingFeatures = (): React.JSX.Element => {
             className='bg-[#131315] p-8 rounded-lg border-l-4 border-[#DC2626] hover:bg-[#1f1f22] transition-colors'
           >
             <div className='w-12 h-12 bg-[#DC2626]/10 rounded flex items-center justify-center mb-6'>
-              <span className='material-symbols-outlined text-[#DC2626]' aria-hidden='true'>
-                {f.icon}
-              </span>
+              <f.icon className='text-[#DC2626] w-6 h-6' aria-hidden='true' />
             </div>
             <h3 className='font-(family-name:--font-sora) text-2xl font-bold text-white mb-4'>
               {f.title}

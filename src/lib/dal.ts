@@ -51,6 +51,36 @@ export async function getUser(): Promise<ProfileRow> {
   }
 }
 
+// Returns the authenticated user without redirecting (for public pages like landing)
+export async function getOptionalUser(): Promise<{
+  userId: string;
+  email: string;
+  displayName: string | null;
+} | null> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return null;
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('display_name')
+      .eq('id', user.id)
+      .single();
+
+    return {
+      userId: user.id,
+      email: user.email ?? '',
+      displayName: profile?.display_name ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 // cache() deduplicates calls within a single server request (React 19, stable)
 export const getConversations = cache(async (userId: string): Promise<Conversation[]> => {
   try {
