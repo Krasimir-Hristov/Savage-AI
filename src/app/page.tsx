@@ -7,7 +7,7 @@ import { LandingPricing } from '@/features/landing/components/landing-pricing';
 import { LandingFooter } from '@/features/landing/components/landing-footer';
 import { getOptionalUser } from '@/lib/dal';
 
-export default async function Home(): Promise<React.JSX.Element> {
+const Home = async (): Promise<React.JSX.Element> => {
   const user = await getOptionalUser();
   return (
     <div className='flex flex-col min-h-screen bg-background'>
@@ -22,4 +22,6 @@ export default async function Home(): Promise<React.JSX.Element> {
       <LandingFooter />
     </div>
   );
-}
+};
+
+export default Home;

@@ -76,7 +76,8 @@ export async function getOptionalUser(): Promise<{
       email: user.email ?? '',
       displayName: profile?.display_name ?? null,
     };
-  } catch {
+  } catch (err) {
+    console.error('getOptionalUser failed:', err);
     return null;
   }
 }
