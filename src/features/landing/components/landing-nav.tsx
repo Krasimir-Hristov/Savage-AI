@@ -90,9 +90,7 @@ export const LandingNav = ({ user }: LandingNavProps): React.JSX.Element => {
                 >
                   Go to Chat
                 </Link>
-                {logoutError && (
-                  <p className='px-4 py-2 text-xs text-red-400'>{logoutError}</p>
-                )}
+                {logoutError && <p className='px-4 py-2 text-xs text-red-400'>{logoutError}</p>}
                 <button
                   onClick={() => {
                     setIsOpen(false);
