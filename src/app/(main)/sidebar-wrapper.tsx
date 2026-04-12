@@ -9,7 +9,7 @@ import {
   deleteConversationAction,
   renameConversationAction,
 } from '@/features/chat/actions/conversation.actions';
-import { ChatSidebar, MobileSidebarTrigger } from '@/features/chat/components/chat-sidebar';
+import { ChatSidebar, MobileSidebarTrigger } from '@/features/chat/components/ChatSidebar';
 import { CHARACTERS, DEFAULT_CHARACTER_ID } from '@/features/characters/data';
 import type { Conversation } from '@/types/chat';
 

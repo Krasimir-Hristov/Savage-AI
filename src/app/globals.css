@@ -16,6 +16,8 @@
   --color-character-grandpa-muted: var(--character-grandpa-muted);
   --color-character-dad: var(--character-dad);
   --color-character-dad-muted: var(--character-dad-muted);
+  --color-character-shark: var(--character-shark);
+  --color-character-shark-muted: var(--character-shark-muted);
   --color-amber: var(--amber);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -94,6 +96,8 @@
   --character-grandpa-muted: oklch(0.5278 0.2399 29.23 / 15%);
   --character-dad: oklch(0.596 0.2387 41.12); /* Balkan Dad - Burned Orange #EA580C */
   --character-dad-muted: oklch(0.596 0.2387 41.12 / 15%);
+  --character-shark: oklch(0.8279 0.1707 86.05); /* Corporate Shark - Gold #FBBF24 */
+  --character-shark-muted: oklch(0.8279 0.1707 86.05 / 15%);
   --amber: oklch(0.8279 0.1707 86.05); /* Amber accent #FBBF24 */
 }
 

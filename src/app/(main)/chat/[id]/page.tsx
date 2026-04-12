@@ -2,7 +2,7 @@ import React from 'react';
 
 import { notFound } from 'next/navigation';
 
-import { ChatView } from '@/features/chat/components/chat-view';
+import { ChatView } from '@/features/chat/components/ChatView';
 import { getConversation, getMessages } from '@/lib/dal';
 
 export const dynamic = 'force-dynamic';

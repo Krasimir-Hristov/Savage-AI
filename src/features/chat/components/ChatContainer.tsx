@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef } from 'react';
 import { Skeleton } from '@/shared/components/ui/skeleton';
-import { ChatMessage } from '@/features/chat/components/chat-message';
+import { CharacterAvatar } from '@/shared/components/CharacterAvatar';
+import { ChatMessage } from '@/features/chat/components/ChatMessage';
 import { CHARACTERS, DEFAULT_CHARACTER_ID } from '@/features/characters/data';
 import { cn } from '@/lib/utils';
 import type { Message } from '@/types/chat';
@@ -60,7 +61,12 @@ const EmptyState = ({ characterId }: EmptyStateProps): React.JSX.Element => {
   return (
     <div className='flex flex-col items-center justify-center h-full gap-6 px-6 py-12 text-center'>
       <div className='flex flex-col items-center gap-3'>
-        <span className='text-6xl'>{ui.emoji}</span>
+        <CharacterAvatar
+          avatar={character.avatar}
+          emoji={ui.emoji}
+          name={character.name}
+          size='lg'
+        />
         <h2 className={cn('text-xl font-semibold', ui.colorClass)}>{character.name}</h2>
         <p className='text-sm text-muted-foreground font-medium italic'>{character.personality}</p>
       </div>

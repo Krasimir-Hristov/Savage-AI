@@ -9,10 +9,10 @@ import {
   createConversationAction,
   updateConversationTitleAction,
 } from '@/features/chat/actions/conversation.actions';
-import { ChatContainer } from '@/features/chat/components/chat-container';
-import { ChatInput } from '@/features/chat/components/chat-input';
+import { ChatContainer } from '@/features/chat/components/ChatContainer';
+import { ChatInput } from '@/features/chat/components/ChatInput';
 import { useChat } from '@/features/chat/hooks/use-chat';
-import { CharacterSelector } from '@/features/characters/components/character-selector';
+import { CharacterSelector } from '@/features/characters/components/CharacterSelector';
 import { DEFAULT_CHARACTER_ID, getAllCharacters } from '@/features/characters/data';
 import type { Message } from '@/types/chat';
 

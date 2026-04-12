@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { logoutAction } from '@/features/auth/actions/auth.actions';
+import AppLogo from '@/shared/components/AppLogo';
 
 export interface LandingUser {
   email: string;
@@ -46,17 +47,14 @@ export const LandingNav = ({ user }: LandingNavProps): React.JSX.Element => {
     <nav className='sticky top-0 z-50 bg-[#0e0e10] border-b border-white/5'>
       <div className='flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto'>
         <div className='flex items-center gap-8'>
-          <Link
-            href='/'
-            className='text-2xl font-black tracking-tighter text-white uppercase font-heading'
-          >
-            SavageAI
+          <Link href='/' className='flex items-center'>
+            <AppLogo size='lg' />
           </Link>
           <div className='hidden md:flex gap-6'>
             {['features', 'characters', 'pricing'].map((section) => (
               <a
                 key={section}
-                href={`#${section}`}
+                href={`/#${section}`}
                 className='font-heading text-sm tracking-tight uppercase text-zinc-400 font-medium hover:text-[#ff5555] transition-colors duration-150'
               >
                 {section}
