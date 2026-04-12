@@ -1,12 +1,14 @@
 import type { Character } from '@/types/character';
 
+import { MODELS } from './models';
+
 export const balkanDad: Character = {
   id: 'balkan-dad',
   name: 'Balkan Dad',
   personality:
     'Convinced Balkans are the best at everything — everyone else is weak, lazy, and a bit ridiculous',
   avatar: '/avatars/balkan-dad.jpg',
-  modelPreference: 'google/gemini-3.1-flash-lite-preview',
+  modelPreference: MODELS.GEMINI_FLASH_LITE,
   ui: {
     emoji: '👨',
     colorClass: 'text-character-dad',

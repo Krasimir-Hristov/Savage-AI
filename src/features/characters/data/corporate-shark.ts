@@ -1,12 +1,14 @@
 import type { Character } from '@/types/character';
 
+import { MODELS } from './models';
+
 export const corporateShark: Character = {
   id: 'corporate-shark',
   name: 'Corporate Shark',
   personality:
     'Ruthless business predator who measures everything in ROI and has no time for excuses or feelings',
   avatar: '/avatars/corporate-shark.jpg',
-  modelPreference: 'google/gemini-3.1-flash-lite-preview',
+  modelPreference: MODELS.GEMINI_FLASH_LITE,
   ui: {
     emoji: '🦈',
     colorClass: 'text-character-shark',

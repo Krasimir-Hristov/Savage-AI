@@ -1,9 +1,9 @@
 import 'server-only';
 
+import { DEFAULT_CHAT_MODEL } from '@/features/characters/data/models';
 import type { OpenRouterMessage, StreamChunk } from '@/lib/openrouter/types';
 
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const DEFAULT_MODEL = 'qwen/qwen3.6-plus:free';
 
 export async function streamChat(
   messages: OpenRouterMessage[],
@@ -31,7 +31,7 @@ export async function streamChat(
         'X-Title': 'SavageAI',
       },
       body: JSON.stringify({
-        model: model ?? DEFAULT_MODEL,
+        model: model ?? DEFAULT_CHAT_MODEL,
         messages,
         stream: true,
       }),
