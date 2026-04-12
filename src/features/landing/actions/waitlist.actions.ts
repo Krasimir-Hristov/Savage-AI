@@ -37,7 +37,8 @@ export async function joinWaitlistAction(): Promise<WaitlistResult> {
     }
 
     return { success: true };
-  } catch {
+  } catch (error) {
+    if ((error as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw error;
     return { success: false, error: 'Something went wrong. Please try again.' };
   }
 }

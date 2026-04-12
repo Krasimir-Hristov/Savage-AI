@@ -40,10 +40,15 @@ export const LandingPricing = ({
       return;
     }
     setIsLoading(true);
-    const result = await joinWaitlistAction();
-    setIsLoading(false);
-    if (result.success || result.alreadyJoined) {
-      setNotified(true);
+    try {
+      const result = await joinWaitlistAction();
+      if (result.success || result.alreadyJoined) {
+        setNotified(true);
+      }
+    } catch (error) {
+      console.error('Failed to join waitlist:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
   return (

@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { getConversations, getUser, verifySession } from '@/lib/dal';
-import MainHeader from '@/shared/components/layout/main-header';
-import { QueryProvider } from '@/shared/components/query-provider';
-import { UserMenu } from '@/shared/components/layout/user-menu';
+import MainHeader from '@/shared/components/layout/MainHeader';
+import { QueryProvider } from '@/shared/components/QueryProvider';
+import { UserMenu } from '@/shared/components/layout/UserMenu';
 
 import { DesktopSidebar, MobileSidebar } from './sidebar-wrapper';
 

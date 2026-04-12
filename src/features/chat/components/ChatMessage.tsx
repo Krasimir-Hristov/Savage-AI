@@ -6,7 +6,7 @@ import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 import { Check, Copy } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
-import { CharacterAvatar } from '@/shared/components/character-avatar';
+import { CharacterAvatar } from '@/shared/components/CharacterAvatar';
 import { CHARACTERS, DEFAULT_CHARACTER_ID } from '@/features/characters/data';
 import { cn } from '@/lib/utils';
 import type { Message } from '@/types/chat';

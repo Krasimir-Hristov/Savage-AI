@@ -3,8 +3,9 @@
 import React, { useRef, useState } from 'react';
 import { MessageSquarePlus, Menu, Trash2, Pencil } from 'lucide-react';
 import Link from 'next/link';
-import { CharacterAvatar } from '@/shared/components/character-avatar';
+import { CharacterAvatar } from '@/shared/components/CharacterAvatar';
 import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
 import {
   Dialog,
   DialogContent,
@@ -22,7 +23,7 @@ import {
   SheetTrigger,
 } from '@/shared/components/ui/sheet';
 import { CHARACTERS, DEFAULT_CHARACTER_ID } from '@/features/characters/data';
-import AppLogo from '@/shared/components/app-logo';
+import AppLogo from '@/shared/components/AppLogo';
 import { cn } from '@/lib/utils';
 import type { Conversation } from '@/types/chat';
 
@@ -153,7 +154,7 @@ const SidebarContent = ({
                   />
                   <div className='flex-1 min-w-0'>
                     {editingId === conv.id ? (
-                      <input
+                      <Input
                         ref={inputRef}
                         value={editingTitle}
                         onChange={(e) => setEditingTitle(e.target.value)}
@@ -171,7 +172,7 @@ const SidebarContent = ({
                           }
                         }}
                         onClick={(e) => e.stopPropagation()}
-                        className='w-full text-xs font-medium bg-transparent border-b border-border outline-none text-foreground'
+                        className='h-auto px-0 py-0 text-xs font-medium bg-transparent border-0 border-b border-border rounded-none shadow-none outline-none ring-0 focus-visible:ring-0 focus-visible:border-foreground text-foreground'
                         maxLength={100}
                       />
                     ) : (

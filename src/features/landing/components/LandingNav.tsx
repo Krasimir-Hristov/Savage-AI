@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { logoutAction } from '@/features/auth/actions/auth.actions';
-import AppLogo from '@/shared/components/app-logo';
+import AppLogo from '@/shared/components/AppLogo';
 
 export interface LandingUser {
   email: string;

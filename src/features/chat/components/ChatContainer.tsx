@@ -2,8 +2,8 @@
 
 import React, { useEffect, useRef } from 'react';
 import { Skeleton } from '@/shared/components/ui/skeleton';
-import { CharacterAvatar } from '@/shared/components/character-avatar';
-import { ChatMessage } from '@/features/chat/components/chat-message';
+import { CharacterAvatar } from '@/shared/components/CharacterAvatar';
+import { ChatMessage } from '@/features/chat/components/ChatMessage';
 import { CHARACTERS, DEFAULT_CHARACTER_ID } from '@/features/characters/data';
 import { cn } from '@/lib/utils';
 import type { Message } from '@/types/chat';

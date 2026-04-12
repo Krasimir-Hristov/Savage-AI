@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { CharacterCard } from '@/features/characters/components/character-card';
+import { CharacterCard } from '@/features/characters/components/CharacterCard';
 import { cn } from '@/lib/utils';
 import type { Character } from '@/types/character';
 

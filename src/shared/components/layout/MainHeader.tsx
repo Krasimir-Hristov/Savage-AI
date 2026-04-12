@@ -2,8 +2,8 @@ import React from 'react';
 
 import Link from 'next/link';
 
-import AppLogo from '@/shared/components/app-logo';
-import { UserMenu } from '@/shared/components/layout/user-menu';
+import AppLogo from '@/shared/components/AppLogo';
+import { UserMenu } from '@/shared/components/layout/UserMenu';
 
 interface MainHeaderProps {
   email: string;

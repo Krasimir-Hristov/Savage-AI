@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ChatView } from '@/features/chat/components/chat-view';
+import { ChatView } from '@/features/chat/components/ChatView';
 import { CHARACTERS, DEFAULT_CHARACTER_ID } from '@/features/characters/data';
 import { getUser } from '@/lib/dal';
 

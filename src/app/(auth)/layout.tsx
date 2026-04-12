@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import AppLogo from '@/shared/components/app-logo';
+import AppLogo from '@/shared/components/AppLogo';
 import { Badge } from '@/shared/components/ui/badge';
 
 const AuthLayout = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
