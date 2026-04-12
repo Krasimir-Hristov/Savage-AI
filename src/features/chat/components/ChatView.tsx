@@ -12,6 +12,7 @@ import {
 import { ChatContainer } from '@/features/chat/components/ChatContainer';
 import { ChatInput } from '@/features/chat/components/ChatInput';
 import { useChat } from '@/features/chat/hooks/use-chat';
+import { CharacterPickerSheet } from '@/features/characters/components/CharacterPickerSheet';
 import { CharacterSelector } from '@/features/characters/components/CharacterSelector';
 import { DEFAULT_CHARACTER_ID, getAllCharacters } from '@/features/characters/data';
 import type { Message } from '@/types/chat';
@@ -110,12 +111,24 @@ export const ChatView = ({
       {/* Content wrapper — z-[1] ensures it paints above the z-0 background layers */}
       <div className='relative z-1 flex flex-col flex-1 min-h-0'>
         {isSelectingCharacter && (
-          <CharacterSelector
-            characters={characters}
-            selectedCharacterId={activeCharacterId}
-            onSelect={setActiveCharacterId}
-            disabled={isStreaming}
-          />
+          <>
+            {/* Desktop: full grid selector */}
+            <div className='hidden md:block'>
+              <CharacterSelector
+                characters={characters}
+                selectedCharacterId={activeCharacterId}
+                onSelect={setActiveCharacterId}
+                disabled={isStreaming}
+              />
+            </div>
+            {/* Mobile: compact bottom sheet trigger */}
+            <CharacterPickerSheet
+              characters={characters}
+              selectedCharacterId={activeCharacterId}
+              onSelect={setActiveCharacterId}
+              disabled={isStreaming}
+            />
+          </>
         )}
 
         {/* Error banner */}

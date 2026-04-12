@@ -89,8 +89,8 @@ export const ChatInput = ({
         </Button>
       </div>
 
-      {/* Keyboard hint */}
-      <p className='text-xs text-muted-foreground px-1'>
+      {/* Keyboard hint — hidden on mobile where it's irrelevant */}
+      <p className='hidden sm:block text-xs text-muted-foreground px-1'>
         <kbd className='font-mono'>Enter</kbd> to send &middot;{' '}
         <kbd className='font-mono'>Shift+Enter</kbd> for new line
       </p>

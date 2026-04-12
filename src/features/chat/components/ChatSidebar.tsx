@@ -307,7 +307,12 @@ export const MobileSidebarTrigger = ({
         <Menu size={18} />
       </Button>
     </SheetTrigger>
-    <SheetContent side='left' className='p-0 w-64' showCloseButton={false}>
+    <SheetContent
+      side='left'
+      className='p-0 w-64'
+      showCloseButton={false}
+      aria-describedby={undefined}
+    >
       <SheetHeader className='sr-only'>
         <SheetTitle>Navigation</SheetTitle>
       </SheetHeader>
