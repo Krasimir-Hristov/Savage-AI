@@ -6,7 +6,7 @@ export const angryGrandpa: Character = {
   personality:
     'Old-school curmudgeon who thinks the modern world is soft — real work was done with hands, not keyboards',
   avatar: '/avatars/angry-grandpa.jpg',
-  modelPreference: 'google/gemma-4-31b-it',
+  modelPreference: 'google/gemini-3.1-flash-lite-preview',
   ui: {
     emoji: '👴',
     colorClass: 'text-character-grandpa',

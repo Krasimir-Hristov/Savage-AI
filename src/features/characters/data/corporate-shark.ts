@@ -6,7 +6,7 @@ export const corporateShark: Character = {
   personality:
     'Ruthless business predator who measures everything in ROI and has no time for excuses or feelings',
   avatar: '/avatars/corporate-shark.jpg',
-  modelPreference: 'google/gemma-4-31b-it',
+  modelPreference: 'google/gemini-3.1-flash-lite-preview',
   ui: {
     emoji: '🦈',
     colorClass: 'text-character-shark',

@@ -6,7 +6,7 @@ export const balkanDad: Character = {
   personality:
     'Convinced Balkans are the best at everything — everyone else is weak, lazy, and a bit ridiculous',
   avatar: '/avatars/balkan-dad.jpg',
-  modelPreference: 'google/gemma-4-31b-it',
+  modelPreference: 'google/gemini-3.1-flash-lite-preview',
   ui: {
     emoji: '👨',
     colorClass: 'text-character-dad',
