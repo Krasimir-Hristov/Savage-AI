@@ -135,14 +135,22 @@ const SidebarContent = ({
               return (
                 <div
                   key={conv.id}
+                  role='button'
+                  tabIndex={0}
                   className={cn(
-                    'group flex items-center gap-2 px-3 py-2 mx-1 rounded-lg cursor-pointer select-none transition-colors',
+                    'group flex items-center gap-2 px-3 py-2 mx-1 rounded-lg cursor-pointer select-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                     conv.id === currentConversationId
                       ? 'bg-muted text-foreground'
                       : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
                   )}
                   onClick={() => {
                     if (editingId !== conv.id) onSelectConversation(conv.id);
+                  }}
+                  onKeyDown={(e) => {
+                    if (editingId !== conv.id && (e.key === 'Enter' || e.key === ' ')) {
+                      e.preventDefault();
+                      onSelectConversation(conv.id);
+                    }
                   }}
                 >
                   <CharacterAvatar
@@ -187,8 +195,8 @@ const SidebarContent = ({
                     )}
                   </div>
 
-                  {/* Rename + Delete buttons — visible only on row hover */}
-                  <div className='flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity'>
+                  {/* Rename + Delete buttons — visible on row hover or keyboard focus */}
+                  <div className='flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity'>
                     <Button
                       type='button'
                       variant='ghost'
