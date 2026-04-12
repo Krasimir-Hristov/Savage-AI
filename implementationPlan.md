@@ -382,7 +382,7 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - Used in new chat flow
   - Character is chosen before the first message and locked for the whole conversation
 
-- [ ] **Step 4.3: Landing page**
+- [x] **Step 4.3: Landing page**
       `src/app/page.tsx`:
   - Hero section with SavageAI branding
   - "Try it" CTA → login/signup
