@@ -32,6 +32,7 @@ export const LandingPricing = ({
 }: LandingPricingProps): React.JSX.Element => {
   const [notified, setNotified] = useState(initialNotified);
   const [isLoading, setIsLoading] = useState(false);
+  const [waitlistError, setWaitlistError] = useState<string | null>(null);
   const router = useRouter();
 
   const handleNotify = async (): Promise<void> => {
@@ -40,13 +41,19 @@ export const LandingPricing = ({
       return;
     }
     setIsLoading(true);
+    setWaitlistError(null);
     try {
       const result = await joinWaitlistAction();
       if (result.success || result.alreadyJoined) {
         setNotified(true);
+        setWaitlistError(null);
+      } else {
+        setWaitlistError(result.error ?? 'Something went wrong. Please try again.');
       }
     } catch (error) {
-      console.error('Failed to join waitlist:', error);
+      setWaitlistError(
+        error instanceof Error ? error.message : 'Something went wrong. Please try again.'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -125,6 +132,9 @@ export const LandingPricing = ({
           >
             {isLoading ? 'Saving...' : notified ? "✓ You're on the list!" : 'Notify Me When Live'}
           </button>
+          {waitlistError && (
+            <p className='mt-2 text-center text-xs text-red-400'>{waitlistError}</p>
+          )}
         </div>
       </div>
     </section>

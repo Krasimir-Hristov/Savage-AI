@@ -11,13 +11,13 @@ import { createClient } from '@/lib/supabase/server';
 const Home = async (): Promise<React.JSX.Element> => {
   const user = await getOptionalUser();
   let isOnWaitlist = false;
-  if (user?.email) {
+  if (user?.userId) {
     try {
       const supabase = await createClient();
       const { data } = await supabase
         .from('waitlist')
         .select('id')
-        .eq('email', user.email)
+        .eq('user_id', user.userId)
         .maybeSingle();
       isOnWaitlist = !!data;
     } catch (error) {

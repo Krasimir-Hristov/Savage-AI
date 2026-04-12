@@ -189,28 +189,32 @@ const SidebarContent = ({
 
                   {/* Rename + Delete buttons — visible only on row hover */}
                   <div className='flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity'>
-                    <button
+                    <Button
                       type='button'
+                      variant='ghost'
+                      size='icon'
                       aria-label='Rename conversation'
                       onClick={(e) => {
                         e.stopPropagation();
                         startEditing(conv);
                       }}
-                      className='cursor-pointer p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors'
+                      className='cursor-pointer h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-muted'
                     >
                       <Pencil size={12} />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type='button'
+                      variant='ghost'
+                      size='icon'
                       aria-label='Delete conversation'
                       onClick={(e) => {
                         e.stopPropagation();
                         setDeletingConv(conv);
                       }}
-                      className='cursor-pointer p-1 rounded text-muted-foreground hover:text-red-400 hover:bg-red-950 transition-colors'
+                      className='cursor-pointer h-6 w-6 text-muted-foreground hover:text-red-400 hover:bg-red-950'
                     >
                       <Trash2 size={12} />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               );
