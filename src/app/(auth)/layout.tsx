@@ -1,3 +1,6 @@
+import Link from 'next/link';
+
+import AppLogo from '@/shared/components/app-logo';
 import { Badge } from '@/shared/components/ui/badge';
 
 const AuthLayout = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
@@ -6,6 +9,13 @@ const AuthLayout = ({ children }: { children: React.ReactNode }): React.JSX.Elem
       <div className='absolute inset-0 bg-[radial-gradient(circle_at_top_left,oklch(0.5278_0.2399_29.23/0.18),transparent_28%),radial-gradient(circle_at_bottom_right,oklch(0.596_0.2387_41.12/0.12),transparent_24%)]' />
       <div className='absolute inset-0 opacity-30 bg-[linear-gradient(to_right,oklch(1_0_0/0.05)_1px,transparent_1px),linear-gradient(to_bottom,oklch(1_0_0/0.05)_1px,transparent_1px)] bg-size-[72px_72px]' />
       <div className='absolute inset-0 bg-[linear-gradient(to_bottom,transparent,oklch(0.087_0_0/0.72)_78%,oklch(0.087_0_0))]' />
+
+      {/* Top-left logo link back to landing */}
+      <div className='absolute top-5 left-6 z-10'>
+        <Link href='/'>
+          <AppLogo size='sm' />
+        </Link>
+      </div>
 
       <div className='relative mx-auto flex min-h-screen w-full max-w-7xl items-center px-4 py-8 sm:px-6 lg:px-8'>
         <div className='grid w-full gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,480px)] lg:items-center'>

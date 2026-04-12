@@ -2,8 +2,9 @@
 
 import React, { useRef, useState } from 'react';
 import { MessageSquarePlus, Menu, Trash2, Pencil } from 'lucide-react';
+import Link from 'next/link';
+import { CharacterAvatar } from '@/shared/components/character-avatar';
 import { Button } from '@/shared/components/ui/button';
-import { Badge } from '@/shared/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -21,6 +22,7 @@ import {
   SheetTrigger,
 } from '@/shared/components/ui/sheet';
 import { CHARACTERS, DEFAULT_CHARACTER_ID } from '@/features/characters/data';
+import AppLogo from '@/shared/components/app-logo';
 import { cn } from '@/lib/utils';
 import type { Conversation } from '@/types/chat';
 
@@ -59,9 +61,6 @@ const SidebarContent = ({
   onDeleteConversation,
   onRenameConversation,
 }: ChatSidebarProps): React.JSX.Element => {
-  const character = CHARACTERS[characterId] ?? CHARACTERS[DEFAULT_CHARACTER_ID];
-  const ui = character.ui;
-
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
   const [deletingConv, setDeletingConv] = useState<Conversation | null>(null);
@@ -100,9 +99,9 @@ const SidebarContent = ({
     <div className='flex flex-col h-full'>
       {/* Header */}
       <div className='flex items-center justify-between px-4 py-3 border-b border-border'>
-        <span className='font-heading font-semibold text-sm text-foreground tracking-wide'>
-          SavageAI
-        </span>
+        <Link href='/'>
+          <AppLogo size='md' />
+        </Link>
         <Button
           onClick={onNewChat}
           variant='ghost'
@@ -114,14 +113,11 @@ const SidebarContent = ({
         </Button>
       </div>
 
-      {/* Active character badge */}
+      {/* Chat History label */}
       <div className='px-4 py-2.5 border-b border-border'>
-        <div className='flex items-center gap-2'>
-          <span className='text-sm'>{ui.emoji}</span>
-          <Badge variant='outline' className={cn('text-xs font-medium', ui.colorClass)}>
-            {character.name}
-          </Badge>
-        </div>
+        <p className='text-xs font-medium text-muted-foreground uppercase tracking-wider'>
+          Chat History
+        </p>
       </div>
 
       {/* Conversations list */}
@@ -133,88 +129,103 @@ const SidebarContent = ({
           </div>
         ) : (
           <div className='flex flex-col py-2'>
-            {conversations.map((conv) => (
-              <div
-                key={conv.id}
-                className={cn(
-                  'group flex items-center gap-1 px-3 py-2 mx-1 rounded-lg cursor-pointer select-none transition-colors',
-                  conv.id === currentConversationId
-                    ? 'bg-muted text-foreground'
-                    : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                )}
-                onClick={() => {
-                  if (editingId !== conv.id) onSelectConversation(conv.id);
-                }}
-              >
-                <div className='flex-1 min-w-0'>
-                  {editingId === conv.id ? (
-                    <input
-                      ref={inputRef}
-                      value={editingTitle}
-                      onChange={(e) => setEditingTitle(e.target.value)}
-                      onBlur={() => {
-                        void commitRename();
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          void commitRename();
-                        }
-                        if (e.key === 'Escape') {
-                          e.preventDefault();
-                          cancelEditing();
-                        }
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                      className='w-full text-xs font-medium bg-transparent border-b border-border outline-none text-foreground'
-                      maxLength={100}
-                    />
-                  ) : (
-                    <>
-                      <p className='text-xs font-medium truncate'>
-                        {conv.title ?? 'New conversation'}
-                      </p>
-                      <p className='text-[10px] text-muted-foreground/70 mt-0.5'>
-                        {formatDate(conv.updated_at)}
-                      </p>
-                    </>
+            {conversations.map((conv) => {
+              const convChar = CHARACTERS[conv.character_id] ?? CHARACTERS[DEFAULT_CHARACTER_ID];
+              return (
+                <div
+                  key={conv.id}
+                  className={cn(
+                    'group flex items-center gap-2 px-3 py-2 mx-1 rounded-lg cursor-pointer select-none transition-colors',
+                    conv.id === currentConversationId
+                      ? 'bg-muted text-foreground'
+                      : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
                   )}
-                </div>
+                  onClick={() => {
+                    if (editingId !== conv.id) onSelectConversation(conv.id);
+                  }}
+                >
+                  <CharacterAvatar
+                    avatar={convChar.avatar}
+                    emoji={convChar.ui.emoji}
+                    name={convChar.name}
+                    size='sm'
+                    className='shrink-0'
+                  />
+                  <div className='flex-1 min-w-0'>
+                    {editingId === conv.id ? (
+                      <input
+                        ref={inputRef}
+                        value={editingTitle}
+                        onChange={(e) => setEditingTitle(e.target.value)}
+                        onBlur={() => {
+                          void commitRename();
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            void commitRename();
+                          }
+                          if (e.key === 'Escape') {
+                            e.preventDefault();
+                            cancelEditing();
+                          }
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                        className='w-full text-xs font-medium bg-transparent border-b border-border outline-none text-foreground'
+                        maxLength={100}
+                      />
+                    ) : (
+                      <>
+                        <p className='text-xs font-medium truncate'>
+                          {conv.title ?? 'New conversation'}
+                        </p>
+                        <p className='text-[10px] text-muted-foreground/70 mt-0.5'>
+                          {formatDate(conv.updated_at)}
+                        </p>
+                      </>
+                    )}
+                  </div>
 
-                {/* Rename + Delete buttons — visible only on row hover */}
-                <div className='flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity'>
-                  <button
-                    type='button'
-                    aria-label='Rename conversation'
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      startEditing(conv);
-                    }}
-                    className='cursor-pointer p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors'
-                  >
-                    <Pencil size={12} />
-                  </button>
-                  <button
-                    type='button'
-                    aria-label='Delete conversation'
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDeletingConv(conv);
-                    }}
-                    className='cursor-pointer p-1 rounded text-muted-foreground hover:text-red-400 hover:bg-red-950 transition-colors'
-                  >
-                    <Trash2 size={12} />
-                  </button>
+                  {/* Rename + Delete buttons — visible only on row hover */}
+                  <div className='flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity'>
+                    <button
+                      type='button'
+                      aria-label='Rename conversation'
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        startEditing(conv);
+                      }}
+                      className='cursor-pointer p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors'
+                    >
+                      <Pencil size={12} />
+                    </button>
+                    <button
+                      type='button'
+                      aria-label='Delete conversation'
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeletingConv(conv);
+                      }}
+                      className='cursor-pointer p-1 rounded text-muted-foreground hover:text-red-400 hover:bg-red-950 transition-colors'
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
 
       {/* Footer */}
       <div className='px-4 py-3 border-t border-border'>
-        <Button onClick={onNewChat} variant='outline' size='sm' className='w-full gap-2'>
+        <Button
+          onClick={onNewChat}
+          variant='outline'
+          size='sm'
+          className='w-full gap-2 cursor-pointer'
+        >
           <MessageSquarePlus size={14} />
           New Chat
         </Button>

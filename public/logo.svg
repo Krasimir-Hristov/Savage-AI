@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 100">
+  <!-- Skull icon (left side, transparent background) -->
+  <!-- Left horn -->
+  <polygon points="30,22 23,4 37,19" fill="#DC2626"/>
+  <!-- Right horn -->
+  <polygon points="70,22 77,4 63,19" fill="#DC2626"/>
+  <!-- Main skull cranium -->
+  <ellipse cx="50" cy="46" rx="30" ry="28" fill="#DC2626"/>
+  <!-- Jaw -->
+  <rect x="25" y="62" width="50" height="22" rx="3" fill="#DC2626"/>
+  <!-- Left eye socket (angry: outer top higher, inner top lower) -->
+  <polygon points="23,35 41,42 41,54 23,54" fill="#0A0A0A"/>
+  <!-- Right eye socket (mirrored) -->
+  <polygon points="77,35 59,42 59,54 77,54" fill="#0A0A0A"/>
+  <!-- Nose -->
+  <polygon points="44,57 56,57 50,65" fill="#0A0A0A"/>
+  <!-- Teeth dividers (5 lines = 6 teeth) -->
+  <line x1="32" y1="62" x2="32" y2="84" stroke="#0A0A0A" stroke-width="2.5"/>
+  <line x1="41" y1="62" x2="41" y2="84" stroke="#0A0A0A" stroke-width="2.5"/>
+  <line x1="50" y1="62" x2="50" y2="84" stroke="#0A0A0A" stroke-width="2.5"/>
+  <line x1="59" y1="62" x2="59" y2="84" stroke="#0A0A0A" stroke-width="2.5"/>
+  <line x1="68" y1="62" x2="68" y2="84" stroke="#0A0A0A" stroke-width="2.5"/>
+  <!-- SavageAI text -->
+  <text
+    x="108"
+    y="63"
+    font-family="'Arial Black', Impact, 'Helvetica Neue', sans-serif"
+    font-weight="900"
+    font-size="38"
+    fill="#DC2626"
+    letter-spacing="-1"
+  >SavageAI</text>
+</svg>

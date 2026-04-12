@@ -6,6 +6,7 @@ import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 import { Check, Copy } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
+import { CharacterAvatar } from '@/shared/components/character-avatar';
 import { CHARACTERS, DEFAULT_CHARACTER_ID } from '@/features/characters/data';
 import { cn } from '@/lib/utils';
 import type { Message } from '@/types/chat';
@@ -114,9 +115,12 @@ export const ChatMessage = ({
   return (
     <div className='flex gap-3 mb-4'>
       {/* Character avatar */}
-      <div className='shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-base bg-muted border border-border'>
-        {ui?.emoji}
-      </div>
+      <CharacterAvatar
+        avatar={character?.avatar ?? ''}
+        emoji={ui?.emoji ?? ''}
+        name={characterName}
+        size='md'
+      />
 
       <div className='flex-1 min-w-0'>
         {/* Character name */}

@@ -21,6 +21,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'SavageAI',
   description: 'AI assistants that tell you what they really think.',
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+  },
 };
 
 const RootLayout = ({

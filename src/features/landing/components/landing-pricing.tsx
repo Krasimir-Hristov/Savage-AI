@@ -1,4 +1,17 @@
+'use client';
+
+import { useState } from 'react';
+
+import { CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+import { joinWaitlistAction } from '@/features/landing/actions/waitlist.actions';
+
+interface LandingPricingProps {
+  userId?: string | null;
+  initialNotified?: boolean;
+}
 
 const freeTierFeatures = [
   'Standard Character Access',
@@ -13,7 +26,26 @@ const savageTierFeatures = [
   'Custom Character Builder (Beta)',
 ];
 
-export const LandingPricing = (): React.JSX.Element => {
+export const LandingPricing = ({
+  userId,
+  initialNotified = false,
+}: LandingPricingProps): React.JSX.Element => {
+  const [notified, setNotified] = useState(initialNotified);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  const handleNotify = async (): Promise<void> => {
+    if (!userId) {
+      router.push('/signup?waitlist=savage');
+      return;
+    }
+    setIsLoading(true);
+    const result = await joinWaitlistAction();
+    setIsLoading(false);
+    if (result.success || result.alreadyJoined) {
+      setNotified(true);
+    }
+  };
   return (
     <section id='pricing' aria-label='Pricing' className='py-24 px-6 bg-[#131315]'>
       <div className='max-w-5xl mx-auto text-center mb-16'>
@@ -40,12 +72,7 @@ export const LandingPricing = (): React.JSX.Element => {
           <ul className='space-y-4 mb-10 grow'>
             {freeTierFeatures.map((item) => (
               <li key={item} className='flex items-center gap-3 text-zinc-400'>
-                <span
-                  className='material-symbols-outlined text-[#DC2626] text-lg'
-                  aria-hidden='true'
-                >
-                  check_circle
-                </span>
+                <CheckCircle2 size={18} className='text-[#DC2626] shrink-0' aria-hidden='true' />
                 {item}
               </li>
             ))}
@@ -62,9 +89,9 @@ export const LandingPricing = (): React.JSX.Element => {
         <div className='p-10 rounded-lg bg-[#1f1f22] flex flex-col border-2 border-[#DC2626] relative overflow-hidden'>
           <div
             className='absolute top-4 -right-8 bg-[#DC2626] text-[#0e0e10] px-12 py-1 rotate-45 font-heading text-[10px] font-black uppercase tracking-tighter'
-            aria-label='Recommended'
+            aria-label='Coming Soon'
           >
-            Recommended
+            Coming Soon
           </div>
           <h3 className='font-heading text-[#DC2626] uppercase tracking-widest text-sm mb-2'>
             The Savage Tier
@@ -74,26 +101,25 @@ export const LandingPricing = (): React.JSX.Element => {
               $19
             </span>
             <span className='text-zinc-500 font-heading'>/mo</span>
+            <span className='ml-2 text-xs font-heading text-zinc-500 uppercase tracking-widest self-center'>
+              · launching soon
+            </span>
           </div>
           <ul className='space-y-4 mb-10 grow'>
             {savageTierFeatures.map((item) => (
               <li key={item} className='flex items-center gap-3 text-white font-medium'>
-                <span
-                  className='material-symbols-outlined text-[#DC2626] text-lg [font-variation-settings:"FILL"_1]'
-                  aria-hidden='true'
-                >
-                  check_circle
-                </span>
+                <CheckCircle2 size={18} className='text-[#DC2626] shrink-0' aria-hidden='true' />
                 {item}
               </li>
             ))}
           </ul>
-          <Link
-            href='/signup?plan=savage'
-            className='w-full py-4 bg-[#DC2626] text-[#0e0e10] font-(family-name:--font-sora) font-bold text-center hover:scale-[1.02] transition-transform rounded'
+          <button
+            onClick={handleNotify}
+            disabled={notified || isLoading}
+            className='w-full py-4 bg-[#DC2626] text-[#0e0e10] font-(family-name:--font-sora) font-bold text-center hover:scale-[1.02] active:scale-[0.98] transition-transform rounded disabled:opacity-80 disabled:scale-100 disabled:cursor-default cursor-pointer'
           >
-            Join the Savage Elite
-          </Link>
+            {isLoading ? 'Saving...' : notified ? "✓ You're on the list!" : 'Notify Me When Live'}
+          </button>
         </div>
       </div>
     </section>

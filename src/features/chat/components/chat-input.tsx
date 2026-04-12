@@ -67,15 +67,6 @@ export const ChatInput = ({
 
   return (
     <div className={cn('flex flex-col gap-2', className)}>
-      {/* Character indicator */}
-      <div className='flex items-center gap-1.5 px-1'>
-        <span className='text-sm'>{ui?.emoji}</span>
-        <span className={cn('text-xs font-medium', ui?.colorClass)}>{characterName}</span>
-        {isStreaming && (
-          <span className='text-xs text-muted-foreground ml-auto animate-pulse'>typing...</span>
-        )}
-      </div>
-
       {/* Input row */}
       <div className='flex items-end gap-2'>
         <Textarea
@@ -92,7 +83,7 @@ export const ChatInput = ({
           disabled={!canSend}
           size='icon'
           aria-label='Send message'
-          className='shrink-0 mb-0.5'
+          className='shrink-0 mb-0.5 cursor-pointer disabled:cursor-not-allowed'
         >
           <Send size={16} />
         </Button>

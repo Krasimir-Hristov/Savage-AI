@@ -108,6 +108,30 @@ export type Database = {
         };
         Relationships: [];
       };
+      waitlist: {
+        Row: {
+          created_at: string | null;
+          email: string;
+          id: string;
+          source: string | null;
+          user_id: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          email: string;
+          id?: string;
+          source?: string | null;
+          user_id?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          email?: string;
+          id?: string;
+          source?: string | null;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
