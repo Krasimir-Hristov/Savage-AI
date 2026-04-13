@@ -15,7 +15,14 @@ interface AppLogoProps {
 }
 
 const AppLogo = ({ size = 'md', className }: AppLogoProps): React.JSX.Element => (
-  <Image src='/logo.svg' alt='SavageAI' width={32} height={32} className={cn('w-auto', sizeClasses[size], className)} />
+  <Image
+    src='/logo.svg'
+    alt='SavageAI'
+    width={32}
+    height={32}
+    style={{ width: 'auto' }}
+    className={cn(sizeClasses[size], className)}
+  />
 );
 
 export default AppLogo;
