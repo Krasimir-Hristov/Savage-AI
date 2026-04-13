@@ -26,7 +26,6 @@ export const ChatInput = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const character = CHARACTERS[characterId];
-  const characterName = character?.name ?? 'Unknown';
   const ui = character?.ui ?? CHARACTERS[DEFAULT_CHARACTER_ID]?.ui;
   const placeholder = ui?.placeholder ?? 'Type a message...';
 

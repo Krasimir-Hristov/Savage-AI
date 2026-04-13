@@ -1,5 +1,6 @@
 import React from 'react';
 
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 const sizeClasses = {
@@ -14,7 +15,7 @@ interface AppLogoProps {
 }
 
 const AppLogo = ({ size = 'md', className }: AppLogoProps): React.JSX.Element => (
-  <img src='/logo.svg' alt='SavageAI' className={cn('w-auto', sizeClasses[size], className)} />
+  <Image src='/logo.svg' alt='SavageAI' width={32} height={32} className={cn('w-auto', sizeClasses[size], className)} />
 );
 
 export default AppLogo;

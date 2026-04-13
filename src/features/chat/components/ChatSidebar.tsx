@@ -56,7 +56,6 @@ const formatDate = (dateStr: string | null): string => {
 const SidebarContent = ({
   conversations,
   currentConversationId,
-  characterId,
   onNewChat,
   onSelectConversation,
   onDeleteConversation,
