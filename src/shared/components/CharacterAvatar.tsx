@@ -62,7 +62,7 @@ export const CharacterAvatar = ({
       role='img'
       aria-label={name}
     >
-      {name.charAt(0)}
+      {(name?.trim().charAt(0) || '?').toUpperCase()}
     </div>
   );
 };

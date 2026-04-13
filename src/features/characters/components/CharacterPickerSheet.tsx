@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Image from 'next/image';
 import { ChevronUp } from 'lucide-react';
@@ -28,6 +28,11 @@ export const CharacterPickerSheet = ({
   const [avatarError, setAvatarError] = useState(false);
 
   const selectedCharacter = characters.find((c) => c.id === selectedCharacterId);
+
+  // Reset avatarError when selected character changes
+  useEffect(() => {
+    setAvatarError(false);
+  }, [selectedCharacterId]);
 
   const handleSelect = (id: string): void => {
     onSelect(id);
