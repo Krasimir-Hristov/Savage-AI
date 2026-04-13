@@ -63,7 +63,7 @@ export const CharacterCard = ({
       )}
 
       {/* Avatar */}
-      <div className='relative flex items-center justify-center size-14 rounded-full bg-muted shrink-0 mx-auto text-3xl overflow-hidden'>
+      <div className='relative flex items-center justify-center size-14 rounded-full bg-muted shrink-0 mx-auto overflow-hidden'>
         {!avatarError && character.avatar ? (
           <Image
             src={character.avatar}
@@ -74,9 +74,9 @@ export const CharacterCard = ({
             onError={() => setAvatarError(true)}
           />
         ) : (
-          <span role='img' aria-label={character.name}>
-            {character.ui.emoji}
-          </span>
+          <div className='flex items-center justify-center size-full bg-linear-to-br from-muted to-muted-foreground text-white text-sm font-semibold'>
+            {character.name.charAt(0)}
+          </div>
         )}
       </div>
 

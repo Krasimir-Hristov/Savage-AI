@@ -54,15 +54,15 @@ export const CharacterAvatar = ({
   return (
     <div
       className={cn(
-        'shrink-0 rounded-full flex items-center justify-center bg-muted border border-border',
-        size === 'lg' ? 'text-5xl' : size === 'md' ? 'text-base' : 'text-sm',
+        'shrink-0 rounded-full flex items-center justify-center bg-linear-to-br from-muted to-muted-foreground border border-border text-white font-semibold',
+        size === 'lg' ? 'text-3xl' : size === 'md' ? 'text-sm' : 'text-xs',
         className
       )}
       style={{ width: px, height: px }}
       role='img'
       aria-label={name}
     >
-      {emoji}
+      {name.charAt(0)}
     </div>
   );
 };
