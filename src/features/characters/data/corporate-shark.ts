@@ -8,7 +8,7 @@ export const corporateShark: Character = {
   personality:
     'Ruthless business predator who measures everything in ROI and has no time for excuses or feelings',
   avatar: '/avatars/corporate-shark.jpg',
-  modelPreference: MODELS.GEMINI_FLASH_LITE,
+  modelPreference: MODELS.GEMINI_2_FLASH_LITE,
   ui: {
     emoji: '🦈',
     colorClass: 'text-character-shark',

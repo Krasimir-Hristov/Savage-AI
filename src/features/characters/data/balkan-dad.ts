@@ -8,7 +8,7 @@ export const balkanDad: Character = {
   personality:
     'Hot-headed Balkan tough guy — loud, opinionated, thinks he knows everything, and has zero tolerance for nonsense',
   avatar: '/avatars/balkan-dad.jpg',
-  modelPreference: MODELS.GEMINI_FLASH_LITE,
+  modelPreference: MODELS.GEMINI_2_FLASH_LITE,
   ui: {
     emoji: '👨',
     colorClass: 'text-character-dad',
