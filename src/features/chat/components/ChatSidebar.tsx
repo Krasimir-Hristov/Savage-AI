@@ -154,7 +154,6 @@ const SidebarContent = ({
                 >
                   <CharacterAvatar
                     avatar={convChar.avatar}
-                    emoji={convChar.ui.emoji}
                     name={convChar.name}
                     size='sm'
                     className='shrink-0'
