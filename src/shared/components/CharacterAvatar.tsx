@@ -14,7 +14,6 @@ const sizeMap = {
 
 interface CharacterAvatarProps {
   avatar: string;
-  emoji: string;
   name: string;
   size?: keyof typeof sizeMap;
   className?: string;
@@ -22,7 +21,6 @@ interface CharacterAvatarProps {
 
 export const CharacterAvatar = ({
   avatar,
-  emoji,
   name,
   size = 'md',
   className,
