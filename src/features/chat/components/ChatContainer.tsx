@@ -63,7 +63,6 @@ const EmptyState = ({ characterId }: EmptyStateProps): React.JSX.Element => {
       <div className='flex flex-col items-center gap-3'>
         <CharacterAvatar
           avatar={character.avatar}
-          emoji={ui.emoji}
           name={character.name}
           size='lg'
         />

@@ -56,7 +56,6 @@ const formatDate = (dateStr: string | null): string => {
 const SidebarContent = ({
   conversations,
   currentConversationId,
-  characterId,
   onNewChat,
   onSelectConversation,
   onDeleteConversation,
@@ -155,7 +154,6 @@ const SidebarContent = ({
                 >
                   <CharacterAvatar
                     avatar={convChar.avatar}
-                    emoji={convChar.ui.emoji}
                     name={convChar.name}
                     size='sm'
                     className='shrink-0'

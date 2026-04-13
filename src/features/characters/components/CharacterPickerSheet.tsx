@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 
+import Image from 'next/image';
 import { ChevronUp } from 'lucide-react';
 
 import { Button } from '@/shared/components/ui/button';
@@ -24,6 +25,7 @@ export const CharacterPickerSheet = ({
   disabled = false,
 }: CharacterPickerSheetProps): React.JSX.Element => {
   const [open, setOpen] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
 
   const selectedCharacter = characters.find((c) => c.id === selectedCharacterId);
 
@@ -42,7 +44,20 @@ export const CharacterPickerSheet = ({
         aria-label='Pick a character'
       >
         <span className='flex items-center gap-2 min-w-0'>
-          <span className='text-lg leading-none'>{selectedCharacter?.ui.emoji ?? '👤'}</span>
+          {!avatarError && selectedCharacter?.avatar ? (
+            <Image
+              src={selectedCharacter.avatar}
+              alt={selectedCharacter.name}
+              width={24}
+              height={24}
+              className='rounded-full object-cover shrink-0 w-6 h-6'
+              onError={() => setAvatarError(true)}
+            />
+          ) : (
+            <div className='flex items-center justify-center w-6 h-6 rounded-full bg-muted text-xs font-semibold shrink-0'>
+              {selectedCharacter?.name.charAt(0)}
+            </div>
+          )}
           <span className='truncate font-medium text-sm'>
             {selectedCharacter?.name ?? 'Choose a character'}
           </span>

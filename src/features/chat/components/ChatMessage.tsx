@@ -117,7 +117,6 @@ export const ChatMessage = ({
       {/* Character avatar */}
       <CharacterAvatar
         avatar={character?.avatar ?? ''}
-        emoji={ui?.emoji ?? ''}
         name={characterName}
         size='md'
       />
