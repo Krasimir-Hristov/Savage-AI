@@ -115,11 +115,7 @@ export const ChatMessage = ({
   return (
     <div className='flex gap-3 mb-4'>
       {/* Character avatar */}
-      <CharacterAvatar
-        avatar={character?.avatar ?? ''}
-        name={characterName}
-        size='md'
-      />
+      <CharacterAvatar avatar={character?.avatar ?? ''} name={characterName} size='md' />
 
       <div className='flex-1 min-w-0'>
         {/* Character name */}
