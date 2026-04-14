@@ -5,7 +5,7 @@ import { Send } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Textarea } from '@/shared/components/ui/textarea';
 import { CHARACTERS, DEFAULT_CHARACTER_ID } from '@/features/characters/data';
-import { VoiceCallButton } from '@/features/tts/components/VoiceCallButton';
+import { VoiceCallButton } from '@/shared/components/VoiceCallButton';
 import { cn } from '@/lib/utils';
 
 interface ChatInputProps {

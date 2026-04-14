@@ -79,22 +79,31 @@ export const createVoiceSession = async (
   const promptOverride = character.systemPrompt + VOICE_MODE_INSTRUCTIONS + contextBlock;
 
   // Get signed URL from ElevenLabs
-  const elevenLabsRes = await fetch(
-    `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${character.elevenLabsAgentId}`,
-    {
-      headers: {
-        'xi-api-key': process.env.ELEVENLABS_API_KEY ?? '',
-      },
-    }
-  );
+  let signedUrl: string;
 
-  if (!elevenLabsRes.ok) {
-    const errText = await elevenLabsRes.text();
-    console.error('[tts/session] ElevenLabs API error:', elevenLabsRes.status, errText);
+  try {
+    const elevenLabsRes = await fetch(
+      `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${character.elevenLabsAgentId}`,
+      {
+        headers: {
+          'xi-api-key': process.env.ELEVENLABS_API_KEY ?? '',
+        },
+      }
+    );
+
+    if (!elevenLabsRes.ok) {
+      const errText = await elevenLabsRes.text();
+      console.error('[tts/session] ElevenLabs API error:', elevenLabsRes.status, errText);
+      throw new VoiceSessionError('Failed to create voice session', 502);
+    }
+
+    const data = (await elevenLabsRes.json()) as { signed_url: string };
+    signedUrl = data.signed_url;
+  } catch (err) {
+    if (err instanceof VoiceSessionError) throw err;
+    console.error('[tts/session] ElevenLabs request failed:', character.elevenLabsAgentId, err);
     throw new VoiceSessionError('Failed to create voice session', 502);
   }
-
-  const { signed_url: signedUrl } = (await elevenLabsRes.json()) as { signed_url: string };
 
   return { signedUrl, promptOverride };
 };

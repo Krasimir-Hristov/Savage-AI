@@ -119,11 +119,15 @@ export async function deleteConversationAction(
     const supabase = await createClient();
 
     // 1. Fetch image URLs before cascade delete removes the messages
-    const { data: imageMessages } = await supabase
+    const { data: imageMessages, error: imgQueryError } = await supabase
       .from('messages')
       .select('image_url')
       .eq('conversation_id', parsed.data.conversationId)
       .not('image_url', 'is', null);
+
+    if (imgQueryError) {
+      console.error('[deleteConversation] Failed to fetch image URLs:', imgQueryError.message);
+    }
 
     // 2. Delete conversation — cascade removes messages via FK
     const { error } = await supabase

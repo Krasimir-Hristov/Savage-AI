@@ -58,10 +58,14 @@ export async function deleteImagesFromStorage(publicUrls: string[]): Promise<voi
 
   if (paths.length === 0) return;
 
-  const admin = createAdminClient();
-  const { error } = await admin.storage.from(BUCKET_NAME).remove(paths);
+  try {
+    const admin = createAdminClient();
+    const { error } = await admin.storage.from(BUCKET_NAME).remove(paths);
 
-  if (error) {
-    console.error('[storage] Failed to delete images:', error.message);
+    if (error) {
+      console.error('[storage] Failed to delete images:', error.message);
+    }
+  } catch (err) {
+    console.error('[storage] Failed to delete images:', err);
   }
 }

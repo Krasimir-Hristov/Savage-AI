@@ -52,8 +52,12 @@ export const saveVoiceTranscript = async (
     throw new TranscriptSaveError('Failed to save transcript', 500);
   }
 
-  await supabase
+  const { error: updateError } = await supabase
     .from('conversations')
     .update({ updated_at: new Date().toISOString() })
     .eq('id', conversationId);
+
+  if (updateError) {
+    console.error('[tts/transcript] Failed to update conversation timestamp:', conversationId, updateError.message);
+  }
 };

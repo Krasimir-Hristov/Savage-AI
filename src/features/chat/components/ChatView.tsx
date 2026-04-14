@@ -143,11 +143,17 @@ export const ChatView = ({
     if (transcript.length === 0 || !activeConversationId) return;
 
     try {
-      await fetch('/api/tts/transcript', {
+      const res = await fetch('/api/tts/transcript', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ conversationId: activeConversationId, messages: transcript }),
       });
+
+      if (!res.ok) {
+        console.error('[ChatView] Failed to save voice transcript:', res.status, await res.text());
+        return;
+      }
+
       void queryClient.invalidateQueries({ queryKey: ['conversations'] });
     } catch (err) {
       console.error('[ChatView] Failed to save voice transcript:', err);
