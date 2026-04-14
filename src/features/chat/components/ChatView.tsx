@@ -101,10 +101,27 @@ export const ChatView = ({
   const isSelectingCharacter = !activeConversationId;
 
   const handleStartVoiceCall = async (): Promise<void> => {
-    if (!activeConversationId || voiceMode !== 'idle') return;
+    if (voiceMode !== 'idle') return;
 
     setVoiceMode('fetching-session');
     setCreateError(null);
+
+    // Create conversation lazily if none exists yet (same pattern as handleSend)
+    let convId = activeConversationId;
+
+    if (!convId) {
+      const result = await createConversationAction(activeCharacterId);
+
+      if ('error' in result) {
+        setCreateError(result.error);
+        setVoiceMode('idle');
+        return;
+      }
+
+      convId = result.id;
+      setActiveConversationId(convId);
+      window.history.replaceState(null, '', `/chat/${convId}`);
+    }
 
     try {
       const res = await fetch('/api/tts/session', {
@@ -112,7 +129,7 @@ export const ChatView = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           characterId: activeCharacterId,
-          conversationId: activeConversationId,
+          conversationId: convId,
         }),
       });
 
@@ -229,7 +246,7 @@ export const ChatView = ({
           isStreaming={isStreaming}
           characterId={activeCharacterId}
           className='shrink-0'
-          onStartVoiceCall={activeConversationId ? handleStartVoiceCall : undefined}
+          onStartVoiceCall={handleStartVoiceCall}
           isVoiceCallLoading={voiceMode === 'fetching-session'}
         />
       </div>
