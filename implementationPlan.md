@@ -430,7 +430,7 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - Audio playback component
   - Per-character voice settings
 
-- [ ] **Phase 8: Image Generation**
+- [x] **Phase 8: Image Generation**
   - Provider TBD
   - Image generation from chat
   - Gallery view
