@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Send } from 'lucide-react';
@@ -37,16 +37,11 @@ export const ChatInput = ({
   const isDisabled = disabled || isStreaming;
   const canSend = value.trim().length > 0 && !isDisabled;
 
-  // Auto-resize textarea based on content
   useEffect(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
-
-    // Reset height to auto to get the correct scrollHeight
     textarea.style.height = 'auto';
-
-    // Set new height based on scrollHeight, with max constraint
-    const newHeight = Math.min(textarea.scrollHeight, 160); // 160px = max-h-40
+    const newHeight = Math.min(textarea.scrollHeight, 160);
     textarea.style.height = `${newHeight}px`;
   }, [value]);
 
@@ -55,7 +50,6 @@ export const ChatInput = ({
     if (!trimmed || isDisabled) return;
     onSend(trimmed);
     setValue('');
-    // Reset height after clearing
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
@@ -71,15 +65,7 @@ export const ChatInput = ({
 
   return (
     <div className={cn('flex flex-col gap-2', className)}>
-      {/* Input row */}
-      <div className='flex items-end gap-2'>
-        {onStartVoiceCall && (
-          <VoiceCallButton
-            onClick={onStartVoiceCall}
-            disabled={isDisabled}
-            isLoading={isVoiceCallLoading}
-          />
-        )}
+      <div className='relative rounded-md border border-input bg-background focus-within:ring-1 focus-within:ring-ring'>
         <Textarea
           ref={textareaRef}
           value={value}
@@ -87,20 +73,27 @@ export const ChatInput = ({
           onKeyDown={handleKeyDown}
           placeholder={isStreaming ? 'Wait for response...' : placeholder}
           disabled={isDisabled}
-          className='max-h-40 resize-none overflow-y-auto'
+          className='max-h-40 min-h-19 resize-none overflow-y-auto border-0 shadow-none focus-visible:ring-0 bg-transparent px-3 pt-3 pb-10'
         />
-        <Button
-          onClick={handleSend}
-          disabled={!canSend}
-          size='icon'
-          aria-label='Send message'
-          className='shrink-0 mb-0.5 cursor-pointer disabled:cursor-not-allowed'
-        >
-          <Send size={16} />
-        </Button>
+        <div className='absolute bottom-2 right-2 flex items-center gap-1.5'>
+          {onStartVoiceCall && (
+            <VoiceCallButton
+              onClick={onStartVoiceCall}
+              disabled={isDisabled}
+              isLoading={isVoiceCallLoading}
+            />
+          )}
+          <Button
+            onClick={handleSend}
+            disabled={!canSend}
+            size='icon'
+            aria-label='Send message'
+            className='cursor-pointer disabled:cursor-not-allowed'
+          >
+            <Send size={16} />
+          </Button>
+        </div>
       </div>
-
-      {/* Keyboard hint — hidden on mobile where it's irrelevant */}
       <p className='hidden sm:block text-xs text-muted-foreground px-1'>
         <kbd className='font-mono'>Enter</kbd> to send &middot;{' '}
         <kbd className='font-mono'>Shift+Enter</kbd> for new line
