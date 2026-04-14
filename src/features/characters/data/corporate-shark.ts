@@ -8,6 +8,7 @@ export const corporateShark: Character = {
   personality:
     'Ruthless business predator who measures everything in ROI and has no time for excuses or feelings',
   avatar: '/avatars/corporate-shark.jpg',
+  elevenLabsAgentId: process.env.NEXT_PUBLIC_ELEVEN_LABS_CORPORATE_SHARK_AGENT_ID,
   modelPreference: MODELS.GEMINI_2_FLASH_LITE,
   ui: {
     emoji: '🦈',

@@ -14,7 +14,8 @@ import { ChatInput } from '@/features/chat/components/ChatInput';
 import { useChat } from '@/features/chat/hooks/use-chat';
 import { CharacterPickerSheet } from '@/features/characters/components/CharacterPickerSheet';
 import { CharacterSelector } from '@/features/characters/components/CharacterSelector';
-import { DEFAULT_CHARACTER_ID, getAllCharacters } from '@/features/characters/data';
+import { DEFAULT_CHARACTER_ID, getAllCharacters, getCharacter } from '@/features/characters/data';
+import { VoiceCallOverlay, type TranscriptEntry } from '@/features/tts/components/VoiceCallOverlay';
 import type { Message } from '@/types/chat';
 
 interface ChatViewProps {
@@ -38,6 +39,14 @@ export const ChatView = ({
     initialCharacterId || DEFAULT_CHARACTER_ID
   );
   const [createError, setCreateError] = useState<string | null>(null);
+
+  // Voice call state
+  type VoiceMode = 'idle' | 'fetching-session' | 'in-call';
+  const [voiceMode, setVoiceMode] = useState<VoiceMode>('idle');
+  const [voiceSessionData, setVoiceSessionData] = useState<{
+    signedUrl: string;
+    promptOverride: string;
+  } | null>(null);
 
   const { messages, isStreaming, error, sendMessage } = useChat({
     initialMessages: initialMessages ?? [],
@@ -91,8 +100,77 @@ export const ChatView = ({
   const characters = getAllCharacters();
   const isSelectingCharacter = !activeConversationId;
 
+  const handleStartVoiceCall = async (): Promise<void> => {
+    if (!activeConversationId || voiceMode !== 'idle') return;
+
+    setVoiceMode('fetching-session');
+    setCreateError(null);
+
+    try {
+      const res = await fetch('/api/tts/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          characterId: activeCharacterId,
+          conversationId: activeConversationId,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = (await res.json()) as { error?: string };
+        setCreateError(data.error ?? 'Failed to start voice session');
+        setVoiceMode('idle');
+        return;
+      }
+
+      const { signedUrl, promptOverride } = (await res.json()) as {
+        signedUrl: string;
+        promptOverride: string;
+      };
+
+      setVoiceSessionData({ signedUrl, promptOverride });
+      setVoiceMode('in-call');
+    } catch {
+      setCreateError('Failed to start voice session');
+      setVoiceMode('idle');
+    }
+  };
+
+  const handleVoiceCallEnd = async (transcript: TranscriptEntry[]): Promise<void> => {
+    setVoiceMode('idle');
+    setVoiceSessionData(null);
+
+    if (transcript.length === 0 || !activeConversationId) return;
+
+    try {
+      const res = await fetch('/api/tts/transcript', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId: activeConversationId, messages: transcript }),
+      });
+
+      if (!res.ok) {
+        console.error('[ChatView] Failed to save voice transcript:', res.status, await res.text());
+        return;
+      }
+
+      void queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    } catch (err) {
+      console.error('[ChatView] Failed to save voice transcript:', err);
+    }
+  };
+
   return (
     <div className='relative flex flex-col h-full overflow-hidden'>
+      {/* Voice call overlay — fullscreen, rendered above everything */}
+      {voiceMode === 'in-call' && voiceSessionData && (
+        <VoiceCallOverlay
+          signedUrl={voiceSessionData.signedUrl}
+          promptOverride={voiceSessionData.promptOverride}
+          character={getCharacter(activeCharacterId)}
+          onEnd={handleVoiceCallEnd}
+        />
+      )}
       {/* Background glow blobs — absolute, don't affect flex layout */}
       <div className='absolute inset-0 z-0 opacity-10 pointer-events-none' aria-hidden='true'>
         <div className='absolute top-[-20%] left-[-10%] w-[55%] h-[55%] rounded-full bg-[#DC2626] blur-[140px]' />
@@ -151,6 +229,8 @@ export const ChatView = ({
           isStreaming={isStreaming}
           characterId={activeCharacterId}
           className='shrink-0'
+          onStartVoiceCall={activeConversationId ? handleStartVoiceCall : undefined}
+          isVoiceCallLoading={voiceMode === 'fetching-session'}
         />
       </div>
     </div>
