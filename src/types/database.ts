@@ -52,6 +52,7 @@ export type Database = {
           conversation_id: string;
           created_at: string | null;
           id: string;
+          image_url: string | null;
           model: string | null;
           role: string;
         };
@@ -60,6 +61,7 @@ export type Database = {
           conversation_id: string;
           created_at?: string | null;
           id?: string;
+          image_url?: string | null;
           model?: string | null;
           role: string;
         };
@@ -68,6 +70,7 @@ export type Database = {
           conversation_id?: string;
           created_at?: string | null;
           id?: string;
+          image_url?: string | null;
           model?: string | null;
           role?: string;
         };

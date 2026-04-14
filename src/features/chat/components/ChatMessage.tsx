@@ -8,6 +8,7 @@ import { Check, Copy } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { CharacterAvatar } from '@/shared/components/CharacterAvatar';
 import { CHARACTERS, DEFAULT_CHARACTER_ID } from '@/features/characters/data';
+import { ImageMessage } from '@/features/chat/components/ImageMessage';
 import { cn } from '@/lib/utils';
 import type { Message } from '@/types/chat';
 
@@ -133,21 +134,26 @@ export const ChatMessage = ({
               <span className='w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce' />
             </div>
           ) : (
-            <div className='markdown-content'>
-              <MarkdownErrorBoundary>
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[rehypeHighlight]}
-                  skipHtml
-                  components={{ pre: CodeBlock }}
-                >
-                  {message.content}
-                </ReactMarkdown>
-              </MarkdownErrorBoundary>
-              {isStreaming && (
-                <span className='inline-block w-0.5 h-4 bg-foreground/60 animate-pulse align-middle ml-0.5' />
+            <>
+              {message.content && (
+                <div className='markdown-content'>
+                  <MarkdownErrorBoundary>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeHighlight]}
+                      skipHtml
+                      components={{ pre: CodeBlock }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  </MarkdownErrorBoundary>
+                  {isStreaming && (
+                    <span className='inline-block w-0.5 h-4 bg-foreground/60 animate-pulse align-middle ml-0.5' />
+                  )}
+                </div>
               )}
-            </div>
+              {message.image_url && <ImageMessage imageUrl={message.image_url} />}
+            </>
           )}
         </div>
 

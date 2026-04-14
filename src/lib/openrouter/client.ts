@@ -1,122 +1,116 @@
 import 'server-only';
 
+import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages';
+import { ChatOpenAI } from '@langchain/openai';
+
 import { DEFAULT_CHAT_MODEL } from '@/features/characters/data/models';
-import type { OpenRouterMessage, StreamChunk } from '@/lib/openrouter/types';
 
-const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1';
 
-export async function streamChat(
-  messages: OpenRouterMessage[],
-  model?: string
-): Promise<ReadableStream<Uint8Array>> {
+/** Stream marker protocol - client parses this to extract image URLs */
+export const IMAGE_MARKER_PREFIX = '__SAVAGE_IMG__';
+
+// ---------------------------------------------------------------------------
+// Model factory
+// ---------------------------------------------------------------------------
+
+function createOpenRouterModel(model?: string): ChatOpenAI {
   const apiKey = process.env.OPENROUTER_API_KEY;
 
   if (!apiKey) {
     throw new Error('OPENROUTER_API_KEY environment variable is not set');
   }
 
-  const abortController = new AbortController();
-  const timeoutId = setTimeout(() => abortController.abort(), 30_000);
-
-  let response: Response;
-
-  try {
-    response = await fetch(OPENROUTER_BASE_URL, {
-      method: 'POST',
-      signal: abortController.signal,
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
+  return new ChatOpenAI({
+    model: model ?? DEFAULT_CHAT_MODEL,
+    apiKey,
+    configuration: {
+      baseURL: OPENROUTER_BASE_URL,
+      defaultHeaders: {
         'HTTP-Referer': 'https://savage-ai.vercel.app',
         'X-Title': 'SavageAI',
       },
-      body: JSON.stringify({
-        model: model ?? DEFAULT_CHAT_MODEL,
-        messages,
-        stream: true,
-      }),
-    });
-  } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error('OpenRouter request timed out after 30 seconds');
-    }
-    throw new Error(
-      `OpenRouter request failed: ${error instanceof Error ? error.message : 'Network error'}`
-    );
-  } finally {
-    clearTimeout(timeoutId);
-  }
-
-  if (!response.ok) {
-    let errorText = `HTTP ${response.status}`;
-    try {
-      errorText = await response.text();
-    } catch {
-      // Body read failed — keep the status code message
-    }
-    throw new Error(`OpenRouter ${response.status}: ${errorText}`);
-  }
-
-  if (!response.body) {
-    throw new Error('OpenRouter returned an empty response body');
-  }
-
-  const decoder = new TextDecoder();
-  const encoder = new TextEncoder();
-  let buffer = '';
-
-  // Transform SSE stream (data: {...}\n\n) into plain text tokens
-  const transformStream = new TransformStream<Uint8Array, Uint8Array>({
-    transform(chunk, controller) {
-      buffer += decoder.decode(chunk, { stream: true });
-
-      // Split on newlines, keeping the incomplete last line in the buffer
-      const lines = buffer.split('\n');
-      buffer = lines.pop() ?? '';
-
-      for (const line of lines) {
-        const trimmed = line.trim();
-
-        // Skip empty lines and SSE comments (lines starting with ':')
-        if (!trimmed || trimmed.startsWith(':')) continue;
-        if (!trimmed.startsWith('data: ')) continue;
-
-        const data = trimmed.slice(6);
-
-        // End of stream signal — stream closes naturally when connection drops
-        if (data === '[DONE]') continue;
-
-        try {
-          const json = JSON.parse(data) as StreamChunk;
-          const content = json.choices?.[0]?.delta?.content;
-          if (content) {
-            controller.enqueue(encoder.encode(content));
-          }
-        } catch {
-          // Skip malformed JSON chunks (e.g. keep-alive comments)
-        }
-      }
     },
+    streaming: true,
+    streamUsage: false,
+  });
+}
 
-    flush(controller) {
-      // Handle any remaining bytes in the buffer after the stream closes
-      const trimmed = buffer.trim();
-      if (!trimmed.startsWith('data: ')) return;
+// ---------------------------------------------------------------------------
+// Public API - streaming chat
+// ---------------------------------------------------------------------------
 
-      const data = trimmed.slice(6);
-      if (data === '[DONE]') return;
+export interface ChatMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
 
+/**
+ * Streams the character response as UTF-8 text chunks.
+ *
+ * Two paths:
+ *  - imageUrl provided: character reacts to the generated image, then injects __SAVAGE_IMG__ marker
+ *  - Otherwise: direct LLM streaming
+ */
+export async function streamChatAgent(
+  messages: ChatMessage[],
+  systemPrompt: string,
+  model?: string,
+  imageUrl?: string
+): Promise<ReadableStream<Uint8Array>> {
+  const llm = createOpenRouterModel(model);
+
+  const langchainMessages = messages.map((msg) => {
+    if (msg.role === 'user') return new HumanMessage(msg.content);
+    if (msg.role === 'assistant') return new AIMessage(msg.content);
+    return new HumanMessage(msg.content);
+  });
+
+  const encoder = new TextEncoder();
+
+  return new ReadableStream<Uint8Array>({
+    async start(controller) {
       try {
-        const json = JSON.parse(data) as StreamChunk;
-        const content = json.choices?.[0]?.delta?.content;
-        if (content) {
-          controller.enqueue(encoder.encode(content));
+        if (imageUrl) {
+          const reactionSystemPrompt =
+            systemPrompt +
+            '\n\nCONTEXT: The user asked for an image. It has been successfully generated and will be shown below your response. React in character to having just created it - make a brief comment (1-3 sentences). Do NOT say you will generate anything; it is already done.';
+
+          const reactionStream = await llm.stream([
+            new SystemMessage(reactionSystemPrompt),
+            ...langchainMessages,
+          ]);
+
+          for await (const chunk of reactionStream) {
+            const text = typeof chunk.content === 'string' ? chunk.content : '';
+            if (text) controller.enqueue(encoder.encode(text));
+          }
+
+          controller.enqueue(encoder.encode('\n' + IMAGE_MARKER_PREFIX + imageUrl + '\n'));
+        } else {
+          const chatStream = await llm.stream([
+            new SystemMessage(systemPrompt),
+            ...langchainMessages,
+          ]);
+
+          for await (const chunk of chatStream) {
+            const text = typeof chunk.content === 'string' ? chunk.content : '';
+            if (text) controller.enqueue(encoder.encode(text));
+          }
         }
-      } catch {
-        // Ignore final malformed chunk
+
+        controller.close();
+      } catch (error) {
+        controller.error(error instanceof Error ? error : new Error('Stream failed'));
       }
     },
   });
+}
 
-  return response.body.pipeThrough(transformStream);
+/**
+ * Returns a ChatOpenAI instance configured for OpenRouter.
+ * Used by features that need direct LLM access (e.g. prompt extraction).
+ */
+export function createChatModel(model?: string): ChatOpenAI {
+  return createOpenRouterModel(model);
 }
