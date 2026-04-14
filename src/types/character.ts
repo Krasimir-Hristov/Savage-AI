@@ -5,6 +5,7 @@ export interface Character {
   systemPrompt: string;
   avatar: string;
   modelPreference?: string;
+  elevenLabsAgentId?: string;
   ui: {
     emoji: string;
     colorClass: string;

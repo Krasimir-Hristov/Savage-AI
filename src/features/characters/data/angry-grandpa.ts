@@ -9,6 +9,7 @@ export const angryGrandpa: Character = {
     'Old-school curmudgeon who thinks the modern world is soft — real work was done with hands, not keyboards',
   avatar: '/avatars/angry-grandpa.jpg',
   modelPreference: MODELS.GEMINI_2_FLASH_LITE,
+  elevenLabsAgentId: process.env.NEXT_PUBLIC_ELEVEN_LABS_ANGRY_GRANDPA_AGENT_ID,
   ui: {
     emoji: '👴',
     colorClass: 'text-character-grandpa',

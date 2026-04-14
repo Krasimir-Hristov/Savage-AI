@@ -5,6 +5,7 @@ import { Send } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Textarea } from '@/shared/components/ui/textarea';
 import { CHARACTERS, DEFAULT_CHARACTER_ID } from '@/features/characters/data';
+import { VoiceCallButton } from '@/features/tts/components/VoiceCallButton';
 import { cn } from '@/lib/utils';
 
 interface ChatInputProps {
@@ -12,6 +13,8 @@ interface ChatInputProps {
   isStreaming: boolean;
   characterId: string;
   disabled?: boolean;
+  onStartVoiceCall?: () => void;
+  isVoiceCallLoading?: boolean;
   className?: string;
 }
 
@@ -20,6 +23,8 @@ export const ChatInput = ({
   isStreaming,
   characterId,
   disabled = false,
+  onStartVoiceCall,
+  isVoiceCallLoading = false,
   className,
 }: ChatInputProps): React.JSX.Element => {
   const [value, setValue] = useState('');
@@ -68,6 +73,13 @@ export const ChatInput = ({
     <div className={cn('flex flex-col gap-2', className)}>
       {/* Input row */}
       <div className='flex items-end gap-2'>
+        {onStartVoiceCall && (
+          <VoiceCallButton
+            onClick={onStartVoiceCall}
+            disabled={isDisabled}
+            isLoading={isVoiceCallLoading}
+          />
+        )}
         <Textarea
           ref={textareaRef}
           value={value}

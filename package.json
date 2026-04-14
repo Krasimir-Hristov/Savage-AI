@@ -10,6 +10,7 @@
     "gen:types": "npx supabase gen types typescript --schema public > src/types/database.ts"
   },
   "dependencies": {
+    "@elevenlabs/react": "^1.1.1",
     "@langchain/core": "^1.1.39",
     "@langchain/langgraph": "^1.2.8",
     "@langchain/openai": "^1.4.2",

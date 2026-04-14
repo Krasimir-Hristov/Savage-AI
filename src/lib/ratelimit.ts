@@ -31,6 +31,13 @@ export const conversationsRateLimit = new Ratelimit({
   prefix: 'savage-ai:conversations',
 });
 
+export const ttsRateLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(10, '60 s'), // 10 requests per 60 seconds per IP
+  analytics: true,
+  prefix: 'savage-ai:tts',
+});
+
 /**
  * Generic function to handle rate limiting errors
  * Call this FIRST in your API handler, before any auth/DB calls

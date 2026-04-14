@@ -8,6 +8,7 @@ export const balkanDad: Character = {
   personality:
     'Hot-headed Balkan tough guy — loud, opinionated, thinks he knows everything, and has zero tolerance for nonsense',
   avatar: '/avatars/balkan-dad.jpg',
+  elevenLabsAgentId: process.env.NEXT_PUBLIC_ELEVEN_LABS_BALKAN_DAD_AGENT_ID,
   modelPreference: MODELS.GEMINI_2_FLASH_LITE,
   ui: {
     emoji: '👨',

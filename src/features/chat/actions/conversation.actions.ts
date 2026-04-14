@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 
 import { verifySession } from '@/lib/dal';
 import { createClient } from '@/lib/supabase/server';
+import { deleteImagesFromStorage } from '@/lib/supabase/storage';
 
 export async function createConversationAction(
   characterId: string
@@ -117,6 +118,14 @@ export async function deleteConversationAction(
     const { userId } = await verifySession();
     const supabase = await createClient();
 
+    // 1. Fetch image URLs before cascade delete removes the messages
+    const { data: imageMessages } = await supabase
+      .from('messages')
+      .select('image_url')
+      .eq('conversation_id', parsed.data.conversationId)
+      .not('image_url', 'is', null);
+
+    // 2. Delete conversation — cascade removes messages via FK
     const { error } = await supabase
       .from('conversations')
       .delete()
@@ -125,6 +134,15 @@ export async function deleteConversationAction(
 
     if (error) {
       return { error: error.message };
+    }
+
+    // 3. Delete storage files after DB succeeds (failure here only leaves orphan files, not broken UI)
+    const imageUrls = (imageMessages ?? [])
+      .map((m) => m.image_url)
+      .filter((url): url is string => url !== null);
+
+    if (imageUrls.length > 0) {
+      await deleteImagesFromStorage(imageUrls);
     }
 
     revalidatePath('/chat');
