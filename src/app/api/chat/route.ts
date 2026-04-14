@@ -99,10 +99,20 @@ export async function POST(req: Request): Promise<Response> {
   if (detectImageIntent(messagesWithSystem)) {
     const lastUserMsg = messagesWithSystem.findLast((m) => m.role === 'user');
     if (lastUserMsg) {
-      const llm = createChatModel(character.modelPreference);
-      const imagePrompt = await extractImagePrompt(lastUserMsg.content, llm);
-      console.log('[route] image intent detected — extracted prompt:', imagePrompt);
-      imageUrl = (await generateImage(imagePrompt, userId)) ?? undefined;
+      try {
+        const llm = createChatModel(character.modelPreference);
+        const imagePrompt = await extractImagePrompt(lastUserMsg.content, llm);
+        console.log('[route] image intent detected', { userId });
+        imageUrl = (await generateImage(imagePrompt, userId)) ?? undefined;
+      } catch (error) {
+        return new Response(
+          JSON.stringify({
+            error: 'AI service unavailable',
+            details: error instanceof Error ? error.message : 'Unknown error',
+          }),
+          { status: 502, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
     }
   }
 
