@@ -2,10 +2,11 @@
 import { after } from 'next/server';
 
 import { getCharacter } from '@/features/characters/data';
+import { detectImageIntent, extractImagePrompt, generateImage } from '@/features/image-gen';
 import { chatRequestSchema } from '@/features/chat/api/chat.schema';
 import { verifySession } from '@/lib/dal';
-import { streamChat } from '@/lib/openrouter/client';
-import type { OpenRouterMessage } from '@/lib/openrouter/types';
+import { createChatModel, IMAGE_MARKER_PREFIX, streamChatAgent } from '@/lib/openrouter/client';
+import type { ChatMessage } from '@/lib/openrouter/client';
 import { chatRateLimit, getClientIP, handleRateLimit } from '@/lib/ratelimit';
 import { createClient } from '@/lib/supabase/server';
 
@@ -87,16 +88,34 @@ export async function POST(req: Request): Promise<Response> {
     });
   }
 
-  const messagesWithSystem: OpenRouterMessage[] = [
-    { role: 'system', content: character.systemPrompt },
-    ...messages,
-  ];
+  const messagesWithSystem: ChatMessage[] = messages.map((m) => ({
+    role: m.role as 'user' | 'assistant',
+    content: m.content,
+  }));
 
-  // 6. Stream from OpenRouter
+  // 6. Detect image intent → orchestrate generation before streaming
+  let imageUrl: string | undefined;
+
+  if (detectImageIntent(messagesWithSystem)) {
+    const lastUserMsg = messagesWithSystem.findLast((m) => m.role === 'user');
+    if (lastUserMsg) {
+      const llm = createChatModel(character.modelPreference);
+      const imagePrompt = await extractImagePrompt(lastUserMsg.content, llm);
+      console.log('[route] image intent detected — extracted prompt:', imagePrompt);
+      imageUrl = (await generateImage(imagePrompt, userId)) ?? undefined;
+    }
+  }
+
+  // 7. Stream from OpenRouter
   let stream: ReadableStream<Uint8Array>;
 
   try {
-    stream = await streamChat(messagesWithSystem, character.modelPreference);
+    stream = await streamChatAgent(
+      messagesWithSystem,
+      character.systemPrompt,
+      character.modelPreference,
+      imageUrl
+    );
   } catch (error) {
     return new Response(
       JSON.stringify({
@@ -132,6 +151,21 @@ export async function POST(req: Request): Promise<Response> {
 
       if (!assistantContent) return;
 
+      // Extract image URL from __SAVAGE_IMG__ marker (if present)
+      let imageUrl: string | null = null;
+      const markerIdx = assistantContent.indexOf(IMAGE_MARKER_PREFIX);
+
+      if (markerIdx !== -1) {
+        const urlStart = markerIdx + IMAGE_MARKER_PREFIX.length;
+        // URL ends at newline or end of string
+        const urlEnd = assistantContent.indexOf('\n', urlStart);
+        imageUrl = assistantContent.slice(urlStart, urlEnd === -1 ? undefined : urlEnd).trim();
+        // Strip the marker line from content
+        const before = assistantContent.slice(0, markerIdx);
+        const after = urlEnd === -1 ? '' : assistantContent.slice(urlEnd + 1);
+        assistantContent = (before + after).trim();
+      }
+
       // Insert both messages in a single round trip
       await supabase.from('messages').insert([
         {
@@ -139,12 +173,14 @@ export async function POST(req: Request): Promise<Response> {
           role: 'user' as const,
           content: userContent,
           model: null,
+          image_url: null,
         },
         {
           conversation_id: conversationId,
           role: 'assistant' as const,
           content: assistantContent,
           model: resolvedModel,
+          image_url: imageUrl,
         },
       ]);
     } catch {

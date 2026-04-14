@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Message } from '@/types/chat';
 
 const MAX_CONTEXT_MESSAGES = 20;
+const IMAGE_MARKER_PREFIX = '__SAVAGE_IMG__';
 
 interface UseChatOptions {
   initialMessages?: Message[];
@@ -40,6 +41,7 @@ export const useChat = ({ initialMessages = [] }: UseChatOptions = {}): UseChatR
         role: 'user',
         content,
         model: null,
+        image_url: null,
         created_at: new Date().toISOString(),
       };
 
@@ -59,6 +61,7 @@ export const useChat = ({ initialMessages = [] }: UseChatOptions = {}): UseChatR
         role: 'assistant',
         content: '',
         model: null,
+        image_url: null,
         created_at: new Date().toISOString(),
       };
 
@@ -95,7 +98,7 @@ export const useChat = ({ initialMessages = [] }: UseChatOptions = {}): UseChatR
           if (done) break;
           const chunk = decoder.decode(value, { stream: true });
           setMessages((prev) =>
-            prev.map((m) => (m.id === assistantId ? { ...m, content: m.content + chunk } : m)),
+            prev.map((m) => (m.id === assistantId ? { ...m, content: m.content + chunk } : m))
           );
         }
 
@@ -103,11 +106,30 @@ export const useChat = ({ initialMessages = [] }: UseChatOptions = {}): UseChatR
         const remaining = decoder.decode();
         if (remaining) {
           setMessages((prev) =>
-            prev.map((m) =>
-              m.id === assistantId ? { ...m, content: m.content + remaining } : m,
-            ),
+            prev.map((m) => (m.id === assistantId ? { ...m, content: m.content + remaining } : m))
           );
         }
+
+        // After stream ends, parse __SAVAGE_IMG__ marker if present
+        setMessages((prev) =>
+          prev.map((m) => {
+            if (m.id !== assistantId) return m;
+
+            const markerIdx = m.content.indexOf(IMAGE_MARKER_PREFIX);
+            if (markerIdx === -1) return m;
+
+            const urlStart = markerIdx + IMAGE_MARKER_PREFIX.length;
+            const urlEnd = m.content.indexOf('\n', urlStart);
+            const imageUrl = m.content.slice(urlStart, urlEnd === -1 ? undefined : urlEnd).trim();
+
+            // Strip the marker line from displayed content
+            const before = m.content.slice(0, markerIdx);
+            const after = urlEnd === -1 ? '' : m.content.slice(urlEnd + 1);
+            const cleanContent = (before + after).trim();
+
+            return { ...m, content: cleanContent, image_url: imageUrl || null };
+          })
+        );
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') return;
         setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -117,7 +139,7 @@ export const useChat = ({ initialMessages = [] }: UseChatOptions = {}): UseChatR
         abortControllerRef.current = null;
       }
     },
-    [],
+    []
   );
 
   const clearMessages = useCallback((): void => {

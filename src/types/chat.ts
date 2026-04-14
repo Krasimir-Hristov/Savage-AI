@@ -4,6 +4,7 @@ export interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
   model: string | null;
+  image_url: string | null;
   created_at: string | null;
 }
 
