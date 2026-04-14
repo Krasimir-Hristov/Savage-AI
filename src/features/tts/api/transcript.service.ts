@@ -58,6 +58,10 @@ export const saveVoiceTranscript = async (
     .eq('id', conversationId);
 
   if (updateError) {
-    console.error('[tts/transcript] Failed to update conversation timestamp:', conversationId, updateError.message);
+    console.error(
+      '[tts/transcript] Failed to update conversation timestamp:',
+      conversationId,
+      updateError.message
+    );
   }
 };
