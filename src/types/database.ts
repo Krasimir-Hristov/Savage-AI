@@ -135,12 +135,130 @@ export type Database = {
         };
         Relationships: [];
       };
+      knowledge_entries: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string | null;
+          content: string;
+          source_type: 'manual' | 'file';
+          file_name: string | null;
+          file_size: number | null;
+          mime_type: string | null;
+          metadata: Json;
+          chunk_count: number;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title?: string | null;
+          content: string;
+          source_type: 'manual' | 'file';
+          file_name?: string | null;
+          file_size?: number | null;
+          mime_type?: string | null;
+          metadata?: Json;
+          chunk_count?: number;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          title?: string | null;
+          content?: string;
+          source_type?: 'manual' | 'file';
+          file_name?: string | null;
+          file_size?: number | null;
+          mime_type?: string | null;
+          metadata?: Json;
+          chunk_count?: number;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'knowledge_entries_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      document_chunks: {
+        Row: {
+          id: string;
+          user_id: string;
+          knowledge_entry_id: string;
+          content: string;
+          embedding: string | null;
+          chunk_index: number;
+          is_active: boolean;
+          metadata: Json;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          knowledge_entry_id: string;
+          content: string;
+          embedding?: string | null;
+          chunk_index: number;
+          is_active?: boolean;
+          metadata?: Json;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          knowledge_entry_id?: string;
+          content?: string;
+          embedding?: string | null;
+          chunk_index?: number;
+          is_active?: boolean;
+          metadata?: Json;
+          created_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'document_chunks_knowledge_entry_id_fkey';
+            columns: ['knowledge_entry_id'];
+            isOneToOne: false;
+            referencedRelation: 'knowledge_entries';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'document_chunks_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      match_documents: {
+        Args: {
+          query_embedding: string;
+          match_threshold: number;
+          match_count: number;
+          filter_user_id: string;
+        };
+        Returns: {
+          id: string;
+          knowledge_entry_id: string;
+          content: string;
+          metadata: Json;
+          similarity: number;
+        }[];
+      };
     };
     Enums: {
       [_ in never]: never;

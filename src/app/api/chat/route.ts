@@ -4,8 +4,17 @@ import { after } from 'next/server';
 import { getCharacter } from '@/features/characters/data';
 import { detectImageIntent, extractImagePrompt, generateImage } from '@/features/image-gen';
 import { chatRequestSchema } from '@/features/chat/api/chat.schema';
+import { getKnowledgeEntryCount } from '@/features/rag/dal';
+import { searchKnowledge, formatSearchResults } from '@/features/rag/services/search';
+import { createSearchKnowledgeTool } from '@/features/rag/tools/search-knowledge';
 import { verifySession } from '@/lib/dal';
-import { createChatModel, IMAGE_MARKER_PREFIX, streamChatAgent } from '@/lib/openrouter/client';
+import {
+  createChatModel,
+  IMAGE_MARKER_PREFIX,
+  RAG_SEARCH_MARKER,
+  streamChatAgent,
+  streamChatWithTools,
+} from '@/lib/openrouter/client';
 import type { ChatMessage } from '@/lib/openrouter/client';
 import { chatRateLimit, getClientIP, handleRateLimit } from '@/lib/ratelimit';
 import { createClient } from '@/lib/supabase/server';
@@ -93,7 +102,45 @@ export async function POST(req: Request): Promise<Response> {
     content: m.content,
   }));
 
-  // 6. Detect image intent → orchestrate generation before streaming
+  // 6. RAG — check if user has knowledge entries and enrich context
+  let ragSystemSuffix = '';
+  let hasKnowledge = false;
+
+  try {
+    const entryCount = await getKnowledgeEntryCount(userId);
+    hasKnowledge = entryCount > 0;
+    console.log('[rag] entry count:', entryCount, 'hasKnowledge:', hasKnowledge);
+
+    if (hasKnowledge) {
+      // Auto-inject: embed last user message → search → prepend context to system prompt
+      const lastUserMsg = messagesWithSystem.findLast((m) => m.role === 'user');
+      if (lastUserMsg) {
+        const results = await searchKnowledge(lastUserMsg.content, userId, 20, 0.1);
+        console.log('[rag] search results count:', results.length);
+        const contextBlock = formatSearchResults(results);
+        if (contextBlock) {
+          ragSystemSuffix = '\n\n' + contextBlock;
+          console.log('[rag] injecting context, length:', contextBlock.length);
+        } else {
+          console.log('[rag] no relevant results found above threshold');
+        }
+      }
+    }
+  } catch (ragError) {
+    // RAG failure should not block the chat — degrade gracefully
+    console.error(
+      '[rag] ERROR — falling back to no-RAG mode:',
+      ragError instanceof Error ? ragError.message : ragError
+    );
+    hasKnowledge = false;
+  }
+
+  // RAG context prepended BEFORE character prompt so it takes priority over character insult-handling rules
+  const enrichedSystemPrompt = ragSystemSuffix
+    ? ragSystemSuffix + '\n\n' + character.systemPrompt
+    : character.systemPrompt;
+
+  // 7. Detect image intent → orchestrate generation before streaming
   let imageUrl: string | undefined;
 
   if (detectImageIntent(messagesWithSystem)) {
@@ -116,16 +163,29 @@ export async function POST(req: Request): Promise<Response> {
     }
   }
 
-  // 7. Stream from OpenRouter
+  // 8. Stream from OpenRouter — use tool-calling path if user has RAG knowledge
   let stream: ReadableStream<Uint8Array>;
 
   try {
-    stream = await streamChatAgent(
-      messagesWithSystem,
-      character.systemPrompt,
-      character.modelPreference,
-      imageUrl
-    );
+    if (hasKnowledge) {
+      // Hybrid RAG: auto-injected context in system prompt + search_knowledge tool
+      const searchTool = createSearchKnowledgeTool(userId);
+      stream = await streamChatWithTools(
+        messagesWithSystem,
+        enrichedSystemPrompt,
+        [searchTool],
+        character.modelPreference,
+        imageUrl
+      );
+    } else {
+      // No knowledge entries — standard streaming (zero overhead)
+      stream = await streamChatAgent(
+        messagesWithSystem,
+        enrichedSystemPrompt,
+        character.modelPreference,
+        imageUrl
+      );
+    }
   } catch (error) {
     return new Response(
       JSON.stringify({
@@ -136,10 +196,10 @@ export async function POST(req: Request): Promise<Response> {
     );
   }
 
-  // 7. Tee the stream: one branch for the client, one for collecting the full assistant text
+  // 9. Tee the stream: one branch for the client, one for collecting the full assistant text
   const [clientStream, collectorStream] = stream.tee();
 
-  // 8. Save messages to DB after the response has been sent (non-blocking)
+  // 10. Save messages to DB after the response has been sent (non-blocking)
   const userContent = messages[messages.length - 1].content;
   const resolvedModel = character.modelPreference ?? 'google/gemini-2.0-flash-exp:free';
 
@@ -160,6 +220,12 @@ export async function POST(req: Request): Promise<Response> {
       assistantContent += decoder.decode();
 
       if (!assistantContent) return;
+
+      // Strip RAG search markers (not needed in stored content)
+      assistantContent = assistantContent.replaceAll(RAG_SEARCH_MARKER + '\n', '');
+      assistantContent = assistantContent.replaceAll(RAG_SEARCH_MARKER, '');
+
+      if (!assistantContent.trim()) return;
 
       // Extract image URL from __SAVAGE_IMG__ marker (if present)
       let imageUrl: string | null = null;
@@ -199,7 +265,7 @@ export async function POST(req: Request): Promise<Response> {
     }
   });
 
-  // 9. Return the streaming response
+  // 11. Return the streaming response
   return new Response(clientStream, {
     status: 200,
     headers: {

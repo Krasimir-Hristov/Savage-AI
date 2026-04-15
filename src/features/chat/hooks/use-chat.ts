@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Message } from '@/types/chat';
+import { IMAGE_MARKER_PREFIX, RAG_SEARCH_MARKER } from '@/lib/constants/markers';
 
 const MAX_CONTEXT_MESSAGES = 20;
-const IMAGE_MARKER_PREFIX = '__SAVAGE_IMG__';
 
 interface UseChatOptions {
   initialMessages?: Message[];
@@ -13,6 +13,7 @@ interface UseChatOptions {
 interface UseChatReturn {
   messages: Message[];
   isStreaming: boolean;
+  isSearchingKnowledge: boolean;
   error: string | null;
   sendMessage: (content: string, characterId: string, conversationId: string) => Promise<void>;
   clearMessages: () => void;
@@ -21,6 +22,7 @@ interface UseChatReturn {
 export const useChat = ({ initialMessages = [] }: UseChatOptions = {}): UseChatReturn => {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isSearchingKnowledge, setIsSearchingKnowledge] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const messagesRef = useRef<Message[]>(messages);
@@ -92,11 +94,33 @@ export const useChat = ({ initialMessages = [] }: UseChatOptions = {}): UseChatR
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
+        // Carry-over buffer: keeps the tail of the previous chunk so a marker
+        // split across two reads is still detected correctly.
+        const CARRY_LEN = RAG_SEARCH_MARKER.length - 1;
+        let carry = '';
 
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
+          const decoded = decoder.decode(value, { stream: true });
+          // Prepend carry from previous iteration before checking for marker
+          let chunk = carry + decoded;
+          carry = chunk.slice(-CARRY_LEN);
+
+          // Detect RAG search marker — show indicator, strip from content
+          if (chunk.includes(RAG_SEARCH_MARKER)) {
+            setIsSearchingKnowledge(true);
+            chunk = chunk.replaceAll(RAG_SEARCH_MARKER + '\n', '');
+            chunk = chunk.replaceAll(RAG_SEARCH_MARKER, '');
+            carry = chunk.slice(-CARRY_LEN);
+            if (!chunk) continue;
+          }
+
+          // Once real content arrives after search, clear the indicator
+          if (chunk.trim()) {
+            setIsSearchingKnowledge(false);
+          }
+
           setMessages((prev) =>
             prev.map((m) => (m.id === assistantId ? { ...m, content: m.content + chunk } : m))
           );
@@ -109,6 +133,15 @@ export const useChat = ({ initialMessages = [] }: UseChatOptions = {}): UseChatR
             prev.map((m) => (m.id === assistantId ? { ...m, content: m.content + remaining } : m))
           );
         }
+
+        // Remove assistant bubble if stream ended with no content (e.g. model returned empty)
+        setMessages((prev) => {
+          const msg = prev.find((m) => m.id === assistantId);
+          if (msg && !msg.content.trim()) {
+            return prev.filter((m) => m.id !== assistantId);
+          }
+          return prev;
+        });
 
         // After stream ends, parse __SAVAGE_IMG__ marker if present
         setMessages((prev) =>
@@ -136,6 +169,7 @@ export const useChat = ({ initialMessages = [] }: UseChatOptions = {}): UseChatR
         setMessages((prev) => prev.filter((m) => m.id !== assistantId));
       } finally {
         setIsStreaming(false);
+        setIsSearchingKnowledge(false);
         abortControllerRef.current = null;
       }
     },
@@ -148,5 +182,5 @@ export const useChat = ({ initialMessages = [] }: UseChatOptions = {}): UseChatR
     setError(null);
   }, []);
 
-  return { messages, isStreaming, error, sendMessage, clearMessages };
+  return { messages, isStreaming, isSearchingKnowledge, error, sendMessage, clearMessages };
 };
