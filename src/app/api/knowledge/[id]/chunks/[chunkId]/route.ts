@@ -2,6 +2,7 @@ import 'server-only';
 
 import { verifySession } from '@/lib/dal';
 import { getClientIP, handleRateLimit, knowledgeRateLimit } from '@/lib/ratelimit';
+import { toHttpResponse } from '@/lib/errors';
 import { toggleChunkSchema } from '@/features/rag/api/knowledge.schema';
 import { toggleChunkActive } from '@/features/rag/dal';
 
@@ -58,9 +59,6 @@ export async function PATCH(
     });
   } catch (error) {
     console.error('[knowledge/chunks/PATCH]', error);
-    return new Response(JSON.stringify({ error: 'Toggle failed' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return toHttpResponse(error);
   }
 }

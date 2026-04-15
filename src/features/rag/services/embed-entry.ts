@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { createClient } from '@/lib/supabase/server';
+import { NotFoundError } from '@/lib/errors';
 import type { KnowledgeEntry } from '@/types/knowledge';
 
 import { chunkAndEmbed } from '@/features/rag/utils/chunk-text';
@@ -98,7 +99,7 @@ export async function reEmbedEntry(params: {
     .single();
 
   if (fetchError || !entry) {
-    throw new Error('Knowledge entry not found or access denied');
+    throw new NotFoundError('Knowledge entry not found');
   }
 
   const content = params.content ?? entry.content;
@@ -129,9 +130,7 @@ export async function reEmbedEntry(params: {
     // Chunk and embed new content FIRST — if this fails, old chunks are preserved
     const chunksWithEmbeddings = await chunkAndEmbed(content);
 
-    const chunkRows = chunksWithEmbeddings.map((chunk) => ({
-      user_id: params.userId,
-      knowledge_entry_id: params.entryId,
+    const chunkPayload = chunksWithEmbeddings.map((chunk) => ({
       content: chunk.content,
       embedding: JSON.stringify(chunk.embedding),
       chunk_index: chunk.chunkIndex,
@@ -139,28 +138,15 @@ export async function reEmbedEntry(params: {
       metadata: {},
     }));
 
-    // Delete old chunks (safe: we already have new embeddings ready)
-    const { error: deleteError } = await supabase
-      .from('document_chunks')
-      .delete()
-      .eq('knowledge_entry_id', params.entryId)
-      .eq('user_id', params.userId);
+    // Atomic swap: delete old + insert new + update count in one transaction
+    const { error: swapError } = await supabase.rpc('swap_chunks', {
+      p_entry_id: params.entryId,
+      p_user_id: params.userId,
+      p_chunks: JSON.stringify(chunkPayload),
+    });
 
-    if (deleteError) {
-      throw new Error(`Failed to delete old chunks: ${deleteError.message}`);
+    if (swapError) {
+      throw new Error(`Failed to swap chunks: ${swapError.message}`);
     }
-
-    // Insert new chunks
-    const { error: insertError } = await supabase.from('document_chunks').insert(chunkRows);
-
-    if (insertError) {
-      throw new Error(`Failed to insert new chunks: ${insertError.message}`);
-    }
-
-    // Update chunk_count
-    await supabase
-      .from('knowledge_entries')
-      .update({ chunk_count: chunksWithEmbeddings.length })
-      .eq('id', params.entryId);
   }
 }

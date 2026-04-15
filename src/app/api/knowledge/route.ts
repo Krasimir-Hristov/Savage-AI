@@ -7,11 +7,12 @@ import {
   knowledgeRateLimit,
   knowledgeUploadRateLimit,
 } from '@/lib/ratelimit';
-import { createKnowledgeSchema } from '@/features/rag/api/knowledge.schema';
+import { createKnowledgeSchema, fileUploadSchema } from '@/features/rag/api/knowledge.schema';
 import { getKnowledgeEntries } from '@/features/rag/dal';
 import { createAndEmbedEntry } from '@/features/rag/services/embed-entry';
 import { parseFile } from '@/features/rag/utils/parse-file';
-import { MAX_FILE_SIZE, resolveMimeType } from '@/features/rag/utils/supported-types';
+import { resolveMimeType } from '@/features/rag/utils/supported-types';
+import { toHttpResponse } from '@/lib/errors';
 
 // ---------------------------------------------------------------------------
 // GET /api/knowledge — list user's knowledge entries
@@ -43,10 +44,7 @@ export async function GET(req: Request): Promise<Response> {
     });
   } catch (error) {
     console.error('[knowledge/GET]', error);
-    return new Response(JSON.stringify({ error: 'Failed to fetch entries' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return toHttpResponse(error);
   }
 }
 
@@ -86,10 +84,7 @@ export async function POST(req: Request): Promise<Response> {
     }
   } catch (error) {
     console.error('[knowledge/POST]', error);
-    return new Response(JSON.stringify({ error: 'Failed to create entry' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return toHttpResponse(error);
   }
 }
 
@@ -151,24 +146,26 @@ async function handleFileUpload(
     });
   }
 
-  if (file.size > MAX_FILE_SIZE) {
+  const mimeType = resolveMimeType(file.name, file.type) ?? '';
+
+  // Validate file metadata with Zod
+  const parsed = fileUploadSchema.safeParse({
+    title: typeof title === 'string' ? title : undefined,
+    fileName: file.name,
+    fileSize: file.size,
+    mimeType,
+  });
+
+  if (!parsed.success) {
     return new Response(
-      JSON.stringify({ error: `File too large. Maximum size is ${MAX_FILE_SIZE / 1024 / 1024}MB` }),
+      JSON.stringify({ error: 'Invalid file upload', details: parsed.error.flatten() }),
       { status: 400, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
-  const mimeType = resolveMimeType(file.name, file.type);
-  if (!mimeType) {
-    return new Response(JSON.stringify({ error: `Unsupported file type: ${file.name}` }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-
   // Parse the file to text
   const buffer = Buffer.from(await file.arrayBuffer());
-  const textContent = await parseFile(buffer, mimeType, file.name);
+  const textContent = await parseFile(buffer, parsed.data.mimeType, parsed.data.fileName);
 
   if (!textContent.trim()) {
     return new Response(JSON.stringify({ error: 'File contains no extractable text' }), {
@@ -190,12 +187,12 @@ async function handleFileUpload(
 
   const entry = await createAndEmbedEntry({
     userId,
-    title: typeof title === 'string' ? title : file.name,
+    title: parsed.data.title ?? parsed.data.fileName,
     content: textContent,
     sourceType: 'file',
-    fileName: file.name,
-    fileSize: file.size,
-    mimeType,
+    fileName: parsed.data.fileName,
+    fileSize: parsed.data.fileSize,
+    mimeType: parsed.data.mimeType,
   });
 
   return new Response(JSON.stringify(entry), {
