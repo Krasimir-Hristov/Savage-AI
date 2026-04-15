@@ -82,7 +82,8 @@ export const FileDropZone = ({
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          inputRef.current?.click();
+          if (disabled || !inputRef.current) return;
+          inputRef.current.click();
         }
       }}
     >

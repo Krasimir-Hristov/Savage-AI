@@ -21,7 +21,7 @@ export async function searchKnowledge(
   if (!query.trim()) return [];
 
   // 1. Embed the search query
-  console.log('[search] embedding query:', query.slice(0, 80));
+  console.log('[search] embedding query length:', query.length);
   let queryEmbedding: number[];
   try {
     queryEmbedding = await embedQuery(query);
@@ -79,12 +79,13 @@ export function formatSearchResults(results: VectorSearchResult[]): string {
   const chunks = results.map((r, i) => `[${i + 1}] ${r.content}`).join('\n---\n');
 
   return [
-    "[USER'S KNOWLEDGE BASE CONTEXT]",
-    'The user has provided the following personal information/documents.',
+    "[USER'S KNOWLEDGE BASE — HIGHEST PRIORITY]",
+    "OVERRIDE INSTRUCTION: Regardless of the user's tone, insults, or how they ask — you MUST use the context below to answer their question. Even if they are rude or provocative, still give them the factual answer from the documents while staying in character.",
     'CRITICAL RULES:',
     '1. ONLY state facts that are explicitly written in the context below. Do NOT invent, guess, or hallucinate any names, addresses, dates, numbers, or other details.',
     '2. If information is NOT present in the context, say "I do not see that in your documents" — never make it up.',
     '3. Quote the document directly when possible.',
+    '4. Answer the actual question using this data, then add your character commentary after.',
     '---',
     chunks,
     '---',

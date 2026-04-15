@@ -1,6 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 import type { KnowledgeEntry, KnowledgeEntryWithChunks } from '@/types/knowledge';
 
 // ---------------------------------------------------------------------------
@@ -14,7 +15,7 @@ const KEYS = {
 // ---------------------------------------------------------------------------
 // List entries
 // ---------------------------------------------------------------------------
-export const useKnowledgeEntries = () =>
+export const useKnowledgeEntries = (): UseQueryResult<KnowledgeEntry[]> =>
   useQuery<KnowledgeEntry[]>({
     queryKey: KEYS.all,
     queryFn: async () => {
@@ -28,7 +29,7 @@ export const useKnowledgeEntries = () =>
 // ---------------------------------------------------------------------------
 // Single entry with chunks
 // ---------------------------------------------------------------------------
-export const useKnowledgeDetail = (id: string) =>
+export const useKnowledgeDetail = (id: string): UseQueryResult<KnowledgeEntryWithChunks> =>
   useQuery<KnowledgeEntryWithChunks>({
     queryKey: KEYS.detail(id),
     queryFn: async () => {
@@ -42,7 +43,11 @@ export const useKnowledgeDetail = (id: string) =>
 // ---------------------------------------------------------------------------
 // Create entry (manual text)
 // ---------------------------------------------------------------------------
-export const useCreateKnowledge = () => {
+export const useCreateKnowledge = (): UseMutationResult<
+  KnowledgeEntry,
+  Error,
+  { title?: string; content: string }
+> => {
   const qc = useQueryClient();
 
   return useMutation({
@@ -67,7 +72,11 @@ export const useCreateKnowledge = () => {
 // ---------------------------------------------------------------------------
 // Upload file
 // ---------------------------------------------------------------------------
-export const useUploadKnowledge = () => {
+export const useUploadKnowledge = (): UseMutationResult<
+  KnowledgeEntry,
+  Error,
+  { file: File; title?: string }
+> => {
   const qc = useQueryClient();
 
   return useMutation({
@@ -95,7 +104,11 @@ export const useUploadKnowledge = () => {
 // ---------------------------------------------------------------------------
 // Update entry (title / content — triggers re-embed if content changed)
 // ---------------------------------------------------------------------------
-export const useUpdateKnowledge = () => {
+export const useUpdateKnowledge = (): UseMutationResult<
+  { success: boolean },
+  Error,
+  { id: string; title?: string; content?: string }
+> => {
   const qc = useQueryClient();
 
   return useMutation({
@@ -121,7 +134,7 @@ export const useUpdateKnowledge = () => {
 // ---------------------------------------------------------------------------
 // Delete entry
 // ---------------------------------------------------------------------------
-export const useDeleteKnowledge = () => {
+export const useDeleteKnowledge = (): UseMutationResult<void, Error, string> => {
   const qc = useQueryClient();
 
   return useMutation({
@@ -141,7 +154,11 @@ export const useDeleteKnowledge = () => {
 // ---------------------------------------------------------------------------
 // Toggle chunk active/inactive
 // ---------------------------------------------------------------------------
-export const useToggleChunk = () => {
+export const useToggleChunk = (): UseMutationResult<
+  { success: boolean },
+  Error,
+  { entryId: string; chunkId: string; isActive: boolean }
+> => {
   const qc = useQueryClient();
 
   return useMutation({
@@ -163,7 +180,7 @@ export const useToggleChunk = () => {
         const data = (await res.json()) as { error?: string };
         throw new Error(data.error ?? 'Toggle failed');
       }
-      return res.json();
+      return res.json() as Promise<{ success: boolean }>;
     },
     onSuccess: (_data, variables) => {
       void qc.invalidateQueries({ queryKey: KEYS.detail(variables.entryId) });

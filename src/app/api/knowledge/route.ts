@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { verifySession } from '@/lib/dal';
 import {
   getClientIP,

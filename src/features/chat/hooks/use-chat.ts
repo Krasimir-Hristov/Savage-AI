@@ -94,17 +94,25 @@ export const useChat = ({ initialMessages = [] }: UseChatOptions = {}): UseChatR
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
+        // Carry-over buffer: keeps the tail of the previous chunk so a marker
+        // split across two reads is still detected correctly.
+        const CARRY_LEN = RAG_SEARCH_MARKER.length - 1;
+        let carry = '';
 
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          let chunk = decoder.decode(value, { stream: true });
+          const decoded = decoder.decode(value, { stream: true });
+          // Prepend carry from previous iteration before checking for marker
+          let chunk = carry + decoded;
+          carry = chunk.slice(-CARRY_LEN);
 
           // Detect RAG search marker — show indicator, strip from content
           if (chunk.includes(RAG_SEARCH_MARKER)) {
             setIsSearchingKnowledge(true);
             chunk = chunk.replaceAll(RAG_SEARCH_MARKER + '\n', '');
             chunk = chunk.replaceAll(RAG_SEARCH_MARKER, '');
+            carry = chunk.slice(-CARRY_LEN);
             if (!chunk) continue;
           }
 

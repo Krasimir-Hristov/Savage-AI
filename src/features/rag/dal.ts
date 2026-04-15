@@ -117,16 +117,21 @@ export async function deleteKnowledgeEntry(entryId: string, userId: string): Pro
 export async function toggleChunkActive(
   chunkId: string,
   userId: string,
-  isActive: boolean
+  isActive: boolean,
+  knowledgeEntryId?: string
 ): Promise<void> {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  const query = supabase
     .from('document_chunks')
     .update({ is_active: isActive })
     .eq('id', chunkId)
-    .eq('user_id', userId)
-    .select('id');
+    .eq('user_id', userId);
+
+  // If knowledgeEntryId is provided, also verify the chunk belongs to that entry
+  const { data, error } = await (
+    knowledgeEntryId ? query.eq('knowledge_entry_id', knowledgeEntryId) : query
+  ).select('id');
 
   if (error) {
     throw new Error(`Failed to toggle chunk: ${error.message}`);

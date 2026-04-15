@@ -49,7 +49,18 @@ export async function embedQuery(text: string): Promise<number[]> {
 export async function embedTexts(texts: string[]): Promise<number[][]> {
   if (texts.length === 0) return [];
   const client = getEmbeddingsClient();
-  return client.embedDocuments(texts);
+  const result = await client.embedDocuments(texts);
+  if (result.length !== texts.length) {
+    throw new Error(`Embedding count mismatch: expected ${texts.length}, got ${result.length}`);
+  }
+  for (let i = 0; i < result.length; i++) {
+    if (result[i].length !== EMBEDDING_DIMENSIONS) {
+      throw new Error(
+        `Embedding[${i}] dimension mismatch: expected ${EMBEDDING_DIMENSIONS}, got ${result[i].length}`
+      );
+    }
+  }
+  return result;
 }
 
 /** Expose the embeddings instance for use with LangChain components (e.g. SemanticChunker) */

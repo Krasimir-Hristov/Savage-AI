@@ -416,6 +416,27 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
 
 ---
 
+## Deferred Fixes (skipped from CodeRabbit PR round 2)
+
+> These were intentionally skipped from the `feature/rag-knowledge-base` PR because they require non-trivial changes. Pick up in a dedicated ticket/branch.
+
+- [ ] **Atomic re-embed swap** (`src/features/rag/services/embed-entry.ts`)
+  - Currently deletes old chunks, then inserts new ones — a crash between steps leaves the entry chunk-less
+  - Fix: write new chunks first with a `pending` flag, then swap via a Supabase RPC (needs DB migration to add `status` column or a dedicated staging table)
+  - Requires: new migration + `reEmbedEntry` replaced by `rpc('swap_chunks', {...})`
+
+- [ ] **Zod validation for multipart FormData upload** (`src/app/api/knowledge/route.ts` POST)
+  - File upload currently bypasses Zod (no schema for `FormData` fields)
+  - Fix: extract `title` + file metadata, validate with a dedicated upload schema (`z.object({ title: z.string().optional(), file: ... })`)
+  - Requires: custom Zod refinement for `File` objects (size, MIME type limits)
+
+- [ ] **DAL typed errors: 404 vs 500 distinction** (`src/features/rag/dal.ts`)
+  - Currently throws a generic `Error` for both "not found" and "DB failure"
+  - Fix: introduce `NotFoundError` / `ForbiddenError` classes; catch in route handlers and return `404` vs `503` respectively
+  - Requires: shared error hierarchy in `src/lib/errors.ts` + updates to all RAG route handlers
+
+---
+
 ## Future Phases (Post-MVP, not detailed yet)
 
 - [ ] **Phase 6: RAG (Personalized Insults)**

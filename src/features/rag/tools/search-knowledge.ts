@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { tool } from '@langchain/core/tools';
+import type { StructuredToolInterface } from '@langchain/core/tools';
 import { z } from 'zod';
 
 import { searchKnowledge, formatSearchResults } from '@/features/rag/services/search';
@@ -9,7 +10,7 @@ import { searchKnowledge, formatSearchResults } from '@/features/rag/services/se
  * Creates a search_knowledge tool scoped to a specific user.
  * The userId is baked in at creation time so the LLM cannot access other users' data.
  */
-export function createSearchKnowledgeTool(userId: string) {
+export function createSearchKnowledgeTool(userId: string): StructuredToolInterface {
   return tool(
     async ({ query }) => {
       try {

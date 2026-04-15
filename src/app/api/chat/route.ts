@@ -135,7 +135,10 @@ export async function POST(req: Request): Promise<Response> {
     hasKnowledge = false;
   }
 
-  const enrichedSystemPrompt = character.systemPrompt + ragSystemSuffix;
+  // RAG context prepended BEFORE character prompt so it takes priority over character insult-handling rules
+  const enrichedSystemPrompt = ragSystemSuffix
+    ? ragSystemSuffix + '\n\n' + character.systemPrompt
+    : character.systemPrompt;
 
   // 7. Detect image intent → orchestrate generation before streaming
   let imageUrl: string | undefined;

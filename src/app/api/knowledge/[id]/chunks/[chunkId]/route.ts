@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { verifySession } from '@/lib/dal';
 import { getClientIP, handleRateLimit, knowledgeRateLimit } from '@/lib/ratelimit';
 import { toggleChunkSchema } from '@/features/rag/api/knowledge.schema';
@@ -14,7 +16,7 @@ export async function PATCH(
   const rateLimitResult = await handleRateLimit(knowledgeRateLimit, ip);
   if (!rateLimitResult.success) return rateLimitResult.response;
 
-  const { chunkId } = await params;
+  const { id, chunkId } = await params;
 
   let userId: string;
   try {
@@ -49,7 +51,7 @@ export async function PATCH(
   }
 
   try {
-    await toggleChunkActive(chunkId, userId, parsed.data.is_active);
+    await toggleChunkActive(chunkId, userId, parsed.data.is_active, id);
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json', ...rateLimitResult.headers },

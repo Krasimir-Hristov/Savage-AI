@@ -138,18 +138,18 @@ function stripToolLeakage(text: string): string {
   // Remove standalone lines that are just a tool name in backticks
   cleaned = cleaned.replace(/^\s*`search_knowledge`\s*$/gm, '');
   // Remove internal reasoning lines that leak chain-of-thought at the start of the response
-  // Patterns: "The user wants/asks/is asking...", "I need to/should/will...", "I should search/look/find..."
+  // Only match lines with explicit tool/meta-reasoning words to avoid trimming legit first-person replies
   cleaned = cleaned.replace(
-    /^(?:The user (?:wants|asks|is asking|asked|is requesting|is looking)[^\n]*\n?)+/i,
+    /^(?:The user (?:wants|asks|is asking|asked|is requesting|is looking)\b[^\n]*\n?)+/i,
     ''
   );
   cleaned = cleaned.replace(
-    /^(?:I (?:need to|should|will|must|have to|can|want to)[^\n]*\n?)+/i,
+    /^(?:I (?:need to|should|will|must|have to|want to)\s+(?:search|call|invoke|look up|find|use|query|check|fetch)[^\n]*\n?)+/i,
     ''
   );
   // Remove numbered reasoning steps at the start (1. Search... 2. Summarize... 3. End with...)
   cleaned = cleaned.replace(
-    /^(?:\s*\d+\.\s*(?:Search|Call|Look|Find|Summarize|Respond|End with|Use)[^\n]*\n?)+/i,
+    /^(?:\s*\d+\.\s*(?:Search|Call|Look|Find|Summarize|Respond|End with|Use|Invoke|Query)[^\n]*\n?)+/i,
     ''
   );
   // Collapse excessive blank lines left behind
@@ -211,6 +211,7 @@ export async function streamChatWithTools(
 
         // ReAct loop — max 3 tool rounds to prevent infinite loops
         const MAX_TOOL_ROUNDS = 3;
+        let finalAnswerEmitted = false;
 
         for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
           // Non-streaming invoke to check for tool calls
@@ -224,6 +225,7 @@ export async function streamChatWithTools(
             const text = stripToolLeakage(raw);
             if (text) {
               controller.enqueue(encoder.encode(text));
+              finalAnswerEmitted = true;
             }
             break;
           }
@@ -238,10 +240,22 @@ export async function streamChatWithTools(
             const tool = tools.find((t) => t.name === toolCall.name);
             if (!tool) {
               console.warn(`[streamChatWithTools] Unknown tool requested: ${toolCall.name}`);
+              conversationMessages.push(
+                new ToolMessage({
+                  content: `Tool "${toolCall.name}" is not available.`,
+                  tool_call_id: toolCall.id ?? '',
+                })
+              );
               continue;
             }
 
-            const toolResult = await tool.invoke(toolCall.args);
+            let toolResult: unknown;
+            try {
+              toolResult = await tool.invoke(toolCall.args);
+            } catch (toolError) {
+              console.error(`[streamChatWithTools] Tool ${toolCall.name} failed:`, toolError);
+              toolResult = `Tool execution failed: ${toolError instanceof Error ? toolError.message : 'Unknown error'}`;
+            }
 
             conversationMessages.push(
               new ToolMessage({
@@ -254,9 +268,8 @@ export async function streamChatWithTools(
           // Loop continues — model will see tool results and generate response
         }
 
-        // If we exhausted MAX_TOOL_ROUNDS without a final text response, send a fallback
-        const lastMsg = conversationMessages[conversationMessages.length - 1];
-        if (lastMsg instanceof ToolMessage) {
+        // If loop exhausted or no final text was emitted, send a fallback
+        if (!finalAnswerEmitted) {
           const fallback = await llm.invoke(conversationMessages);
           const raw = typeof fallback.content === 'string' ? fallback.content : '';
           const text = stripToolLeakage(raw);
