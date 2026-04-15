@@ -2,6 +2,7 @@ import 'server-only';
 
 import { verifySession } from '@/lib/dal';
 import { getClientIP, handleRateLimit, knowledgeRateLimit } from '@/lib/ratelimit';
+import { toHttpResponse } from '@/lib/errors';
 import { updateKnowledgeSchema } from '@/features/rag/api/knowledge.schema';
 import { deleteKnowledgeEntry, getKnowledgeEntryWithChunks } from '@/features/rag/dal';
 import { reEmbedEntry } from '@/features/rag/services/embed-entry';
@@ -41,10 +42,7 @@ export async function GET(
     });
   } catch (error) {
     console.error('[knowledge/GET]', error);
-    return new Response(JSON.stringify({ error: 'Not found' }), {
-      status: 404,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return toHttpResponse(error);
   }
 }
 
@@ -107,10 +105,7 @@ export async function PATCH(
     });
   } catch (error) {
     console.error('[knowledge/PATCH]', error);
-    return new Response(JSON.stringify({ error: 'Update failed' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return toHttpResponse(error);
   }
 }
 
@@ -149,9 +144,6 @@ export async function DELETE(
     });
   } catch (error) {
     console.error('[knowledge/DELETE]', error);
-    return new Response(JSON.stringify({ error: 'Delete failed' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return toHttpResponse(error);
   }
 }

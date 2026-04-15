@@ -259,6 +259,14 @@ export type Database = {
           similarity: number;
         }[];
       };
+      swap_chunks: {
+        Args: {
+          p_entry_id: string;
+          p_user_id: string;
+          p_chunks: string;
+        };
+        Returns: void;
+      };
     };
     Enums: {
       [_ in never]: never;

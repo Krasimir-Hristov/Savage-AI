@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { createClient } from '@/lib/supabase/server';
+import { NotFoundError } from '@/lib/errors';
 import type { DocumentChunk, KnowledgeEntry, KnowledgeEntryWithChunks } from '@/types/knowledge';
 
 // ---------------------------------------------------------------------------
@@ -36,7 +37,7 @@ export async function getKnowledgeEntry(entryId: string, userId: string): Promis
     .single();
 
   if (error || !data) {
-    throw new Error('Knowledge entry not found or access denied');
+    throw new NotFoundError('Knowledge entry not found');
   }
 
   return data as KnowledgeEntry;
@@ -107,7 +108,7 @@ export async function deleteKnowledgeEntry(entryId: string, userId: string): Pro
   }
 
   if (!data || data.length === 0) {
-    throw new Error('Knowledge entry not found or access denied');
+    throw new NotFoundError('Knowledge entry not found');
   }
 }
 
@@ -138,6 +139,6 @@ export async function toggleChunkActive(
   }
 
   if (!data || data.length === 0) {
-    throw new Error('Chunk not found or access denied');
+    throw new NotFoundError('Chunk not found');
   }
 }
