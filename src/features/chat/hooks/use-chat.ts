@@ -2,10 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Message } from '@/types/chat';
+import { IMAGE_MARKER_PREFIX, RAG_SEARCH_MARKER } from '@/lib/constants/markers';
 
 const MAX_CONTEXT_MESSAGES = 20;
-const IMAGE_MARKER_PREFIX = '__SAVAGE_IMG__';
-const RAG_SEARCH_MARKER = '__SAVAGE_RAG_SEARCH__';
 
 interface UseChatOptions {
   initialMessages?: Message[];

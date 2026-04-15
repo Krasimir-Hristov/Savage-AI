@@ -55,9 +55,10 @@ export async function PATCH(
       headers: { 'Content-Type': 'application/json', ...rateLimitResult.headers },
     });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Toggle failed' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    console.error('[knowledge/chunks/PATCH]', error);
+    return new Response(JSON.stringify({ error: 'Toggle failed' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }

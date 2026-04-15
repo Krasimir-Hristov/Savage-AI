@@ -38,10 +38,11 @@ export async function GET(
       headers: { 'Content-Type': 'application/json', ...rateLimitResult.headers },
     });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Not found' }),
-      { status: 404, headers: { 'Content-Type': 'application/json' } }
-    );
+    console.error('[knowledge/GET]', error);
+    return new Response(JSON.stringify({ error: 'Not found' }), {
+      status: 404,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
 
@@ -103,10 +104,11 @@ export async function PATCH(
       headers: { 'Content-Type': 'application/json', ...rateLimitResult.headers },
     });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Update failed' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    console.error('[knowledge/PATCH]', error);
+    return new Response(JSON.stringify({ error: 'Update failed' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
 
@@ -144,9 +146,10 @@ export async function DELETE(
       headers: { 'Content-Type': 'application/json', ...rateLimitResult.headers },
     });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Delete failed' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    console.error('[knowledge/DELETE]', error);
+    return new Response(JSON.stringify({ error: 'Delete failed' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }

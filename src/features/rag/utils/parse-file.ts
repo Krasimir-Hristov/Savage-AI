@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { getParser } from './supported-types';
+import { getParser } from '@/features/rag/utils/supported-types';
 
 /**
  * Parse a file buffer to plain text based on MIME type.

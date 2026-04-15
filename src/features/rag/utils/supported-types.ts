@@ -48,7 +48,9 @@ export function resolveMimeType(fileName: string, browserMime: string): string |
   if (SUPPORTED_TYPES[browserMime]) return browserMime;
 
   // Fallback: derive from extension
-  const ext = '.' + fileName.split('.').pop()?.toLowerCase();
+  const dotIdx = fileName.lastIndexOf('.');
+  if (dotIdx === -1 || dotIdx === 0) return null;
+  const ext = fileName.slice(dotIdx).toLowerCase();
   return EXTENSION_TO_MIME[ext] ?? null;
 }
 

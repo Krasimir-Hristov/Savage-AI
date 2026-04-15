@@ -116,12 +116,7 @@ export async function POST(req: Request): Promise<Response> {
       const lastUserMsg = messagesWithSystem.findLast((m) => m.role === 'user');
       if (lastUserMsg) {
         const results = await searchKnowledge(lastUserMsg.content, userId, 20, 0.1);
-        console.log(
-          '[rag] search results count:',
-          results.length,
-          'query:',
-          lastUserMsg.content.slice(0, 80)
-        );
+        console.log('[rag] search results count:', results.length);
         const contextBlock = formatSearchResults(results);
         if (contextBlock) {
           ragSystemSuffix = '\n\n' + contextBlock;
@@ -226,6 +221,8 @@ export async function POST(req: Request): Promise<Response> {
       // Strip RAG search markers (not needed in stored content)
       assistantContent = assistantContent.replaceAll(RAG_SEARCH_MARKER + '\n', '');
       assistantContent = assistantContent.replaceAll(RAG_SEARCH_MARKER, '');
+
+      if (!assistantContent.trim()) return;
 
       // Extract image URL from __SAVAGE_IMG__ marker (if present)
       let imageUrl: string | null = null;

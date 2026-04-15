@@ -3,7 +3,7 @@ import 'server-only';
 import { tool } from '@langchain/core/tools';
 import { z } from 'zod';
 
-import { searchKnowledge, formatSearchResults } from '../services/search';
+import { searchKnowledge, formatSearchResults } from '@/features/rag/services/search';
 
 /**
  * Creates a search_knowledge tool scoped to a specific user.
@@ -12,13 +12,18 @@ import { searchKnowledge, formatSearchResults } from '../services/search';
 export function createSearchKnowledgeTool(userId: string) {
   return tool(
     async ({ query }) => {
-      const results = await searchKnowledge(query, userId, 20, 0.1);
+      try {
+        const results = await searchKnowledge(query, userId, 20, 0.1);
 
-      if (results.length === 0) {
-        return "No relevant information found in the user's knowledge base.";
+        if (results.length === 0) {
+          return "No relevant information found in the user's knowledge base.";
+        }
+
+        return formatSearchResults(results);
+      } catch (error) {
+        console.error('[search-knowledge tool]', error instanceof Error ? error.message : error);
+        return 'Knowledge base search failed. Please try again.';
       }
-
-      return formatSearchResults(results);
     },
     {
       name: 'search_knowledge',

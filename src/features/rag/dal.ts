@@ -95,14 +95,19 @@ export async function getKnowledgeEntryCount(userId: string): Promise<number> {
 export async function deleteKnowledgeEntry(entryId: string, userId: string): Promise<void> {
   const supabase = await createClient();
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('knowledge_entries')
     .delete()
     .eq('id', entryId)
-    .eq('user_id', userId);
+    .eq('user_id', userId)
+    .select('id');
 
   if (error) {
     throw new Error(`Failed to delete knowledge entry: ${error.message}`);
+  }
+
+  if (!data || data.length === 0) {
+    throw new Error('Knowledge entry not found or access denied');
   }
 }
 
@@ -116,13 +121,18 @@ export async function toggleChunkActive(
 ): Promise<void> {
   const supabase = await createClient();
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('document_chunks')
     .update({ is_active: isActive })
     .eq('id', chunkId)
-    .eq('user_id', userId);
+    .eq('user_id', userId)
+    .select('id');
 
   if (error) {
     throw new Error(`Failed to toggle chunk: ${error.message}`);
+  }
+
+  if (!data || data.length === 0) {
+    throw new Error('Chunk not found or access denied');
   }
 }

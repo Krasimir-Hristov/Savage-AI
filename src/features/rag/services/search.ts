@@ -22,7 +22,13 @@ export async function searchKnowledge(
 
   // 1. Embed the search query
   console.log('[search] embedding query:', query.slice(0, 80));
-  const queryEmbedding = await embedQuery(query);
+  let queryEmbedding: number[];
+  try {
+    queryEmbedding = await embedQuery(query);
+  } catch (error) {
+    console.error('[search] embedding failed:', error instanceof Error ? error.message : error);
+    return [];
+  }
   console.log('[search] embedding done, dimensions:', queryEmbedding.length);
 
   // 2. Call Supabase RPC — this function filters by user_id AND is_active
@@ -42,7 +48,7 @@ export async function searchKnowledge(
 
   const rows = (data ?? []) as VectorSearchResult[];
   console.log('[search] RPC returned', rows.length, 'results above threshold', threshold);
-  if (rows.length === 0) {
+  if (rows.length === 0 && process.env.NODE_ENV === 'development') {
     // Run again with very low threshold to show actual scores for debugging
     const { data: debugData } = await supabase.rpc('match_documents', {
       query_embedding: JSON.stringify(queryEmbedding),

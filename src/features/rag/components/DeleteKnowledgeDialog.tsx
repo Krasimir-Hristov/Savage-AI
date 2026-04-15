@@ -28,8 +28,12 @@ export const DeleteKnowledgeDialog = ({
 
   const handleDelete = async (): Promise<void> => {
     if (!entry) return;
-    await deleteMutation.mutateAsync(entry.id);
-    onOpenChange(false);
+    try {
+      await deleteMutation.mutateAsync(entry.id);
+      onOpenChange(false);
+    } catch {
+      // Error is surfaced via deleteMutation.error
+    }
   };
 
   const title = entry?.title ?? entry?.file_name ?? 'this entry';

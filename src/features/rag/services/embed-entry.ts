@@ -3,7 +3,7 @@ import 'server-only';
 import { createClient } from '@/lib/supabase/server';
 import type { KnowledgeEntry } from '@/types/knowledge';
 
-import { chunkAndEmbed } from '../utils/chunk-text';
+import { chunkAndEmbed } from '@/features/rag/utils/chunk-text';
 
 // ---------------------------------------------------------------------------
 // Create a new knowledge entry + chunk & embed its content
@@ -104,7 +104,11 @@ export async function reEmbedEntry(params: {
   const content = params.content ?? entry.content;
 
   // 2. Update entry fields
-  const updateFields: Record<string, unknown> = {
+  const updateFields: {
+    updated_at: string;
+    title?: string;
+    content?: string;
+  } = {
     updated_at: new Date().toISOString(),
   };
   if (params.title !== undefined) updateFields.title = params.title;
@@ -122,21 +126,9 @@ export async function reEmbedEntry(params: {
 
   // 3. Only re-embed if content changed
   if (params.content !== undefined) {
-    // Delete old chunks
-    const { error: deleteError } = await supabase
-      .from('document_chunks')
-      .delete()
-      .eq('knowledge_entry_id', params.entryId)
-      .eq('user_id', params.userId);
-
-    if (deleteError) {
-      throw new Error(`Failed to delete old chunks: ${deleteError.message}`);
-    }
-
-    // Chunk and embed new content
+    // Chunk and embed new content FIRST — if this fails, old chunks are preserved
     const chunksWithEmbeddings = await chunkAndEmbed(content);
 
-    // Insert new chunks
     const chunkRows = chunksWithEmbeddings.map((chunk) => ({
       user_id: params.userId,
       knowledge_entry_id: params.entryId,
@@ -147,6 +139,18 @@ export async function reEmbedEntry(params: {
       metadata: {},
     }));
 
+    // Delete old chunks (safe: we already have new embeddings ready)
+    const { error: deleteError } = await supabase
+      .from('document_chunks')
+      .delete()
+      .eq('knowledge_entry_id', params.entryId)
+      .eq('user_id', params.userId);
+
+    if (deleteError) {
+      throw new Error(`Failed to delete old chunks: ${deleteError.message}`);
+    }
+
+    // Insert new chunks
     const { error: insertError } = await supabase.from('document_chunks').insert(chunkRows);
 
     if (insertError) {

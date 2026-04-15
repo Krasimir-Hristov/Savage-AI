@@ -91,7 +91,7 @@ export const ChatContainer = ({
     const el = scrollRef.current;
     if (!el) return;
     el.scrollTop = el.scrollHeight;
-  }, [messages, isStreaming]);
+  }, [messages, isStreaming, isSearchingKnowledge]);
 
   return (
     <div className={cn('flex flex-col overflow-hidden', className)}>

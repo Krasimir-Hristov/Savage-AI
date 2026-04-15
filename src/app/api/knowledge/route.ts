@@ -40,10 +40,11 @@ export async function GET(req: Request): Promise<Response> {
       headers: { 'Content-Type': 'application/json', ...rateLimitResult.headers },
     });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Failed to fetch entries' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    console.error('[knowledge/GET]', error);
+    return new Response(JSON.stringify({ error: 'Failed to fetch entries' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
 
@@ -83,10 +84,10 @@ export async function POST(req: Request): Promise<Response> {
     }
   } catch (error) {
     console.error('[knowledge/POST]', error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Failed to create entry' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: 'Failed to create entry' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
 
@@ -172,6 +173,17 @@ async function handleFileUpload(
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     });
+  }
+
+  // Guard against extremely large parsed content that would overwhelm embeddings
+  const MAX_CONTENT_LENGTH = 500_000;
+  if (textContent.length > MAX_CONTENT_LENGTH) {
+    return new Response(
+      JSON.stringify({
+        error: `Parsed content too large (${Math.round(textContent.length / 1000)}K chars). Maximum is 500K characters.`,
+      }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
+    );
   }
 
   const entry = await createAndEmbedEntry({

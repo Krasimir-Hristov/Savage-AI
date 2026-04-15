@@ -1,14 +1,17 @@
 import 'server-only';
 
-import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages';
+import { AIMessage, HumanMessage, SystemMessage, ToolMessage } from '@langchain/core/messages';
+import type { BaseMessage, BaseMessageChunk } from '@langchain/core/messages';
+import type { StructuredToolInterface } from '@langchain/core/tools';
 import { ChatOpenAI } from '@langchain/openai';
 
 import { DEFAULT_CHAT_MODEL } from '@/features/characters/data/models';
+import { IMAGE_MARKER_PREFIX, RAG_SEARCH_MARKER } from '@/lib/constants/markers';
 
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1';
 
-/** Stream marker protocol - client parses this to extract image URLs */
-export const IMAGE_MARKER_PREFIX = '__SAVAGE_IMG__';
+// Re-export markers for existing consumers
+export { IMAGE_MARKER_PREFIX, RAG_SEARCH_MARKER };
 
 // ---------------------------------------------------------------------------
 // Model factory
@@ -119,11 +122,40 @@ export function createChatModel(model?: string): ChatOpenAI {
 // Public API - streaming chat WITH tool calling (RAG)
 // ---------------------------------------------------------------------------
 
-import type { StructuredToolInterface } from '@langchain/core/tools';
-import type { BaseMessageChunk } from '@langchain/core/messages';
-
-/** RAG search marker — client uses this to show "searching knowledge base" indicator */
-export const RAG_SEARCH_MARKER = '__SAVAGE_RAG_SEARCH__';
+/**
+ * Strip leaked tool-calling reasoning and internal chain-of-thought from model output.
+ * Some models (e.g. Gemini Flash) include "PLAN:", "I should...", "The user wants..." etc.
+ * in their text even when instructed not to. This removes those sections as a safety net.
+ */
+function stripToolLeakage(text: string): string {
+  // Remove "PLAN:" blocks (with numbered steps) — greedy up to a double newline or end
+  let cleaned = text.replace(/\bPLAN:\s*\n(?:\s*\d+\.\s*.+\n?)+/gi, '');
+  // Remove lines referencing tool calls like: Call search_knowledge with query "..."
+  cleaned = cleaned.replace(
+    /^.*\b(?:call|invoke|use)\s+(?:`?search_knowledge`?|`?tool`?).*$/gim,
+    ''
+  );
+  // Remove standalone lines that are just a tool name in backticks
+  cleaned = cleaned.replace(/^\s*`search_knowledge`\s*$/gm, '');
+  // Remove internal reasoning lines that leak chain-of-thought at the start of the response
+  // Patterns: "The user wants/asks/is asking...", "I need to/should/will...", "I should search/look/find..."
+  cleaned = cleaned.replace(
+    /^(?:The user (?:wants|asks|is asking|asked|is requesting|is looking)[^\n]*\n?)+/i,
+    ''
+  );
+  cleaned = cleaned.replace(
+    /^(?:I (?:need to|should|will|must|have to|can|want to)[^\n]*\n?)+/i,
+    ''
+  );
+  // Remove numbered reasoning steps at the start (1. Search... 2. Summarize... 3. End with...)
+  cleaned = cleaned.replace(
+    /^(?:\s*\d+\.\s*(?:Search|Call|Look|Find|Summarize|Respond|End with|Use)[^\n]*\n?)+/i,
+    ''
+  );
+  // Collapse excessive blank lines left behind
+  cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+  return cleaned.trim();
+}
 
 /**
  * Streams a character response with tool-calling support.
@@ -162,9 +194,18 @@ export async function streamChatWithTools(
             '\n\nCONTEXT: The user asked for an image. It has been successfully generated and will be shown below your response. React in character to having just created it - make a brief comment (1-3 sentences). Do NOT say you will generate anything; it is already done.'
           : systemPrompt;
 
+        // Append tool-usage instructions to hide internals from the user
+        const toolHidingInstruction =
+          '\n\nCRITICAL INSTRUCTION — INTERNAL REASONING:\n' +
+          '- NEVER output your internal reasoning, thoughts, or plans to the user.\n' +
+          '- NEVER write lines like "The user wants...", "I should...", "I need to find...", "PLAN:", or any meta-commentary about what you are doing.\n' +
+          '- NEVER mention tool names like "search_knowledge", "query", or describe calling tools.\n' +
+          '- NEVER output numbered steps describing your plan (e.g. "1. Search... 2. Summarize...").\n' +
+          '- Just respond directly and naturally with the answer IN CHARACTER. Start your response with actual content, not reasoning.';
+
         // Build conversation with system prompt
-        const conversationMessages = [
-          new SystemMessage(effectiveSystemPrompt),
+        const conversationMessages: BaseMessage[] = [
+          new SystemMessage(effectiveSystemPrompt + toolHidingInstruction),
           ...langchainMessages,
         ];
 
@@ -178,11 +219,10 @@ export async function streamChatWithTools(
           const toolCalls = (response as AIMessage).tool_calls;
 
           if (!toolCalls || toolCalls.length === 0) {
-            // Final answer — stream it
-            const text = typeof response.content === 'string' ? response.content : '';
+            // Final answer — stream it (strip any leaked tool reasoning)
+            const raw = typeof response.content === 'string' ? response.content : '';
+            const text = stripToolLeakage(raw);
             if (text) {
-              // Re-stream through LLM for natural token-by-token delivery
-              // (since we used invoke above, we have the full text)
               controller.enqueue(encoder.encode(text));
             }
             break;
@@ -196,11 +236,13 @@ export async function streamChatWithTools(
 
           for (const toolCall of toolCalls) {
             const tool = tools.find((t) => t.name === toolCall.name);
-            if (!tool) continue;
+            if (!tool) {
+              console.warn(`[streamChatWithTools] Unknown tool requested: ${toolCall.name}`);
+              continue;
+            }
 
             const toolResult = await tool.invoke(toolCall.args);
 
-            const { ToolMessage } = await import('@langchain/core/messages');
             conversationMessages.push(
               new ToolMessage({
                 content: typeof toolResult === 'string' ? toolResult : JSON.stringify(toolResult),
@@ -210,6 +252,15 @@ export async function streamChatWithTools(
           }
 
           // Loop continues — model will see tool results and generate response
+        }
+
+        // If we exhausted MAX_TOOL_ROUNDS without a final text response, send a fallback
+        const lastMsg = conversationMessages[conversationMessages.length - 1];
+        if (lastMsg instanceof ToolMessage) {
+          const fallback = await llm.invoke(conversationMessages);
+          const raw = typeof fallback.content === 'string' ? fallback.content : '';
+          const text = stripToolLeakage(raw);
+          if (text) controller.enqueue(encoder.encode(text));
         }
 
         // Append image marker if applicable

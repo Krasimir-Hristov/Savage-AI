@@ -70,8 +70,14 @@ export const KnowledgeEntryCard = ({
           <span className='text-[10px] text-muted-foreground'>{formatDate(entry.created_at)}</span>
         </div>
 
-        <div className='flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity'>
-          <Button variant='ghost' size='icon' className='size-7' onClick={() => onEdit(entry)}>
+        <div className='flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity'>
+          <Button
+            variant='ghost'
+            size='icon'
+            className='size-7'
+            onClick={() => onEdit(entry)}
+            aria-label='Edit entry'
+          >
             <Pencil className='size-3.5' />
           </Button>
           <Button
@@ -79,6 +85,7 @@ export const KnowledgeEntryCard = ({
             size='icon'
             className='size-7 text-destructive hover:text-destructive'
             onClick={() => onDelete(entry)}
+            aria-label='Delete entry'
           >
             <Trash2 className='size-3.5' />
           </Button>

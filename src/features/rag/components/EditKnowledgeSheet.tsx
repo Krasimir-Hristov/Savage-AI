@@ -53,13 +53,17 @@ export const EditKnowledgeSheet = ({
     if (newContent !== entry.content) payload.content = newContent;
 
     // Skip if nothing changed
-    if (!payload.title && !payload.content) {
+    if (!('title' in payload) && !('content' in payload)) {
       onOpenChange(false);
       return;
     }
 
-    await updateMutation.mutateAsync(payload);
-    onOpenChange(false);
+    try {
+      await updateMutation.mutateAsync(payload);
+      onOpenChange(false);
+    } catch {
+      // Error is surfaced via updateMutation.error
+    }
   };
 
   const isFile = entry?.source_type === 'file';

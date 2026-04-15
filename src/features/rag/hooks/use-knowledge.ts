@@ -109,7 +109,7 @@ export const useUpdateKnowledge = () => {
         const data = (await res.json()) as { error?: string };
         throw new Error(data.error ?? 'Update failed');
       }
-      return res.json() as Promise<KnowledgeEntry>;
+      return res.json() as Promise<{ success: boolean }>;
     },
     onSuccess: (_data, variables) => {
       void qc.invalidateQueries({ queryKey: KEYS.all });

@@ -36,7 +36,13 @@ function getEmbeddingsClient(): OpenAIEmbeddings {
 /** Embed a single query string (for search) */
 export async function embedQuery(text: string): Promise<number[]> {
   const client = getEmbeddingsClient();
-  return client.embedQuery(text);
+  const embedding = await client.embedQuery(text);
+  if (embedding.length !== EMBEDDING_DIMENSIONS) {
+    throw new Error(
+      `Embedding dimension mismatch: expected ${EMBEDDING_DIMENSIONS}, got ${embedding.length}`
+    );
+  }
+  return embedding;
 }
 
 /** Embed multiple texts in batch (for document ingestion) */

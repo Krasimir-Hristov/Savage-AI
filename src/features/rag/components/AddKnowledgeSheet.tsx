@@ -51,14 +51,25 @@ export const AddKnowledgeSheet = ({
 
   const handleSubmitManual = async (): Promise<void> => {
     if (!content.trim()) return;
-    await createMutation.mutateAsync({ title: title.trim() || undefined, content: content.trim() });
-    handleClose(false);
+    try {
+      await createMutation.mutateAsync({
+        title: title.trim() || undefined,
+        content: content.trim(),
+      });
+      handleClose(false);
+    } catch {
+      // Error is surfaced via createMutation.error
+    }
   };
 
   const handleSubmitFile = async (): Promise<void> => {
     if (!selectedFile) return;
-    await uploadMutation.mutateAsync({ file: selectedFile, title: title.trim() || undefined });
-    handleClose(false);
+    try {
+      await uploadMutation.mutateAsync({ file: selectedFile, title: title.trim() || undefined });
+      handleClose(false);
+    } catch {
+      // Error is surfaced via uploadMutation.error
+    }
   };
 
   const error = createMutation.error?.message ?? uploadMutation.error?.message;

@@ -22,7 +22,7 @@ export const ChunkList = ({ entryId, chunks }: ChunkListProps): React.JSX.Elemen
   return (
     <ScrollArea className='max-h-100'>
       <div className='flex flex-col gap-3'>
-        {chunks
+        {[...chunks]
           .sort((a, b) => a.chunk_index - b.chunk_index)
           .map((chunk) => (
             <div
