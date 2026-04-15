@@ -11,6 +11,7 @@ import type { Message } from '@/types/chat';
 interface ChatContainerProps {
   messages: Message[];
   isStreaming: boolean;
+  isSearchingKnowledge?: boolean;
   characterId: string;
   isLoading?: boolean;
   className?: string;
@@ -78,6 +79,7 @@ const EmptyState = ({ characterId }: EmptyStateProps): React.JSX.Element => {
 export const ChatContainer = ({
   messages,
   isStreaming,
+  isSearchingKnowledge = false,
   characterId,
   isLoading = false,
   className,
@@ -108,6 +110,26 @@ export const ChatContainer = ({
                 isStreaming={isStreaming && index === messages.length - 1}
               />
             ))}
+            {isSearchingKnowledge && (
+              <div className='flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground animate-pulse'>
+                <svg className='size-3.5 animate-spin' viewBox='0 0 24 24' fill='none'>
+                  <circle
+                    className='opacity-25'
+                    cx='12'
+                    cy='12'
+                    r='10'
+                    stroke='currentColor'
+                    strokeWidth='4'
+                  />
+                  <path
+                    className='opacity-75'
+                    fill='currentColor'
+                    d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z'
+                  />
+                </svg>
+                <span>Searching knowledge base…</span>
+              </div>
+            )}
           </div>
         )}
       </div>

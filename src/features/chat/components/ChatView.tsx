@@ -48,7 +48,7 @@ export const ChatView = ({
     promptOverride: string;
   } | null>(null);
 
-  const { messages, isStreaming, error, sendMessage } = useChat({
+  const { messages, isStreaming, isSearchingKnowledge, error, sendMessage } = useChat({
     initialMessages: initialMessages ?? [],
   });
 
@@ -237,6 +237,7 @@ export const ChatView = ({
         <ChatContainer
           messages={messages}
           isStreaming={isStreaming}
+          isSearchingKnowledge={isSearchingKnowledge}
           characterId={activeCharacterId}
           className='flex-1 min-h-0'
         />

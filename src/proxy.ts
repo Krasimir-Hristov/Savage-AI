@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PROTECTED_PATHS = ['/chat'];
+const PROTECTED_PATHS = ['/chat', '/knowledge'];
 const AUTH_PATHS = ['/login', '/signup'];
 
 export async function proxy(request: NextRequest): Promise<NextResponse> {

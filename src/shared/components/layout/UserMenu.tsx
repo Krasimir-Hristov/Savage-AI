@@ -2,7 +2,8 @@
 
 import React from 'react';
 
-import { LogOut, User } from 'lucide-react';
+import { BookOpen, LogOut, User } from 'lucide-react';
+import Link from 'next/link';
 
 import { logoutAction } from '@/features/auth/actions/auth.actions';
 import { Avatar, AvatarFallback } from '@/shared/components/ui/avatar';
@@ -55,6 +56,13 @@ export const UserMenu = ({ email, displayName }: UserMenuProps): React.JSX.Eleme
           <User size={14} className='text-muted-foreground shrink-0' />
           <span className='truncate text-sm font-normal text-muted-foreground'>{label}</span>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href='/knowledge' className='flex items-center gap-2'>
+            <BookOpen size={14} />
+            Knowledge Base
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           variant='destructive'

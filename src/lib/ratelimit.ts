@@ -38,6 +38,20 @@ export const ttsRateLimit = new Ratelimit({
   prefix: 'savage-ai:tts',
 });
 
+export const knowledgeRateLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(30, '60 s'), // 30 requests per 60 seconds per IP
+  analytics: true,
+  prefix: 'savage-ai:knowledge',
+});
+
+export const knowledgeUploadRateLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, '60 s'), // 5 uploads per 60 seconds per IP
+  analytics: true,
+  prefix: 'savage-ai:knowledge-upload',
+});
+
 /**
  * Generic function to handle rate limiting errors
  * Call this FIRST in your API handler, before any auth/DB calls
