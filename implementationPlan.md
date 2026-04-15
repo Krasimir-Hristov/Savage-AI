@@ -439,7 +439,7 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
 
 ## Future Phases (Post-MVP, not detailed yet)
 
-- [ ] **Phase 6: RAG (Personalized Insults)**
+- [x] **Phase 6: RAG (Personalized Insults)**
   - Enable pgvector on Supabase
   - File upload (PDF, code, CV)
   - Embedding generation (via OpenRouter or OpenAI)
