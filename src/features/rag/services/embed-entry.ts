@@ -104,7 +104,30 @@ export async function reEmbedEntry(params: {
 
   const content = params.content ?? entry.content;
 
-  // 2. Update entry fields
+  // 2. Only re-embed if content changed — do this BEFORE persisting entry fields
+  //    so that if embedding fails, neither the entry text nor chunks are altered.
+  let chunkPayload:
+    | {
+        content: string;
+        embedding: string;
+        chunk_index: number;
+        is_active: boolean;
+        metadata: Record<string, never>;
+      }[]
+    | null = null;
+
+  if (params.content !== undefined) {
+    const chunksWithEmbeddings = await chunkAndEmbed(content);
+    chunkPayload = chunksWithEmbeddings.map((chunk) => ({
+      content: chunk.content,
+      embedding: JSON.stringify(chunk.embedding),
+      chunk_index: chunk.chunkIndex,
+      is_active: true,
+      metadata: {},
+    }));
+  }
+
+  // 3. Update entry fields (title / content text)
   const updateFields: {
     updated_at: string;
     title?: string;
@@ -125,20 +148,8 @@ export async function reEmbedEntry(params: {
     throw new Error(`Failed to update entry: ${updateEntryError.message}`);
   }
 
-  // 3. Only re-embed if content changed
-  if (params.content !== undefined) {
-    // Chunk and embed new content FIRST — if this fails, old chunks are preserved
-    const chunksWithEmbeddings = await chunkAndEmbed(content);
-
-    const chunkPayload = chunksWithEmbeddings.map((chunk) => ({
-      content: chunk.content,
-      embedding: JSON.stringify(chunk.embedding),
-      chunk_index: chunk.chunkIndex,
-      is_active: true,
-      metadata: {},
-    }));
-
-    // Atomic swap: delete old + insert new + update count in one transaction
+  // 4. Atomic swap: delete old + insert new + update count in one transaction
+  if (chunkPayload !== null) {
     const { error: swapError } = await supabase.rpc('swap_chunks', {
       p_entry_id: params.entryId,
       p_user_id: params.userId,
