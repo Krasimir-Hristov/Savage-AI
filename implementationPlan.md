@@ -425,7 +425,7 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - Vector search for relevant context
   - Inject context into character prompt
 
-- [ ] **Phase 7: TTS (Savage Voice)**
+- [x] **Phase 7: TTS (Savage Voice)**
   - Provider TBD
   - Audio playback component
   - Per-character voice settings
@@ -434,15 +434,6 @@ SavageAI е multi-agent AI чат приложение с "токсични" х�
   - Provider TBD
   - Image generation from chat
   - Gallery view
-
-- [ ] **Phase 9: Gamification**
-  - Leaderboard of Shame
-  - Best roasts voting
-  - User stats
-
-- [ ] **Phase 10: Notifications**
-  - Passive-aggressive push notifications
-  - "Why are you ignoring me?" reminders
 
 ---
 
