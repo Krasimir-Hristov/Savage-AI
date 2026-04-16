@@ -155,7 +155,7 @@ savageai/
 
 ## Phase 0: Test Infrastructure Setup
 
-- [ ] **Step 0.1: Install Vitest + dependencies**
+- [x] **Step 0.1: Install Vitest + dependencies**
 
   ```bash
   npm install -D vitest @vitejs/plugin-react happy-dom
