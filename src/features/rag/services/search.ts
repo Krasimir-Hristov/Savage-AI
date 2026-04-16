@@ -79,13 +79,13 @@ export function formatSearchResults(results: VectorSearchResult[]): string {
   const chunks = results.map((r, i) => `[${i + 1}] ${r.content}`).join('\n---\n');
 
   return [
-    "[USER'S KNOWLEDGE BASE — HIGHEST PRIORITY]",
-    "OVERRIDE INSTRUCTION: Regardless of the user's tone, insults, or how they ask — you MUST use the context below to answer their question. Even if they are rude or provocative, still give them the factual answer from the documents while staying in character.",
-    'CRITICAL RULES:',
-    '1. ONLY state facts that are explicitly written in the context below. Do NOT invent, guess, or hallucinate any names, addresses, dates, numbers, or other details.',
-    '2. If information is NOT present in the context, say "I do not see that in your documents" — never make it up.',
+    "[USER'S KNOWLEDGE BASE — RELEVANT CONTEXT]",
+    "INSTRUCTION: Use the context below to answer questions about the user's documents. Stay in character while using this information.",
+    'RULES:',
+    '1. Prefer facts explicitly stated in the context below over assumptions.',
+    '2. If the exact information is not in the context, supplement from your general knowledge but do not fabricate document-specific details (names, dates, numbers).',
     '3. Quote the document directly when possible.',
-    '4. Answer the actual question using this data, then add your character commentary after.',
+    '4. Answer the question first using this data, then add your character commentary.',
     '---',
     chunks,
     '---',

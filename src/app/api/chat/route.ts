@@ -5,7 +5,6 @@ import { getCharacter } from '@/features/characters/data';
 import { detectImageIntent, extractImagePrompt, generateImage } from '@/features/image-gen';
 import { chatRequestSchema } from '@/features/chat/api/chat.schema';
 import { getKnowledgeEntryCount } from '@/features/rag/dal';
-import { searchKnowledge, formatSearchResults } from '@/features/rag/services/search';
 import { createSearchKnowledgeTool } from '@/features/rag/tools/search-knowledge';
 import { verifySession } from '@/lib/dal';
 import {
@@ -102,30 +101,13 @@ export async function POST(req: Request): Promise<Response> {
     content: m.content,
   }));
 
-  // 6. RAG — check if user has knowledge entries and enrich context
-  let ragSystemSuffix = '';
+  // 6. RAG — check if user has knowledge entries (tool is made available if so)
   let hasKnowledge = false;
 
   try {
     const entryCount = await getKnowledgeEntryCount(userId);
     hasKnowledge = entryCount > 0;
     console.log('[rag] entry count:', entryCount, 'hasKnowledge:', hasKnowledge);
-
-    if (hasKnowledge) {
-      // Auto-inject: embed last user message → search → prepend context to system prompt
-      const lastUserMsg = messagesWithSystem.findLast((m) => m.role === 'user');
-      if (lastUserMsg) {
-        const results = await searchKnowledge(lastUserMsg.content, userId, 20, 0.1);
-        console.log('[rag] search results count:', results.length);
-        const contextBlock = formatSearchResults(results);
-        if (contextBlock) {
-          ragSystemSuffix = '\n\n' + contextBlock;
-          console.log('[rag] injecting context, length:', contextBlock.length);
-        } else {
-          console.log('[rag] no relevant results found above threshold');
-        }
-      }
-    }
   } catch (ragError) {
     // RAG failure should not block the chat — degrade gracefully
     console.error(
@@ -135,10 +117,7 @@ export async function POST(req: Request): Promise<Response> {
     hasKnowledge = false;
   }
 
-  // RAG context prepended BEFORE character prompt so it takes priority over character insult-handling rules
-  const enrichedSystemPrompt = ragSystemSuffix
-    ? ragSystemSuffix + '\n\n' + character.systemPrompt
-    : character.systemPrompt;
+  const enrichedSystemPrompt = character.systemPrompt;
 
   // 7. Detect image intent → orchestrate generation before streaming
   let imageUrl: string | undefined;
