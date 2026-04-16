@@ -56,7 +56,11 @@ const useSidebarCallbacks = (
     (CHARACTERS[preferredCharacter] ? preferredCharacter : DEFAULT_CHARACTER_ID);
 
   const handleNewChat = (): void => {
-    router.push('/chat');
+    // Append a unique timestamp so Next.js always sees a different URL and triggers
+    // a real navigation — necessary because window.history.replaceState (used by
+    // ChatView after the first message) desyncs the Next.js router from the browser
+    // URL, making router.push('/chat') a no-op when the router thinks it's already there.
+    router.push(`/chat?_r=${Date.now()}`);
   };
 
   const handleSelectConversation = (id: string): void => {
