@@ -37,6 +37,7 @@ const ConversationPage = async ({ params }: PageProps): Promise<React.JSX.Elemen
   return (
     <div className='flex flex-col h-full'>
       <ChatView
+        key={conversation.id}
         conversationId={conversation.id}
         initialMessages={messages}
         characterId={conversation.character_id}

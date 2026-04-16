@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { AlertCircle } from 'lucide-react';
@@ -39,6 +39,14 @@ export const ChatView = ({
     initialCharacterId || DEFAULT_CHARACTER_ID
   );
   const [createError, setCreateError] = useState<string | null>(null);
+
+  // Strip the _r reset param from the URL after mount (added by handleNewChat to
+  // force a unique navigation URL; not meaningful to show the user)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('_r=')) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }, []);
 
   // Voice call state
   type VoiceMode = 'idle' | 'fetching-session' | 'in-call';
