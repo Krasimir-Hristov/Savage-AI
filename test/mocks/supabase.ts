@@ -37,8 +37,11 @@ export const createMockQueryBuilder = (
   builder['single'] = vi.fn().mockResolvedValue(resolveValue);
   builder['maybeSingle'] = vi.fn().mockResolvedValue(resolveValue);
   // Make the builder itself thenable (resolves when awaited directly)
-  builder['then'] = vi.fn((resolve: (v: unknown) => unknown) =>
-    Promise.resolve(resolveValue).then(resolve)
+  builder['then'] = vi.fn(
+    (
+      onFulfilled: ((v: unknown) => unknown) | null | undefined,
+      onRejected: ((e: unknown) => unknown) | null | undefined,
+    ) => Promise.resolve(resolveValue).then(onFulfilled, onRejected),
   );
 
   return builder;

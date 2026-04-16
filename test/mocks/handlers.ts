@@ -48,14 +48,16 @@ export const handlers = [
 
   http.patch('/api/knowledge/:id', async ({ params, request }) => {
     const body = (await request.json()) as Record<string, unknown>;
-    const entry = mockKnowledgeEntries.find((e) => e.id === params.id);
-    if (!entry) return HttpResponse.json({ error: 'Not found' }, { status: 404 });
-    return HttpResponse.json({ ...entry, ...body });
+    const idx = mockKnowledgeEntries.findIndex((e) => e.id === params.id);
+    if (idx === -1) return HttpResponse.json({ error: 'Not found' }, { status: 404 });
+    Object.assign(mockKnowledgeEntries[idx], body);
+    return HttpResponse.json(mockKnowledgeEntries[idx]);
   }),
 
   http.delete('/api/knowledge/:id', ({ params }) => {
-    const entry = mockKnowledgeEntries.find((e) => e.id === params.id);
-    if (!entry) return HttpResponse.json({ error: 'Not found' }, { status: 404 });
+    const idx = mockKnowledgeEntries.findIndex((e) => e.id === params.id);
+    if (idx === -1) return HttpResponse.json({ error: 'Not found' }, { status: 404 });
+    mockKnowledgeEntries.splice(idx, 1);
     return HttpResponse.json({ success: true });
   }),
 

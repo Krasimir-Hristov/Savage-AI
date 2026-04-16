@@ -63,6 +63,6 @@ export const mockCharacters: Character[] = [mockAngryGrandpa, mockBalkanDad, moc
 
 export const createMockCharacter = (overrides: Partial<Character> = {}): Character => ({
   ...mockAngryGrandpa,
-  id: `mock-character-${Date.now()}`,
+  id: `mock-character-${crypto.randomUUID()}`,
   ...overrides,
 });

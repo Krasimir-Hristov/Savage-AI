@@ -8,8 +8,19 @@ on:
 
 jobs:
   ci:
-    name: Lint, Typecheck & Build
+    name: Lint, Typecheck, Test & Build
     runs-on: ubuntu-latest
+    # Test-safe placeholder values — overridden by real secrets in the Build step
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: test-key
+      SUPABASE_SECRET_KEY: test-secret-key
+      OPENROUTER_API_KEY: test-key
+      UPSTASH_REDIS_REST_URL: http://localhost:8079
+      UPSTASH_REDIS_REST_TOKEN: test-token
+      NEXT_PUBLIC_ELEVEN_LABS_ANGRY_GRANDPA_AGENT_ID: test-agent-id
+      NEXT_PUBLIC_ELEVEN_LABS_BALKAN_DAD_AGENT_ID: test-agent-id
+      NEXT_PUBLIC_ELEVEN_LABS_CORPORATE_SHARK_AGENT_ID: test-agent-id
 
     steps:
       - name: Checkout code
@@ -32,26 +43,21 @@ jobs:
 
       - name: Run unit & integration tests
         run: npm run test:run
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: test-key
-          SUPABASE_SECRET_KEY: test-secret-key
-          OPENROUTER_API_KEY: test-key
-          UPSTASH_REDIS_REST_URL: http://localhost:8079
-          UPSTASH_REDIS_REST_TOKEN: test-token
-          NEXT_PUBLIC_ELEVEN_LABS_ANGRY_GRANDPA_AGENT_ID: test-agent-id
-          NEXT_PUBLIC_ELEVEN_LABS_BALKAN_DAD_AGENT_ID: test-agent-id
-          NEXT_PUBLIC_ELEVEN_LABS_CORPORATE_SHARK_AGENT_ID: test-agent-id
+        # Inherits job-level env (test placeholders) — no per-step overrides needed
 
       - name: Build
         run: npm run build
         env:
+          # Override job-level placeholders with real secrets for the build
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          NEXT_PUBLIC_ELEVEN_LABS_ANGRY_GRANDPA_AGENT_ID: ${{ secrets.NEXT_PUBLIC_ELEVEN_LABS_ANGRY_GRANDPA_AGENT_ID }}
+          NEXT_PUBLIC_ELEVEN_LABS_BALKAN_DAD_AGENT_ID: ${{ secrets.NEXT_PUBLIC_ELEVEN_LABS_BALKAN_DAD_AGENT_ID }}
+          NEXT_PUBLIC_ELEVEN_LABS_CORPORATE_SHARK_AGENT_ID: ${{ secrets.NEXT_PUBLIC_ELEVEN_LABS_CORPORATE_SHARK_AGENT_ID }}
 
   e2e:
     name: E2E Tests (Playwright)
@@ -84,6 +90,9 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          NEXT_PUBLIC_ELEVEN_LABS_ANGRY_GRANDPA_AGENT_ID: ${{ secrets.NEXT_PUBLIC_ELEVEN_LABS_ANGRY_GRANDPA_AGENT_ID }}
+          NEXT_PUBLIC_ELEVEN_LABS_BALKAN_DAD_AGENT_ID: ${{ secrets.NEXT_PUBLIC_ELEVEN_LABS_BALKAN_DAD_AGENT_ID }}
+          NEXT_PUBLIC_ELEVEN_LABS_CORPORATE_SHARK_AGENT_ID: ${{ secrets.NEXT_PUBLIC_ELEVEN_LABS_CORPORATE_SHARK_AGENT_ID }}
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4

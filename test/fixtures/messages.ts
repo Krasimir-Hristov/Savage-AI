@@ -52,13 +52,18 @@ export const createMockMessage = (overrides: Partial<Message> = {}): Message => 
 export const createMockMessagePair = (
   userContent: string,
   assistantContent: string,
-  overrides: Partial<Message> = {}
-): [Message, Message] => [
-  createMockMessage({ role: 'user', content: userContent, ...overrides }),
-  createMockMessage({
-    role: 'assistant',
-    content: assistantContent,
-    model: 'google/gemini-2.5-flash-lite',
-    ...overrides,
-  }),
-];
+  overrides: Partial<Message> = {},
+): [Message, Message] => {
+  // Strip id and conversation_id from shared overrides to prevent duplicate identifiers
+  // across the two messages; each call to createMockMessage generates its own UUID.
+  const { id: _id, conversation_id: _cid, ...sharedOverrides } = overrides;
+  return [
+    createMockMessage({ ...sharedOverrides, role: 'user', content: userContent }),
+    createMockMessage({
+      ...sharedOverrides,
+      role: 'assistant',
+      content: assistantContent,
+      model: 'google/gemini-2.5-flash-lite',
+    }),
+  ];
+};

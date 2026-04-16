@@ -39,11 +39,45 @@ vi.mock('next/navigation', () => ({
 }));
 
 // Mock `next/cache` — used by DAL unstable_cache
-vi.mock('next/cache', () => ({
-  unstable_cache: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
-  revalidatePath: vi.fn(),
-  revalidateTag: vi.fn(),
-}));
+// Uses a Map-based cache keyed by keyParts + args so tests exercising
+// cache hits, revalidateTag, and revalidatePath behave correctly.
+vi.mock('next/cache', () => {
+  const cache = new Map<string, unknown>();
+  const tagKeys = new Map<string, Set<string>>();
+
+  const unstable_cache = vi.fn(
+    (
+      fn: (...args: unknown[]) => unknown,
+      keyParts?: string[],
+      options?: { tags?: string[]; revalidate?: number },
+    ) =>
+      async (...args: unknown[]) => {
+        const key = JSON.stringify([...(keyParts ?? []), ...args]);
+        if (cache.has(key)) return cache.get(key);
+        const result = await fn(...args);
+        cache.set(key, result);
+        if (options?.tags) {
+          for (const tag of options.tags) {
+            if (!tagKeys.has(tag)) tagKeys.set(tag, new Set());
+            tagKeys.get(tag)!.add(key);
+          }
+        }
+        return result;
+      },
+  );
+
+  const revalidateTag = vi.fn((tag: string) => {
+    const keys = tagKeys.get(tag);
+    if (keys) {
+      keys.forEach((k) => cache.delete(k));
+      tagKeys.delete(tag);
+    }
+  });
+
+  const revalidatePath = vi.fn(() => cache.clear());
+
+  return { unstable_cache, revalidatePath, revalidateTag };
+});
 
 // ---------------------------------------------------------------------------
 // MSW server lifecycle
