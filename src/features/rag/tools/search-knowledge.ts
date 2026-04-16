@@ -31,7 +31,7 @@ export function createSearchKnowledgeTool(userId: string): StructuredToolInterfa
       description:
         "Search the user's personal knowledge base for relevant information. " +
         'Use this ONLY when the user explicitly asks about their uploaded documents, files, notes, or stored data. ' +
-        'Do NOT use this for general questions, coding help, math, or anything not directly related to the user\'s saved documents.',
+        "Do NOT use this for general questions, coding help, math, or anything not directly related to the user's saved documents.",
       schema: z.object({
         query: z
           .string()
