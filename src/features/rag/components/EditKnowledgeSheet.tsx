@@ -61,7 +61,6 @@ const EditForm = ({
     }
   };
 
-  const isFile = entry.source_type === 'file';
   const contentChanged = content.trim() !== entry.content;
 
   return (

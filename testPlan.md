@@ -164,7 +164,7 @@ savageai/
   npm install -D playwright @playwright/test
   ```
 
-- [ ] **Step 0.2: Configure `vitest.config.ts`**
+- [x] **Step 0.2: Configure `vitest.config.ts`**
   - `environment: 'happy-dom'` for component tests
   - `resolve.alias`: `@/` → `src/` (matching `tsconfig.json`)
   - `setupFiles: ['./test/setup.ts']`
@@ -172,32 +172,32 @@ savageai/
   - `coverage` with `v8` provider
   - `server.deps.inline`: inline Supabase/LangChain ESM packages
 
-- [ ] **Step 0.3: Configure `playwright.config.ts`**
+- [x] **Step 0.3: Configure `playwright.config.ts`**
   - `baseURL: 'http://localhost:3000'`
   - `webServer`: auto-start `npm run dev` before tests
   - Projects: chromium, firefox, webkit (mobile viewport optional)
   - `testDir: './e2e'`
   - Screenshots on failure
 
-- [ ] **Step 0.4: Global test setup (`test/setup.ts`)**
+- [x] **Step 0.4: Global test setup (`test/setup.ts`)**
   - Import `@testing-library/jest-dom/vitest` for matchers (`toBeInTheDocument`, etc.)
   - MSW server `beforeAll/afterAll/afterEach` setup
   - Mock for `import 'server-only'` (noop in test environment)
   - Mock for `next/headers` (`cookies()`)
   - Mock for `next/navigation` (`redirect()`, `useRouter()`)
 
-- [ ] **Step 0.5: MSW mock handlers (`test/mocks/handlers.ts`)**
+- [x] **Step 0.5: MSW mock handlers (`test/mocks/handlers.ts`)**
   - OpenRouter streaming mock (SSE format)
   - Supabase Auth mock endpoints
   - ElevenLabs signed URL mock
   - Standard REST mocks for `/api/*` endpoints
 
-- [ ] **Step 0.6: Test fixtures (`test/fixtures/*.ts`)**
+- [x] **Step 0.6: Test fixtures (`test/fixtures/*.ts`)**
   - Sample users, conversations, messages, characters
   - Knowledge entries + chunks with realistic data
   - Reusable factories: `createMockMessage()`, `createMockConversation()`, etc.
 
-- [ ] **Step 0.7: npm scripts in `package.json`**
+- [x] **Step 0.7: npm scripts in `package.json`**
 
   ```json
   {
@@ -210,7 +210,7 @@ savageai/
   }
   ```
 
-- [ ] **Step 0.8: Update `.github/workflows/ci.yml`**
+- [x] **Step 0.8: Update `.github/workflows/ci.yml`**
   - Add `test:run` step after lint + typecheck
   - Coverage upload (optional, Codecov/Coveralls)
   - Separate Playwright job with browser install cache
