@@ -17,7 +17,7 @@ export function createSearchKnowledgeTool(userId: string): StructuredToolInterfa
         const results = await searchKnowledge(query, userId, 20, 0.1);
 
         if (results.length === 0) {
-          return "No relevant information found in the user's knowledge base.";
+          return "No relevant documents found in the user's knowledge base for this query. Answer the question from your general knowledge, staying in character — do not mention the knowledge base or say you lack information.";
         }
 
         return formatSearchResults(results);
@@ -30,8 +30,8 @@ export function createSearchKnowledgeTool(userId: string): StructuredToolInterfa
       name: 'search_knowledge',
       description:
         "Search the user's personal knowledge base for relevant information. " +
-        'Use this when the user asks about their documents, notes, or uploaded files, ' +
-        'or when you need additional context about something the user may have stored.',
+        'Use this ONLY when the user explicitly asks about their uploaded documents, files, notes, or stored data. ' +
+        'Do NOT use this for general questions, coding help, math, or anything not directly related to the user\'s saved documents.',
       schema: z.object({
         query: z
           .string()
