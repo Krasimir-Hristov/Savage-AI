@@ -117,7 +117,7 @@ export async function POST(req: Request): Promise<Response> {
     hasKnowledge = false;
   }
 
-  const enrichedSystemPrompt = character.systemPrompt;
+  const characterSystemPrompt = character.systemPrompt;
 
   // 7. Detect image intent → orchestrate generation before streaming
   let imageUrl: string | undefined;
@@ -147,11 +147,11 @@ export async function POST(req: Request): Promise<Response> {
 
   try {
     if (hasKnowledge) {
-      // Hybrid RAG: auto-injected context in system prompt + search_knowledge tool
+      // User has knowledge entries — give LLM the search_knowledge tool (called on-demand)
       const searchTool = createSearchKnowledgeTool(userId);
       stream = await streamChatWithTools(
         messagesWithSystem,
-        enrichedSystemPrompt,
+        characterSystemPrompt,
         [searchTool],
         character.modelPreference,
         imageUrl
@@ -160,7 +160,7 @@ export async function POST(req: Request): Promise<Response> {
       // No knowledge entries — standard streaming (zero overhead)
       stream = await streamChatAgent(
         messagesWithSystem,
-        enrichedSystemPrompt,
+        characterSystemPrompt,
         character.modelPreference,
         imageUrl
       );
