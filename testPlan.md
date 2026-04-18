@@ -222,7 +222,7 @@ savageai/
 
 > **Why first?** Schemas are pure functions without dependencies. Test easily and prevent regression on API contract changes.
 
-- [ ] **Step 1.1: Auth schemas** (`auth.schema.test.ts`)
+- [x] **Step 1.1: Auth schemas** (`auth.schema.test.ts`)
   - ✅ `loginSchema` — valid email + password ≥ 8 chars
   - ❌ Invalid email, short password, missing fields
   - ❌ XSS in email field, SQL injection strings
