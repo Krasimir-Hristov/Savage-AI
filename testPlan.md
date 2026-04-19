@@ -128,12 +128,12 @@ savageai/
 
 > **Goal:** Test `src/lib/utils.ts` and similar pure functions.
 
-- [ ] **Step 2.1: cn() utility** (`utils.test.ts`)
+- [x] **Step 2.1: cn() utility** (`utils.test.ts`)
   - ✅ Merges class names correctly
   - ✅ Handles conditional classes
   - ✅ Overrides conflicting Tailwind classes
 
-- [ ] **Step 2.2: formatDate() utility**
+- [x] **Step 2.2: formatDate() utility**
   - ✅ Formats timestamps
   - ✅ Handles edge cases (today, yesterday)
 
