@@ -16,6 +16,10 @@ vi.mock('@/lib/supabase/server', () => ({
   createClient: mockCreateClient,
 }));
 
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
+}));
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -122,11 +126,21 @@ describe('logoutAction', () => {
   });
 
   describe('successful logout', () => {
-    it('calls signOut and then redirect("/login")', async () => {
+    it('awaits signOut before calling redirect("/login")', async () => {
+      // Resolve on the next microtask tick — forces the code to actually await.
+      mockSupabase.auth.signOut = vi
+        .fn()
+        .mockReturnValue(Promise.resolve().then(() => ({ error: null })));
+
       await logoutAction();
 
       expect(mockSupabase.auth.signOut).toHaveBeenCalled();
       expect(redirect).toHaveBeenCalledWith('/login');
+
+      // Verify call order: signOut must have been invoked before redirect.
+      expect(mockSupabase.auth.signOut.mock.invocationCallOrder[0]).toBeLessThan(
+        vi.mocked(redirect).mock.invocationCallOrder[0]
+      );
     });
   });
 
@@ -140,6 +154,29 @@ describe('logoutAction', () => {
 
       expect(result.success).toBe(false);
       expect(result.error?.message).toBeTruthy();
+      expect(redirect).not.toHaveBeenCalled();
+    });
+
+    it('returns the error message and code when signOut rejects with {message, code}', async () => {
+      mockSupabase.auth.signOut = vi
+        .fn()
+        .mockRejectedValue({ message: 'Sign out failed', code: 'AUTH_ERROR' });
+
+      const result = await logoutAction();
+
+      expect(result.success).toBe(false);
+      expect(result.error?.message).toBe('Sign out failed');
+      expect(result.error?.code).toBe('AUTH_ERROR');
+      expect(redirect).not.toHaveBeenCalled();
+    });
+
+    it('falls back to default message when signOut rejects without a message', async () => {
+      mockSupabase.auth.signOut = vi.fn().mockRejectedValue({ code: 'UNKNOWN' });
+
+      const result = await logoutAction();
+
+      expect(result.success).toBe(false);
+      expect(result.error?.message).toBe('Failed to sign out. Please try again.');
       expect(redirect).not.toHaveBeenCalled();
     });
   });

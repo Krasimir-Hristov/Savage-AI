@@ -16,6 +16,10 @@ vi.mock('@/lib/supabase/server', () => ({
   createClient: mockCreateClient,
 }));
 
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
+}));
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -44,7 +48,7 @@ describe('signupAction', () => {
   });
 
   describe('successful signup', () => {
-    it('calls redirect("/chat") on valid input', async () => {
+    it('calls signUp with parsed credentials and redirects to /chat', async () => {
       mockSupabase.auth.signUp = vi.fn().mockResolvedValue({ data: {}, error: null });
 
       const formData = makeFormData({
@@ -54,6 +58,11 @@ describe('signupAction', () => {
       });
       await signupAction(initialState, formData);
 
+      expect(mockSupabase.auth.signUp).toHaveBeenCalledWith({
+        email: 'user@example.com',
+        password: 'password123',
+        options: { data: { display_name: 'Test User' } },
+      });
       expect(redirect).toHaveBeenCalledWith('/chat');
     });
   });
