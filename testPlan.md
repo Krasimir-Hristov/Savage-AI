@@ -143,7 +143,7 @@ savageai/
 
 > **Goal:** Test character definitions in `src/features/characters/data/`.
 
-- [ ] **Step 3.1: Character definitions** (`characters.test.ts`)
+- [x] **Step 3.1: Character definitions** (`characters.test.ts`)
   - ✅ Each character has required fields (id, name, systemPrompt, avatar)
   - ✅ System prompts are non-empty strings
   - ✅ Character IDs are unique slugs
@@ -154,21 +154,21 @@ savageai/
 
 > **Goal:** Test auth Server Actions with mocked Supabase.
 
-- [ ] **Step 4.1: loginAction** (`auth.actions.test.ts`)
+- [x] **Step 4.1: loginAction** (`auth.actions.test.ts`)
   - ✅ Successful login → redirect to /chat
   - ❌ Wrong password → returns error
   - ❌ Invalid email format → Zod error (no Supabase call)
   - ❌ Network error → graceful error message
 
-- [ ] **Step 4.2: signupAction** (`signup.action.test.ts`)
+- [x] **Step 4.2: signupAction** (`signup.action.test.ts`)
   - ✅ Successful signup → redirect to /chat
   - ❌ Email already exists → returns error
   - ❌ Weak password → Zod error
   - ❌ Missing fields → Zod error
 
-- [ ] **Step 4.3: logoutAction** (`auth.actions.test.ts`)
+- [x] **Step 4.3: logoutAction** (`auth.actions.test.ts`)
   - ✅ Successful logout → redirect to /login
-  - ❌ Supabase error → still redirects
+  - ❌ Supabase error → returns {success: false}, no redirect (error path exits early)
 
 ---
 
