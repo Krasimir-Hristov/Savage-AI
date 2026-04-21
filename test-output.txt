@@ -1,0 +1,213 @@
+﻿
+> savage-ai@0.1.0 test:run
+> vitest run --reporter=verbose src/features/chat/components/__tests__/chat-message.test.tsx src/features/chat/components/__tests__/chat-input.test.tsx src/features/characters/components/__tests__/character-card.test.tsx src/features/chat/hooks/__tests__/use-chat.test.ts src/lib/__tests__/ratelimit.test.ts src/app/(auth)/__tests__/error.test.tsx src/lib/__tests__/performance.test.ts
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.4 [39m[90mD:/myProjects/savage-ai[39m
+
+node.exe : (node:15916) Warning: `--localstorage-file` was provided without a 
+valid path
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\krasi\AppData\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ((node:15916) Wa...ut a valid path 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11632) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5196) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-message.test.tsx[2m > [22mChatMessage[2m > [22muser message[2m > [22maligns to the right (justify-end)[32m 21[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-message.test.tsx[2m > [22mChatMessage[2m > [22muser message[2m > [22mrenders the user message content[32m 6[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-message.test.tsx[2m > [22mChatMessage[2m > [22muser message[2m > [22mdoes NOT render a character avatar for user messages[32m 2[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-message.test.tsx[2m > [22mChatMessage[2m > [22massistant message[2m > [22maligns to the left (flex gap-3, no justify-end)[32m 48[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-message.test.tsx[2m > [22mChatMessage[2m > [22massistant message[2m > [22mrenders the character avatar[32m 5[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-message.test.tsx[2m > [22mChatMessage[2m > [22massistant message[2m > [22mrenders the character name[32m 4[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-message.test.tsx[2m > [22mChatMessage[2m > [22massistant message[2m > [22mrenders markdown content via ReactMarkdown[32m 3[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-message.test.tsx[2m > [22mChatMessage[2m > [22massistant message[2m > [22mpasses skipHtml to ReactMarkdown (XSS prevention)[32m 2[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-message.test.tsx[2m > [22mChatMessage[2m > [22massistant message[2m > [22mrenders an image when image_url is present[32m 7[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-message.test.tsx[2m > [22mChatMessage[2m > [22massistant message[2m > [22mshows typing indicator when isStreaming and content is empty[32m 5[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-message.test.tsx[2m > [22mChatMessage[2m > [22massistant message[2m > [22mshows cursor blink while streaming with content[32m 4[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-message.test.tsx[2m > [22mChatMessage[2m > [22msecurity ΓÇö XSS prevention[2m > [22mdoes not inject <script> elements from message content[32m 2[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-message.test.tsx[2m > [22mChatMessage[2m > [22msecurity ΓÇö XSS prevention[2m > [22mdoes not inject <img onerror> elements from message content[32m 4[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-message.test.tsx[2m > [22mChatMessage[2m > [22maccessibility[2m > [22massistant avatar has an accessible label with the character name[32m 7[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-input.test.tsx[2m > [22mChatInput[2m > [22mrendering[2m > [22mrenders a textarea[32m 52[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-input.test.tsx[2m > [22mChatInput[2m > [22mrendering[2m > [22mrenders the send button with aria-label="Send message"[32m 11[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-input.test.tsx[2m > [22mChatInput[2m > [22mrendering[2m > [22mrenders the character-specific placeholder[32m 5[2mms[22m[39m
+ [32mΓ£ô[39m src/features/characters/components/__tests__/character-card.test.tsx[2m > [22mCharacterCard[2m > [22mrendering[2m > [22mrenders the character name[32m 41[2mms[22m[39m
+ [32mΓ£ô[39m src/features/characters/components/__tests__/character-card.test.tsx[2m > [22mCharacterCard[2m > [22mrendering[2m > [22mrenders the character personality description[32m 5[2mms[22m[39m
+ [32mΓ£ô[39m src/features/characters/components/__tests__/character-card.test.tsx[2m > [22mCharacterCard[2m > [22mrendering[2m > [22mrenders the avatar image with correct alt text[32m 4[2mms[22m[39m
+ [32mΓ£ô[39m src/features/characters/components/__tests__/character-card.test.tsx[2m > [22mCharacterCard[2m > [22mselection[2m > [22mcalls onSelect with character id when clicked[32m 67[2mms[22m[39m
+ [32mΓ£ô[39m src/features/characters/components/__tests__/character-card.test.tsx[2m > [22mCharacterCard[2m > [22mselection[2m > [22mcalls onSelect when Enter is pressed[32m 32[2mms[22m[39m
+ [32mΓ£ô[39m src/features/characters/components/__tests__/character-card.test.tsx[2m > [22mCharacterCard[2m > [22mselection[2m > [22mcalls onSelect when Space is pressed[32m 17[2mms[22m[39m
+ [32mΓ£ô[39m src/features/characters/components/__tests__/character-card.test.tsx[2m > [22mCharacterCard[2m > [22mselection[2m > [22mshows "Selected" button label when isSelected is true[32m 6[2mms[22m[39m
+ [32mΓ£ô[39m src/features/characters/components/__tests__/character-card.test.tsx[2m > [22mCharacterCard[2m > [22mselection[2m > [22mshows "Select" button label when isSelected is false[32m 3[2mms[22m[39m
+ [32mΓ£ô[39m src/features/characters/components/__tests__/character-card.test.tsx[2m > [22mCharacterCard[2m > [22maccessibility[2m > [22mhas role="button"[32m 5[2mms[22m[39m
+ [32mΓ£ô[39m src/features/characters/components/__tests__/character-card.test.tsx[2m > [22mCharacterCard[2m > [22maccessibility[2m > [22mhas aria-pressed="true" when selected[32m 8[2mms[22m[39m
+ [32mΓ£ô[39m src/features/characters/components/__tests__/character-card.test.tsx[2m > [22mCharacterCard[2m > [22maccessibility[2m > [22mhas aria-pressed="false" when not selected[32m 5[2mms[22m[39m
+ [32mΓ£ô[39m src/features/characters/components/__tests__/character-card.test.tsx[2m > [22mCharacterCard[2m > [22maccessibility[2m > [22mhas aria-disabled="true" and does not call onSelect when disabled[32m 40[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-input.test.tsx[2m > [22mChatInput[2m > [22msending messages[2m > [22mcalls onSend when the send button is clicked[32m 191[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-input.test.tsx[2m > [22mChatInput[2m > [22msending messages[2m > [22mcalls onSend when Enter is pressed (without Shift)[32m 227[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-input.test.tsx[2m > [22mChatInput[2m > [22msending messages[2m > [22mdoes NOT call onSend when Shift+Enter is pressed[32m 238[2mms[22m[39m
+(node:11260) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-input.test.tsx[2m > [22mChatInput[2m > [22msending messages[2m > [22mclears the textarea after send[33m 351[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-input.test.tsx[2m > [22mChatInput[2m > [22msending messages[2m > [22mdoes NOT call onSend for whitespace-only input[32m 117[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-input.test.tsx[2m > [22mChatInput[2m > [22mdisabled states[2m > [22mdisables textarea and send button when isStreaming is true[32m 13[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-input.test.tsx[2m > [22mChatInput[2m > [22mdisabled states[2m > [22mshows "Wait for response..." placeholder when isStreaming[32m 6[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-input.test.tsx[2m > [22mChatInput[2m > [22mdisabled states[2m > [22mdisables textarea when disabled prop is true[32m 12[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-input.test.tsx[2m > [22mChatInput[2m > [22mvoice call button[2m > [22mdoes not render VoiceCallButton when onStartVoiceCall is not provided[32m 7[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-input.test.tsx[2m > [22mChatInput[2m > [22mvoice call button[2m > [22mrenders VoiceCallButton when onStartVoiceCall is provided[32m 5[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-input.test.tsx[2m > [22mChatInput[2m > [22mvoice call button[2m > [22mcalls onStartVoiceCall when voice button is clicked[32m 57[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-input.test.tsx[2m > [22mChatInput[2m > [22maccessibility[2m > [22msend button has accessible name "Send message"[32m 3[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/components/__tests__/chat-input.test.tsx[2m > [22mChatInput[2m > [22maccessibility[2m > [22mtextarea has a placeholder (implicit accessible description)[32m 6[2mms[22m[39m
+(node:17232) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32mΓ£ô[39m src/lib/__tests__/performance.test.ts[2m > [22mSchema validation performance[2m > [22mvalidates 1000 chatRequestSchema payloads in under 100ms[32m 10[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/__tests__/performance.test.ts[2m > [22mSchema validation performance[2m > [22mvalidates 1000 invalid payloads (fast failure) in under 100ms[32m 50[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/__tests__/performance.test.ts[2m > [22mCHARACTERS constant caching[2m > [22mreturns the same object reference on multiple accesses (module-level singleton)[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/__tests__/performance.test.ts[2m > [22mCHARACTERS constant caching[2m > [22mcontains all expected character IDs[32m 1[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/__tests__/performance.test.ts[2m > [22mCHARACTERS constant caching[2m > [22mcharacter objects are frozen-like (properties are stable across accesses)[32m 0[2mms[22m[39m
+[90mstderr[2m | src/app/(auth)/__tests__/error.test.tsx[2m > 
+[22m[2mAuthError boundary[2m > [22m[2mrenders the "Something went wrong" 
+heading
+[22m[39m[AuthError] Error: Test authentication error
+    at D:/myProjects/savage-ai/src/app/(auth)/__tests__/error.test.tsx:19:21
+    at [90mfile:///D:/myProjects/savage-ai/[39mnode_modules/[4m@vitest/runne
+r[24m/dist/chunk-artifact.js:1889:40
+    at runWithSuite [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/[4
+m@vitest/runner[24m/dist/chunk-artifact.js:2258:8[90m)[39m
+    at Object.collect [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/
+[4m@vitest/runner[24m/dist/chunk-artifact.js:1889:10[90m)[39m
+    at Object.collect [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/
+[4m@vitest/runner[24m/dist/chunk-artifact.js:1893:54[90m)[39m
+[90m    at processTicksAndRejections 
+(node:internal/process/task_queues:104:5)[39m
+    at [90mfile:///D:/myProjects/savage-ai/[39mnode_modules/[4m@vitest/runne
+r[24m/dist/chunk-artifact.js:2462:26
+    at collectTests [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/[4
+m@vitest/runner[24m/dist/chunk-artifact.js:2433:3[90m)[39m
+    at startTests [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/[4m@
+vitest/runner[24m/dist/chunk-artifact.js:3277:17[90m)[39m
+    at [90mfile:///D:/myProjects/savage-ai/[39mnode_modules/[4mvitest[24m/d
+ist/chunks/base.Cv_yNPUJ.js:90:5
+
+[90mstderr[2m | src/app/(auth)/__tests__/error.test.tsx[2m > 
+[22m[2mAuthError boundary[2m > [22m[2mrenders a "Try again" button
+[22m[39m[AuthError] Error: Test authentication error
+    at D:/myProjects/savage-ai/src/app/(auth)/__tests__/error.test.tsx:19:21
+    at [90mfile:///D:/myProjects/savage-ai/[39mnode_modules/[4m@vitest/runne
+r[24m/dist/chunk-artifact.js:1889:40
+    at runWithSuite [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/[4
+m@vitest/runner[24m/dist/chunk-artifact.js:2258:8[90m)[39m
+    at Object.collect [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/
+[4m@vitest/runner[24m/dist/chunk-artifact.js:1889:10[90m)[39m
+    at Object.collect [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/
+[4m@vitest/runner[24m/dist/chunk-artifact.js:1893:54[90m)[39m
+[90m    at processTicksAndRejections 
+(node:internal/process/task_queues:104:5)[39m
+    at [90mfile:///D:/myProjects/savage-ai/[39mnode_modules/[4m@vitest/runne
+r[24m/dist/chunk-artifact.js:2462:26
+    at collectTests [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/[4
+m@vitest/runner[24m/dist/chunk-artifact.js:2433:3[90m)[39m
+    at startTests [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/[4m@
+vitest/runner[24m/dist/chunk-artifact.js:3277:17[90m)[39m
+    at [90mfile:///D:/myProjects/savage-ai/[39mnode_modules/[4mvitest[24m/d
+ist/chunks/base.Cv_yNPUJ.js:90:5
+
+[90mstderr[2m | src/app/(auth)/__tests__/error.test.tsx[2m > 
+[22m[2mAuthError boundary[2m > [22m[2mcalls reset() when the "Try again" 
+button is clicked
+[22m[39m[AuthError] Error: Test authentication error
+    at D:/myProjects/savage-ai/src/app/(auth)/__tests__/error.test.tsx:19:21
+    at [90mfile:///D:/myProjects/savage-ai/[39mnode_modules/[4m@vitest/runne
+r[24m/dist/chunk-artifact.js:1889:40
+    at runWithSuite [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/[4
+m@vitest/runner[24m/dist/chunk-artifact.js:2258:8[90m)[39m
+    at Object.collect [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/
+[4m@vitest/runner[24m/dist/chunk-artifact.js:1889:10[90m)[39m
+    at Object.collect [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/
+[4m@vitest/runner[24m/dist/chunk-artifact.js:1893:54[90m)[39m
+[90m    at processTicksAndRejections 
+(node:internal/process/task_queues:104:5)[39m
+    at [90mfile:///D:/myProjects/savage-ai/[39mnode_modules/[4m@vitest/runne
+r[24m/dist/chunk-artifact.js:2462:26
+    at collectTests [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/[4
+m@vitest/runner[24m/dist/chunk-artifact.js:2433:3[90m)[39m
+    at startTests [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/[4m@
+vitest/runner[24m/dist/chunk-artifact.js:3277:17[90m)[39m
+    at [90mfile:///D:/myProjects/savage-ai/[39mnode_modules/[4mvitest[24m/d
+ist/chunks/base.Cv_yNPUJ.js:90:5
+
+ [32mΓ£ô[39m src/app/(auth)/__tests__/error.test.tsx[2m > [22mAuthError boundary[2m > [22mrenders the "Something went wrong" heading[32m 41[2mms[22m[39m
+ [32mΓ£ô[39m src/app/(auth)/__tests__/error.test.tsx[2m > [22mAuthError boundary[2m > [22mrenders a "Try again" button[32m 24[2mms[22m[39m
+[90mstderr[2m | src/app/(auth)/__tests__/error.test.tsx[2m > 
+[22m[2mAuthError boundary[2m > [22m[2mdoes not expose the raw error stack 
+to the user
+[22m[39m[AuthError] [Error: Secret internal error
+  at sensitiveFunction (src/secret.ts:42)]
+
+[90mstderr[2m | src/app/(auth)/__tests__/error.test.tsx[2m > 
+[22m[2mAuthError boundary[2m > [22m[2mrenders an error description to 
+guide the user
+[22m[39m[AuthError] Error: Test authentication error
+    at D:/myProjects/savage-ai/src/app/(auth)/__tests__/error.test.tsx:19:21
+    at [90mfile:///D:/myProjects/savage-ai/[39mnode_modules/[4m@vitest/runne
+r[24m/dist/chunk-artifact.js:1889:40
+    at runWithSuite [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/[4
+m@vitest/runner[24m/dist/chunk-artifact.js:2258:8[90m)[39m
+    at Object.collect [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/
+[4m@vitest/runner[24m/dist/chunk-artifact.js:1889:10[90m)[39m
+    at Object.collect [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/
+[4m@vitest/runner[24m/dist/chunk-artifact.js:1893:54[90m)[39m
+[90m    at processTicksAndRejections 
+(node:internal/process/task_queues:104:5)[39m
+    at [90mfile:///D:/myProjects/savage-ai/[39mnode_modules/[4m@vitest/runne
+r[24m/dist/chunk-artifact.js:2462:26
+    at collectTests [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/[4
+m@vitest/runner[24m/dist/chunk-artifact.js:2433:3[90m)[39m
+    at startTests [90m(file:///D:/myProjects/savage-ai/[39mnode_modules/[4m@
+vitest/runner[24m/dist/chunk-artifact.js:3277:17[90m)[39m
+    at [90mfile:///D:/myProjects/savage-ai/[39mnode_modules/[4mvitest[24m/d
+ist/chunks/base.Cv_yNPUJ.js:90:5
+
+ [32mΓ£ô[39m src/app/(auth)/__tests__/error.test.tsx[2m > [22mAuthError boundary[2m > [22mcalls reset() when the "Try again" button is clicked[32m 74[2mms[22m[39m
+ [32mΓ£ô[39m src/app/(auth)/__tests__/error.test.tsx[2m > [22mAuthError boundary[2m > [22mdoes not expose the raw error stack to the user[32m 5[2mms[22m[39m
+ [32mΓ£ô[39m src/app/(auth)/__tests__/error.test.tsx[2m > [22mAuthError boundary[2m > [22mrenders an error description to guide the user[32m 4[2mms[22m[39m
+(node:9640) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11208) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32mΓ£ô[39m src/features/chat/hooks/__tests__/use-chat.test.ts[2m > [22museChat[2m > [22minitial state[2m > [22mhas empty messages array[32m 19[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/hooks/__tests__/use-chat.test.ts[2m > [22museChat[2m > [22minitial state[2m > [22mis not streaming[32m 2[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/hooks/__tests__/use-chat.test.ts[2m > [22museChat[2m > [22minitial state[2m > [22mhas no error[32m 1[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/hooks/__tests__/use-chat.test.ts[2m > [22museChat[2m > [22minitial state[2m > [22maccepts initialMessages[32m 4[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/hooks/__tests__/use-chat.test.ts[2m > [22museChat[2m > [22msendMessage ΓÇö optimistic updates[2m > [22madds user message immediately (optimistic)[32m 7[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/hooks/__tests__/use-chat.test.ts[2m > [22museChat[2m > [22msendMessage ΓÇö optimistic updates[2m > [22madds empty assistant placeholder while streaming[32m 4[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/hooks/__tests__/use-chat.test.ts[2m > [22museChat[2m > [22msendMessage ΓÇö optimistic updates[2m > [22msets isStreaming to true while waiting for response[32m 2[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/hooks/__tests__/use-chat.test.ts[2m > [22museChat[2m > [22msendMessage ΓÇö streaming response[2m > [22maccumulates chunks into the assistant message[32m 2[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/hooks/__tests__/use-chat.test.ts[2m > [22museChat[2m > [22msendMessage ΓÇö streaming response[2m > [22msets isStreaming to false after streaming completes[32m 2[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/hooks/__tests__/use-chat.test.ts[2m > [22museChat[2m > [22msendMessage ΓÇö streaming response[2m > [22mremoves empty assistant message if stream yields no content[32m 2[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/hooks/__tests__/use-chat.test.ts[2m > [22museChat[2m > [22msendMessage ΓÇö error handling[2m > [22msets error when the server returns a non-OK response[32m 2[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/hooks/__tests__/use-chat.test.ts[2m > [22museChat[2m > [22msendMessage ΓÇö error handling[2m > [22msets error on network failure[32m 1[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/hooks/__tests__/use-chat.test.ts[2m > [22museChat[2m > [22msendMessage ΓÇö error handling[2m > [22mremoves assistant placeholder on error[32m 1[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/hooks/__tests__/use-chat.test.ts[2m > [22museChat[2m > [22msendMessage ΓÇö error handling[2m > [22msets isStreaming to false after an error[32m 1[2mms[22m[39m
+ [32mΓ£ô[39m src/features/chat/hooks/__tests__/use-chat.test.ts[2m > [22museChat[2m > [22mclearMessages[2m > [22mclears all messages[32m 1[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/__tests__/ratelimit.test.ts[2m > [22mgetClientIP()[2m > [22mextracts IP from x-forwarded-for header[32m 3[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/__tests__/ratelimit.test.ts[2m > [22mgetClientIP()[2m > [22mextracts IP from x-real-ip header when x-forwarded-for is absent[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/__tests__/ratelimit.test.ts[2m > [22mgetClientIP()[2m > [22mfalls back to 127.0.0.1 when no IP headers are present[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/__tests__/ratelimit.test.ts[2m > [22mgetClientIP()[2m > [22mprefers x-forwarded-for over x-real-ip[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/__tests__/ratelimit.test.ts[2m > [22mgetClientIP()[2m > [22mtrims whitespace from x-forwarded-for first entry[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/__tests__/ratelimit.test.ts[2m > [22mhandleRateLimit()[2m > [22mreturns success:true and rate-limit headers when under the limit[32m 1[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/__tests__/ratelimit.test.ts[2m > [22mhandleRateLimit()[2m > [22mreturns success:false with a 429 Response when over the limit[32m 1[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/__tests__/ratelimit.test.ts[2m > [22mhandleRateLimit()[2m > [22mincludes Retry-After header in the 429 response[32m 1[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/__tests__/ratelimit.test.ts[2m > [22mhandleRateLimit()[2m > [22m429 response body includes error message and retryAfter[32m 1[2mms[22m[39m
+ [32mΓ£ô[39m src/lib/__tests__/ratelimit.test.ts[2m > [22mhandleRateLimit()[2m > [22mcalls limiter.limit with the provided identifier[32m 2[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m7 passed[39m[22m[90m (7)[39m
+[2m      Tests [22m [1m[32m77 passed[39m[22m[90m (77)[39m
+[2m   Start at [22m 00:38:12
+[2m   Duration [22m 5.91s[2m (transform 577ms, setup 3.35s, import 3.63s, tests 1.97s, environment 4.77s)[22m
+
