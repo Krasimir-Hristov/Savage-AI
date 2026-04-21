@@ -5,8 +5,8 @@ import { mockUserId } from './users';
 // Conversation fixtures
 // ---------------------------------------------------------------------------
 
-export const mockConversationId = 'c1d2e3f4-a5b6-7890-cdef-123456789012';
-export const mockConversationId2 = 'd2e3f4a5-b6c7-8901-defa-234567890123';
+export const mockConversationId = 'c1d2e3f4-a5b6-7890-8def-123456789012';
+export const mockConversationId2 = 'd2e3f4a5-b6c7-8901-8efa-234567890123';
 
 export const mockConversation: Conversation = {
   id: mockConversationId,

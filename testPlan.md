@@ -176,20 +176,21 @@ savageai/
 
 > **Goal:** Test `src/lib/dal.ts` with mocked Supabase client.
 
-- [ ] **Step 5.1: verifySession()** (`dal.test.ts`)
+- [x] **Step 5.1: verifySession()** (`dal.test.ts`)
   - ✅ Valid session → returns user
-  - ❌ No session → redirects to /login
-  - ❌ Expired session → redirects to /login
+  - ✅ No session → redirects to /login
+  - ✅ Auth error → redirects to /login
 
-- [ ] **Step 5.2: getConversations()** (`dal.test.ts`)
+- [x] **Step 5.2: getConversations()** (`dal.test.ts`)
   - ✅ Returns conversations for authenticated user
   - ✅ Returns empty array if no conversations
-  - ❌ Unauthenticated → throws/redirects
+  - ✅ Returns empty array when data is null
+  - ✅ Throws when DB unavailable
 
-- [ ] **Step 5.3: getMessages()** (`dal.test.ts`)
+- [x] **Step 5.3: getMessages()** (`dal.test.ts`)
   - ✅ Returns messages for owned conversation
-  - ❌ Non-existent conversation → returns empty
-  - ❌ Other user's conversation → returns empty (RLS)
+  - ✅ Non-existent conversation → throws
+  - ✅ Other user's conversation → throws Unauthorized (RLS)
 
 ---
 
@@ -197,23 +198,25 @@ savageai/
 
 > **Goal:** Test API route handlers with mocked dependencies.
 
-- [ ] **Step 6.1: POST /api/chat** (`chat/route.test.ts`)
-  - ✅ Valid request → starts streaming response
-  - ❌ Unauthenticated → 401
-  - ❌ Invalid body (Zod) → 400
-  - ❌ Rate limited → 429
-  - ❌ OpenRouter error → 500
+- [x] **Step 6.1: POST /api/chat** (`chat/route.test.ts`)
+  - ✅ Valid request → starts streaming response (200 text/event-stream)
+  - ✅ Unauthenticated → 401
+  - ✅ Invalid body (Zod) → 400
+  - ✅ Rate limited → 429
+  - ✅ OpenRouter error → 502
 
-- [ ] **Step 6.2: GET /api/conversations** (`conversations/route.test.ts`)
-  - ✅ Returns user's conversations
-  - ❌ Unauthenticated → 401
-  - ❌ Rate limited → 429
+- [x] **Step 6.2: GET /api/conversations** (`conversations/route.test.ts`)
+  - ✅ Returns user's conversations (200)
+  - ✅ Passes userId to getConversations
+  - ✅ Unauthenticated → 401
+  - ✅ Rate limited → 429
 
-- [ ] **Step 6.3: POST /api/knowledge** (`knowledge/route.test.ts`)
-  - ✅ Valid upload → creates knowledge entry
-  - ❌ File too large → 400
-  - ❌ Unsupported MIME → 400
-  - ❌ Unauthenticated → 401
+- [x] **Step 6.3: POST /api/knowledge** (`knowledge/route.test.ts`)
+  - ✅ Valid manual entry → 201
+  - ✅ File too large → 400
+  - ✅ Unsupported MIME → 400
+  - ✅ Unauthenticated → 401
+  - ✅ Rate limited → 429
 
 ---
 
