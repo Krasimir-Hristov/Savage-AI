@@ -134,6 +134,7 @@ describe('ChatInput', () => {
       render(<ChatInput {...defaultProps} isStreaming />);
 
       expect(getTextarea()).toBeDisabled();
+      expect(screen.getByLabelText(/send message/i)).toBeDisabled();
     });
 
     it('shows "Wait for response..." placeholder when isStreaming', () => {

@@ -73,14 +73,15 @@ describe('getClientIP()', () => {
 // ---------------------------------------------------------------------------
 
 describe('handleRateLimit()', () => {
-  const FUTURE_RESET = Date.now() + 10_000;
+  // Compute a fresh reset timestamp at call-time to avoid flaky Retry-After values
+  const futureReset = (): number => Date.now() + 10_000;
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('returns success:true and rate-limit headers when under the limit', async () => {
-    mockLimit.mockResolvedValue({ success: true, reset: FUTURE_RESET, remaining: 19 });
+    mockLimit.mockResolvedValue({ success: true, reset: futureReset(), remaining: 19 });
 
     const result = await handleRateLimit(chatRateLimit, '127.0.0.1');
 
@@ -92,7 +93,7 @@ describe('handleRateLimit()', () => {
   });
 
   it('returns success:false with a 429 Response when over the limit', async () => {
-    mockLimit.mockResolvedValue({ success: false, reset: FUTURE_RESET, remaining: 0 });
+    mockLimit.mockResolvedValue({ success: false, reset: futureReset(), remaining: 0 });
 
     const result = await handleRateLimit(chatRateLimit, '127.0.0.1');
 
@@ -103,7 +104,7 @@ describe('handleRateLimit()', () => {
   });
 
   it('includes Retry-After header in the 429 response', async () => {
-    mockLimit.mockResolvedValue({ success: false, reset: FUTURE_RESET, remaining: 0 });
+    mockLimit.mockResolvedValue({ success: false, reset: futureReset(), remaining: 0 });
 
     const result = await handleRateLimit(chatRateLimit, '127.0.0.1');
 
@@ -115,7 +116,7 @@ describe('handleRateLimit()', () => {
   });
 
   it('429 response body includes error message and retryAfter', async () => {
-    mockLimit.mockResolvedValue({ success: false, reset: FUTURE_RESET, remaining: 0 });
+    mockLimit.mockResolvedValue({ success: false, reset: futureReset(), remaining: 0 });
 
     const result = await handleRateLimit(chatRateLimit, '127.0.0.1');
 
@@ -127,7 +128,7 @@ describe('handleRateLimit()', () => {
   });
 
   it('calls limiter.limit with the provided identifier', async () => {
-    mockLimit.mockResolvedValue({ success: true, reset: FUTURE_RESET, remaining: 10 });
+    mockLimit.mockResolvedValue({ success: true, reset: futureReset(), remaining: 10 });
 
     await handleRateLimit(chatRateLimit, '10.20.30.40');
 

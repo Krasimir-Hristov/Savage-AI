@@ -60,6 +60,7 @@ describe('useChat', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   describe('initial state', () => {
@@ -119,11 +120,12 @@ describe('useChat', () => {
 
     it('adds empty assistant placeholder while streaming', async () => {
       // Pause stream so we can inspect mid-flight state
-      let resolveStream!: () => void;
-      const pausedStream = new ReadableStream({
+      let streamController!: ReadableStreamDefaultController<Uint8Array>;
+      const pausedStream = new ReadableStream<Uint8Array>({
         start(controller) {
+          streamController = controller;
           controller.enqueue(new TextEncoder().encode(''));
-          // Never closes until we resolve
+          // Deliberately left open — we close it after assertions
         },
       });
 
@@ -133,8 +135,9 @@ describe('useChat', () => {
 
       const { result } = renderHook(() => useChat());
 
+      let sendPromise!: Promise<void>;
       act(() => {
-        void result.current.sendMessage('Hey', CHARACTER_ID, CONVERSATION_ID);
+        sendPromise = result.current.sendMessage('Hey', CHARACTER_ID, CONVERSATION_ID);
       });
 
       await waitFor(() => {
@@ -144,6 +147,12 @@ describe('useChat', () => {
       const assistantMsg = result.current.messages.find((m) => m.role === 'assistant');
       expect(assistantMsg).toBeDefined();
       expect(assistantMsg?.content).toBe('');
+
+      // Close the stream so the reader can finish and no async work remains
+      streamController.close();
+      await act(async () => {
+        await sendPromise;
+      });
     });
 
     it('sets isStreaming to true while waiting for response', async () => {

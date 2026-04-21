@@ -227,6 +227,11 @@ describe('ChatMessage', () => {
         />
       );
 
+      // skipHtml=true must be forwarded to ReactMarkdown — the real component
+      // uses it to prevent raw HTML from being parsed into DOM elements.
+      // Our mock records it as data-skip-html so we can assert it was passed.
+      const markdown = container.querySelector('[data-testid="markdown"]');
+      expect(markdown).toHaveAttribute('data-skip-html', 'true');
       expect(container.querySelector('script')).not.toBeInTheDocument();
     });
 
@@ -241,9 +246,11 @@ describe('ChatMessage', () => {
         />
       );
 
-      // No img from onerror injection (only our mocked CharacterAvatar img is present)
+      // skipHtml=true is forwarded — real ReactMarkdown won't parse this HTML.
+      const markdown = container.querySelector('[data-testid="markdown"]');
+      expect(markdown).toHaveAttribute('data-skip-html', 'true');
+      // No img with onerror from injected content (only safe mocked avatars present)
       const images = container.querySelectorAll('img');
-      // All images should be from our safe mocks, not injected
       images.forEach((img) => {
         expect(img.getAttribute('onerror')).toBeNull();
       });
