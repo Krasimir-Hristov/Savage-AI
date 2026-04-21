@@ -385,8 +385,8 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: '20', cache: 'npm' }
       - run: npm ci
-      - run: npm run test:run        # Vitest unit tests
-      - run: npm run test:coverage   # Coverage report
+      - run: npm run test:run # Vitest unit tests
+      - run: npm run test:coverage # Coverage report
       # Playwright E2E — add in Phase 15
       # - run: npx playwright install
       # - run: npm run test:e2e
@@ -405,13 +405,13 @@ npm run test:ui       # Browser UI
 
 ## Coverage Targets
 
-| Area                   | Target | Priority |
-| ---------------------- | ------ | -------- |
-| Zod schemas            | 100%   | High     |
-| Server Actions         | 90%    | High     |
-| DAL functions          | 90%    | High     |
-| API routes             | 80%    | High     |
-| React components       | 70%    | Medium   |
-| Custom hooks           | 80%    | Medium   |
-| Utility functions      | 95%    | High     |
-| E2E critical paths     | 100%   | High     |
+| Area               | Target | Priority |
+| ------------------ | ------ | -------- |
+| Zod schemas        | 100%   | High     |
+| Server Actions     | 90%    | High     |
+| DAL functions      | 90%    | High     |
+| API routes         | 80%    | High     |
+| React components   | 70%    | Medium   |
+| Custom hooks       | 80%    | Medium   |
+| Utility functions  | 95%    | High     |
+| E2E critical paths | 100%   | High     |
