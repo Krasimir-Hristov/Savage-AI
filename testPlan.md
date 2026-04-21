@@ -224,20 +224,20 @@ savageai/
 
 > **Goal:** Test UI components with React Testing Library.
 
-- [ ] **Step 7.1: ChatMessage component** (`chat-message.test.tsx`)
+- [x] **Step 7.1: ChatMessage component** (`chat-message.test.tsx`)
   - ✅ Renders user message on right side
   - ✅ Renders assistant message on left side
   - ✅ Renders markdown content correctly
   - ✅ Shows avatar for assistant
 
-- [ ] **Step 7.2: ChatInput component** (`chat-input.test.tsx`)
+- [x] **Step 7.2: ChatInput component** (`chat-input.test.tsx`)
   - ✅ Renders input and send button
   - ✅ Calls onSend when Enter is pressed
   - ✅ Calls onSend when button is clicked
   - ✅ Disabled when isLoading is true
   - ✅ Clears input after send
 
-- [ ] **Step 7.3: CharacterCard component** (`character-card.test.tsx`)
+- [x] **Step 7.3: CharacterCard component** (`character-card.test.tsx`)
   - ✅ Renders character name and avatar
   - ✅ Calls onSelect when clicked
   - ✅ Shows selected state when isSelected
@@ -248,7 +248,7 @@ savageai/
 
 > **Goal:** Test `useChat` and `useCharacters` hooks.
 
-- [ ] **Step 8.1: useChat hook** (`use-chat.test.ts`)
+- [x] **Step 8.1: useChat hook** (`use-chat.test.ts`)
   - ✅ Initial state (empty messages, not loading)
   - ✅ sendMessage adds user message optimistically
   - ✅ Streaming response updates assistant message
@@ -282,12 +282,12 @@ savageai/
 
 > **Goal:** Test rate limiting middleware.
 
-- [ ] **Step 10.1: chatRateLimit** (`ratelimit.test.ts`)
+- [x] **Step 10.1: chatRateLimit** (`ratelimit.test.ts`)
   - ✅ Under limit → request allowed
   - ❌ Over limit (20 req/10s) → 429 returned
   - ✅ Rate limit headers present in response
 
-- [ ] **Step 10.2: getClientIP()** (`ratelimit.test.ts`)
+- [x] **Step 10.2: getClientIP()** (`ratelimit.test.ts`)
   - ✅ Extracts IP from x-forwarded-for
   - ✅ Extracts IP from x-real-ip
   - ✅ Falls back to 'anonymous'
@@ -298,7 +298,7 @@ savageai/
 
 > **Goal:** Test error.tsx boundaries and loading.tsx skeletons.
 
-- [ ] **Step 11.1: Auth error boundary** (`(auth)/error.test.tsx`)
+- [x] **Step 11.1: Auth error boundary** (`(auth)/error.test.tsx`)
   - ✅ Renders error message
   - ✅ Shows retry button
 
@@ -312,7 +312,7 @@ savageai/
 
 > **Goal:** Test security-critical paths.
 
-- [ ] **Step 12.1: XSS prevention**
+- [x] **Step 12.1: XSS prevention**
   - ✅ Message content is escaped in render
   - ✅ Character name is escaped
   - ❌ Script injection → not executed
@@ -328,7 +328,7 @@ savageai/
 
 > **Goal:** Basic a11y checks with jest-axe or similar.
 
-- [ ] **Step 13.1: Chat interface a11y**
+- [x] **Step 13.1: Chat interface a11y**
   - ✅ Input has label/placeholder
   - ✅ Send button has aria-label
   - ✅ Messages have correct roles
@@ -343,10 +343,10 @@ savageai/
 
 > **Goal:** Ensure no major performance regressions.
 
-- [ ] **Step 14.1: Schema validation performance**
+- [x] **Step 14.1: Schema validation performance**
   - ✅ 1000 validations complete in < 100ms
 
-- [ ] **Step 14.2: Character system prompt loading**
+- [x] **Step 14.2: Character system prompt loading**
   - ✅ CHARACTERS constant is cached (not re-evaluated per request)
 
 ---
