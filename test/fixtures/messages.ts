@@ -5,8 +5,8 @@ import { mockConversationId } from './conversations';
 // Message fixtures
 // ---------------------------------------------------------------------------
 
-export const mockMessageId1 = 'e1f2a3b4-c5d6-7890-efab-123456789012';
-export const mockMessageId2 = 'f2a3b4c5-d6e7-8901-fabc-234567890123';
+export const mockMessageId1 = 'e1f2a3b4-c5d6-7890-8fab-123456789012';
+export const mockMessageId2 = 'f2a3b4c5-d6e7-8901-8abc-234567890123';
 export const mockMessageId3 = 'a3b4c5d6-e7f8-9012-abcd-345678901234';
 
 export const mockUserMessage: Message = {
