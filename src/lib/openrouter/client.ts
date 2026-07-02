@@ -1,6 +1,12 @@
 import 'server-only';
 
-import { AIMessage, HumanMessage, SystemMessage, ToolMessage } from '@langchain/core/messages';
+import {
+  AIMessage,
+  AIMessageChunk,
+  HumanMessage,
+  SystemMessage,
+  ToolMessage,
+} from '@langchain/core/messages';
 import type { BaseMessage, BaseMessageChunk } from '@langchain/core/messages';
 import type { StructuredToolInterface } from '@langchain/core/tools';
 import { ChatOpenAI } from '@langchain/openai';
@@ -214,58 +220,84 @@ export async function streamChatWithTools(
         let finalAnswerEmitted = false;
 
         for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-          // Non-streaming invoke to check for tool calls
-          const response: BaseMessageChunk = await llmWithTools.invoke(conversationMessages);
+          // Stream the response so the user sees token-by-token output.
+          // We buffer the content to detect tool calls after the stream ends.
+          const stream = await llmWithTools.stream(conversationMessages);
+          let bufferedContent = '';
+          let hasToolCalls = false;
 
-          const toolCalls = (response as AIMessage).tool_calls;
+          for await (const chunk of stream) {
+            const text = typeof chunk.content === 'string' ? chunk.content : '';
+            bufferedContent += text;
 
-          if (!toolCalls || toolCalls.length === 0) {
-            // Final answer — stream it (strip any leaked tool reasoning)
-            const raw = typeof response.content === 'string' ? response.content : '';
-            const text = stripToolLeakage(raw);
+            // Check if this chunk contains tool call chunks (streaming tool calls)
+            const chunkToolCallChunks = (chunk as AIMessageChunk).tool_call_chunks;
+            if (chunkToolCallChunks && chunkToolCallChunks.length > 0) {
+              hasToolCalls = true;
+            }
+          }
+
+          // If the model emitted tool calls, we need to re-invoke to get structured tool_call objects
+          if (hasToolCalls) {
+            const response: BaseMessageChunk = await llmWithTools.invoke(conversationMessages);
+            const toolCalls = (response as AIMessage).tool_calls;
+
+            if (!toolCalls || toolCalls.length === 0) {
+              // Edge case: tool calls disappeared on re-invoke — treat as final answer
+              const raw = typeof response.content === 'string' ? response.content : '';
+              const text = stripToolLeakage(raw);
+              if (text) {
+                controller.enqueue(encoder.encode(text));
+                finalAnswerEmitted = true;
+              }
+              break;
+            }
+
+            // Emit search indicator
+            controller.enqueue(encoder.encode(RAG_SEARCH_MARKER + '\n'));
+
+            // Execute tool calls
+            conversationMessages.push(response as AIMessage);
+
+            for (const toolCall of toolCalls) {
+              const tool = tools.find((t) => t.name === toolCall.name);
+              if (!tool) {
+                console.warn(`[streamChatWithTools] Unknown tool requested: ${toolCall.name}`);
+                conversationMessages.push(
+                  new ToolMessage({
+                    content: `Tool "${toolCall.name}" is not available.`,
+                    tool_call_id: toolCall.id ?? '',
+                  })
+                );
+                continue;
+              }
+
+              let toolResult: unknown;
+              try {
+                toolResult = await tool.invoke(toolCall.args);
+              } catch (toolError) {
+                console.error(`[streamChatWithTools] Tool ${toolCall.name} failed:`, toolError);
+                toolResult = `Tool execution failed: ${toolError instanceof Error ? toolError.message : 'Unknown error'}`;
+              }
+
+              conversationMessages.push(
+                new ToolMessage({
+                  content: typeof toolResult === 'string' ? toolResult : JSON.stringify(toolResult),
+                  tool_call_id: toolCall.id ?? '',
+                })
+              );
+            }
+
+            // Loop continues — model will see tool results and generate response
+          } else {
+            // No tool calls — this is the final answer. Stream it to the client.
+            const text = stripToolLeakage(bufferedContent);
             if (text) {
               controller.enqueue(encoder.encode(text));
               finalAnswerEmitted = true;
             }
             break;
           }
-
-          // Emit search indicator
-          controller.enqueue(encoder.encode(RAG_SEARCH_MARKER + '\n'));
-
-          // Execute tool calls
-          conversationMessages.push(response as AIMessage);
-
-          for (const toolCall of toolCalls) {
-            const tool = tools.find((t) => t.name === toolCall.name);
-            if (!tool) {
-              console.warn(`[streamChatWithTools] Unknown tool requested: ${toolCall.name}`);
-              conversationMessages.push(
-                new ToolMessage({
-                  content: `Tool "${toolCall.name}" is not available.`,
-                  tool_call_id: toolCall.id ?? '',
-                })
-              );
-              continue;
-            }
-
-            let toolResult: unknown;
-            try {
-              toolResult = await tool.invoke(toolCall.args);
-            } catch (toolError) {
-              console.error(`[streamChatWithTools] Tool ${toolCall.name} failed:`, toolError);
-              toolResult = `Tool execution failed: ${toolError instanceof Error ? toolError.message : 'Unknown error'}`;
-            }
-
-            conversationMessages.push(
-              new ToolMessage({
-                content: typeof toolResult === 'string' ? toolResult : JSON.stringify(toolResult),
-                tool_call_id: toolCall.id ?? '',
-              })
-            );
-          }
-
-          // Loop continues — model will see tool results and generate response
         }
 
         // If loop exhausted or no final text was emitted, send a fallback
