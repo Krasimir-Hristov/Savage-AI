@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  authRateLimit,
-  chatRateLimit,
-  getClientIP,
-  handleRateLimit,
-} from '@/lib/ratelimit';
+import { authRateLimit, chatRateLimit, getClientIP, handleRateLimit } from '@/lib/ratelimit';
 
 // ---------------------------------------------------------------------------
 // Tests
