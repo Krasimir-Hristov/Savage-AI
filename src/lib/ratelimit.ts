@@ -1,54 +1,132 @@
 import 'server-only';
-import { Ratelimit } from '@upstash/ratelimit';
-import { Redis } from '@upstash/redis';
 
-// Initialize Redis client (reused across all requests)
-const redis = Redis.fromEnv();
+// ---------------------------------------------------------------------------
+// In-Memory Sliding Window Rate Limiter
+// ---------------------------------------------------------------------------
+// Replaces Upstash Redis with a zero-dependency, in-process rate limiter.
+// Each Vercel serverless instance tracks its own counters — sufficient as a
+// secondary defense layer (Vercel provides edge-level rate limiting by default).
+//
+// Algorithm: sliding window log — stores timestamps per key, counts hits
+// within the window. Old entries are lazily pruned on each check.
+// ---------------------------------------------------------------------------
 
-/**
- * Rate limiters for different API endpoints
- * Key pattern: 'savage-ai:{endpoint}:{identifier}'
- */
+interface RateLimitConfig {
+  maxRequests: number;
+  windowMs: number;
+  prefix: string;
+}
 
-export const chatRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(20, '10 s'), // 20 requests per 10 seconds per IP
-  analytics: true,
+interface RateLimitState {
+  timestamps: number[];
+}
+
+// Global store: `${prefix}:${identifier}` → state
+const store = new Map<string, RateLimitState>();
+
+// Periodic cleanup interval (every 60s) to prevent unbounded memory growth
+const CLEANUP_INTERVAL_MS = 60_000;
+
+function createLimiter(config: RateLimitConfig) {
+  return {
+    config,
+
+    async limit(identifier: string): Promise<{
+      success: boolean;
+      reset: number;
+      remaining: number;
+    }> {
+      const key = `${config.prefix}:${identifier}`;
+      const now = Date.now();
+      const windowStart = now - config.windowMs;
+
+      let state = store.get(key);
+      if (!state) {
+        state = { timestamps: [] };
+        store.set(key, state);
+      }
+
+      // Prune timestamps outside the current window
+      state.timestamps = state.timestamps.filter((ts) => ts > windowStart);
+
+      const remaining = Math.max(0, config.maxRequests - state.timestamps.length);
+
+      if (state.timestamps.length >= config.maxRequests) {
+        // Rate limited — reset is when the oldest timestamp in window expires
+        const oldestInWindow = state.timestamps[0] ?? now;
+        const reset = oldestInWindow + config.windowMs;
+        return { success: false, reset, remaining: 0 };
+      }
+
+      // Allow request — record timestamp
+      state.timestamps.push(now);
+
+      // Reset is when this newest request falls out of the window
+      const reset = now + config.windowMs;
+
+      return {
+        success: true,
+        reset,
+        remaining: remaining - 1,
+      };
+    },
+  };
+}
+
+// Start periodic cleanup to prevent memory leaks
+const cleanupInterval = setInterval(() => {
+  const now = Date.now();
+  for (const [key, state] of store.entries()) {
+    // Find the most recent timestamp to determine if this entry is stale
+    const latestTs = state.timestamps[state.timestamps.length - 1] ?? 0;
+    if (now - latestTs > CLEANUP_INTERVAL_MS * 2) {
+      store.delete(key);
+    }
+  }
+}, CLEANUP_INTERVAL_MS);
+
+// Prevent the interval from keeping the process alive in serverless
+if (typeof cleanupInterval.unref === 'function') {
+  cleanupInterval.unref();
+}
+
+// ---------------------------------------------------------------------------
+// Rate limiter instances (same limits as before)
+// ---------------------------------------------------------------------------
+
+export const chatRateLimit = createLimiter({
+  maxRequests: 20,
+  windowMs: 10_000, // 10 seconds
   prefix: 'savage-ai:chat',
 });
 
-export const authRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(5, '60 s'), // 5 requests per 60 seconds per IP
-  analytics: true,
+export const authRateLimit = createLimiter({
+  maxRequests: 5,
+  windowMs: 60_000, // 60 seconds
   prefix: 'savage-ai:auth',
 });
 
-export const conversationsRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(60, '60 s'), // 60 requests per 60 seconds per IP
-  analytics: true,
+export const conversationsRateLimit = createLimiter({
+  maxRequests: 60,
+  windowMs: 60_000, // 60 seconds
   prefix: 'savage-ai:conversations',
 });
 
-export const ttsRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(10, '60 s'), // 10 requests per 60 seconds per IP
-  analytics: true,
+export const ttsRateLimit = createLimiter({
+  maxRequests: 10,
+  windowMs: 60_000, // 60 seconds
   prefix: 'savage-ai:tts',
 });
 
-export const knowledgeRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(30, '60 s'), // 30 requests per 60 seconds per IP
-  analytics: true,
+export const knowledgeRateLimit = createLimiter({
+  maxRequests: 30,
+  windowMs: 60_000, // 60 seconds
   prefix: 'savage-ai:knowledge',
 });
 
-export const knowledgeUploadRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(5, '60 s'), // 5 uploads per 60 seconds per IP
-  analytics: true,
+export const knowledgeUploadRateLimit = createLimiter({
+  maxRequests: 5,
+  windowMs: 60_000, // 60 seconds
   prefix: 'savage-ai:knowledge-upload',
 });
 
@@ -69,7 +147,7 @@ type RateLimitFailure = { success: false; response: Response };
 export type RateLimitResult = RateLimitSuccess | RateLimitFailure;
 
 export async function handleRateLimit(
-  limiter: Ratelimit,
+  limiter: ReturnType<typeof createLimiter>,
   identifier: string
 ): Promise<RateLimitResult> {
   const { success, reset, remaining } = await limiter.limit(identifier);

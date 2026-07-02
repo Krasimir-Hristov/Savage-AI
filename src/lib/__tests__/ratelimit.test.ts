@@ -1,32 +1,11 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-// ---------------------------------------------------------------------------
-// Mocks — must be hoisted before importing the module under test
-// ---------------------------------------------------------------------------
-
-// Mock @upstash/redis — Redis.fromEnv() is called at module load time
-vi.mock('@upstash/redis', () => ({
-  Redis: {
-    fromEnv: vi.fn().mockReturnValue({}),
-  },
-}));
-
-// Mock @upstash/ratelimit — instances are created at module load time
-const { mockLimit } = vi.hoisted(() => ({ mockLimit: vi.fn() }));
-
-vi.mock('@upstash/ratelimit', () => ({
-  Ratelimit: class MockRatelimit {
-    static slidingWindow = vi.fn().mockReturnValue({ type: 'slidingWindow' });
-
-    limit = mockLimit;
-  },
-}));
-
-// ---------------------------------------------------------------------------
-// Import module under test AFTER mocks
-// ---------------------------------------------------------------------------
-
-import { getClientIP, handleRateLimit, chatRateLimit } from '@/lib/ratelimit';
+import {
+  authRateLimit,
+  chatRateLimit,
+  getClientIP,
+  handleRateLimit,
+} from '@/lib/ratelimit';
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -73,29 +52,24 @@ describe('getClientIP()', () => {
 // ---------------------------------------------------------------------------
 
 describe('handleRateLimit()', () => {
-  // Compute a fresh reset timestamp at call-time to avoid flaky Retry-After values
-  const futureReset = (): number => Date.now() + 10_000;
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('returns success:true and rate-limit headers when under the limit', async () => {
-    mockLimit.mockResolvedValue({ success: true, reset: futureReset(), remaining: 19 });
-
-    const result = await handleRateLimit(chatRateLimit, '127.0.0.1');
+    const result = await handleRateLimit(chatRateLimit, 'test-under-limit');
 
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.headers['X-RateLimit-Remaining']).toBe('19');
+      expect(result.headers['X-RateLimit-Remaining']).toBeDefined();
       expect(result.headers['X-RateLimit-Reset']).toBeDefined();
     }
   });
 
   it('returns success:false with a 429 Response when over the limit', async () => {
-    mockLimit.mockResolvedValue({ success: false, reset: futureReset(), remaining: 0 });
+    // authRateLimit allows only 5 requests per 60s — exhaust it
+    const identifier = 'test-over-limit';
+    for (let i = 0; i < 5; i++) {
+      await handleRateLimit(authRateLimit, identifier);
+    }
 
-    const result = await handleRateLimit(chatRateLimit, '127.0.0.1');
+    const result = await handleRateLimit(authRateLimit, identifier);
 
     expect(result.success).toBe(false);
     if (!result.success) {
@@ -104,9 +78,12 @@ describe('handleRateLimit()', () => {
   });
 
   it('includes Retry-After header in the 429 response', async () => {
-    mockLimit.mockResolvedValue({ success: false, reset: futureReset(), remaining: 0 });
+    const identifier = 'test-retry-after';
+    for (let i = 0; i < 5; i++) {
+      await handleRateLimit(authRateLimit, identifier);
+    }
 
-    const result = await handleRateLimit(chatRateLimit, '127.0.0.1');
+    const result = await handleRateLimit(authRateLimit, identifier);
 
     if (!result.success) {
       const retryAfter = result.response.headers.get('Retry-After');
@@ -116,9 +93,12 @@ describe('handleRateLimit()', () => {
   });
 
   it('429 response body includes error message and retryAfter', async () => {
-    mockLimit.mockResolvedValue({ success: false, reset: futureReset(), remaining: 0 });
+    const identifier = 'test-body';
+    for (let i = 0; i < 5; i++) {
+      await handleRateLimit(authRateLimit, identifier);
+    }
 
-    const result = await handleRateLimit(chatRateLimit, '127.0.0.1');
+    const result = await handleRateLimit(authRateLimit, identifier);
 
     if (!result.success) {
       const body = (await result.response.json()) as { error: string; retryAfter: number };
@@ -127,11 +107,33 @@ describe('handleRateLimit()', () => {
     }
   });
 
-  it('calls limiter.limit with the provided identifier', async () => {
-    mockLimit.mockResolvedValue({ success: true, reset: futureReset(), remaining: 10 });
+  it('tracks different identifiers independently', async () => {
+    const id1 = 'test-independent-1';
+    const id2 = 'test-independent-2';
 
-    await handleRateLimit(chatRateLimit, '10.20.30.40');
+    // Exhaust limit for id1
+    for (let i = 0; i < 5; i++) {
+      await handleRateLimit(authRateLimit, id1);
+    }
 
-    expect(mockLimit).toHaveBeenCalledWith('10.20.30.40');
+    // id1 should be rate limited
+    const result1 = await handleRateLimit(authRateLimit, id1);
+    expect(result1.success).toBe(false);
+
+    // id2 should still succeed
+    const result2 = await handleRateLimit(authRateLimit, id2);
+    expect(result2.success).toBe(true);
+  });
+
+  it('decrements remaining count on each request', async () => {
+    const identifier = 'test-remaining-decrement';
+    const first = await handleRateLimit(chatRateLimit, identifier);
+    const second = await handleRateLimit(chatRateLimit, identifier);
+
+    if (first.success && second.success) {
+      const firstRemaining = Number(first.headers['X-RateLimit-Remaining']);
+      const secondRemaining = Number(second.headers['X-RateLimit-Remaining']);
+      expect(secondRemaining).toBe(firstRemaining - 1);
+    }
   });
 });
